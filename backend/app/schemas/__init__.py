@@ -57,6 +57,11 @@ from app.schemas.query import (
     QueryGenerationInput,
     SearchQueryGenerationOutput,
 )
+from app.schemas.source import (
+    SourceRankResult,
+    SourceRecord,
+    SourceTierLevel,
+)
 
 __all__ = [
     "Verdict",
@@ -104,4 +109,7 @@ __all__ = [
     "ClaimSearchQueries",
     "SearchQueryGenerationOutput",
     "QueryGenerationInput",
+    "SourceRecord",
+    "SourceRankResult",
+    "SourceTierLevel",
 ]

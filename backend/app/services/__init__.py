@@ -34,6 +34,10 @@ from app.services.query_generator import (
     EvidenceQueryGeneratorService,
     evidence_query_generator_service,
 )
+from app.services.source_registry import (
+    SourceRegistryService,
+    source_registry_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -54,4 +58,6 @@ __all__ = [
     "claim_dependency_service",
     "EvidenceQueryGeneratorService",
     "evidence_query_generator_service",
+    "SourceRegistryService",
+    "source_registry_service",
 ]

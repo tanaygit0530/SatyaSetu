@@ -15,13 +15,17 @@ async def test_health_endpoint():
         assert data["status"] == "ok"
 
 
-@pytest.mark.skip(reason="Sources registry endpoint to be wired in subsequent verification phase")
 @pytest.mark.asyncio
 async def test_sources_registry_endpoint():
     """Integration test: Sources registry returns registered official gazettes and regulators."""
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/api/v1/sources")
         assert response.status_code == 200
+        sources = response.json()
+        assert len(sources) > 0
+        domains = [s["domain"] for s in sources]
+        assert "egazette.gov.in" in domains
+        assert "pib.gov.in" in domains
 
 
 @pytest.mark.skip(reason="Check verification flow to be implemented in verification pipeline phase")

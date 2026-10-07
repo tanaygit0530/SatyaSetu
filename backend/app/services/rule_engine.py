@@ -2,6 +2,7 @@ from typing import List, Tuple
 from app.schemas.enums import SourceTier, TemporalStatus, Verdict
 from app.schemas.claim import ClaimResult, ExtractedClaim
 from app.schemas.evidence import EvidenceItem, EvidenceInterpretation
+from app.services.source_registry import source_registry_service
 from app.core.logging import logger
 
 
@@ -120,7 +121,13 @@ class DeterministicRuleEngine:
             )
 
         # 5. Check for Official Corroboration (Tier-1 Primary Confirmation)
-        tier1_sources = [e for e in evidence_list if e.tier == SourceTier.TIER_1_PRIMARY]
+        # Source trust is evaluated strictly via SourceRegistryService; no hardcoded trust logic in verdict engine.
+        tier1_sources = [
+            e for e in evidence_list
+            if source_registry_service.is_allowed(e.domain or e.url)
+            and (source_registry_service.get_tier(e.domain or e.url) == 1 or e.tier == SourceTier.TIER_1_PRIMARY)
+            and source_registry_service.rank_source(e.domain or e.url).is_authoritative
+        ]
         if interpretation.supports_claim and len(tier1_sources) >= 1:
             logger.info("Rule match: RULE-OFFICIAL-GAZETTE-CORROBORATION on claim %d", claim.claim_number)
             return ClaimResult(
