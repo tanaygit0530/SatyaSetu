@@ -23,3 +23,13 @@ class ScreenshotIngestionResult(BaseModel):
     ocr_confidence: float = Field(..., ge=0.0, le=1.0, description="OCR confidence score [0.0 - 1.0]")
     provider: str = Field(..., description="OCR engine provider that produced result")
     needs_confirmation: bool = Field(default=False, description="True if confidence is low, requiring human confirmation")
+
+
+class VoiceIngestionResult(BaseModel):
+    """Ingested voice note and STT transcription result."""
+    language: str = Field(..., description="Detected vernacular language code (en, hi, mr)")
+    transcript: str = Field(..., description="Transcribed spoken proposition")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Transcription confidence score [0.0 - 1.0]")
+    needs_confirmation: bool = Field(default=False, description="True if transcription is ambiguous or uncertain")
+    duration_seconds: Optional[float] = Field(None, ge=0.0, description="Audio duration in seconds")
+    provider: Optional[str] = Field(default="sarvam", description="STT engine provider")

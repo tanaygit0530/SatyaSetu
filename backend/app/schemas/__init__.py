@@ -24,7 +24,12 @@ from app.schemas.core import (
     VerificationResult,
 )
 from app.schemas.health import HealthResponse
-from app.schemas.ingestion import ScreenshotIngestionResult, TextInput, TextIngestionResult
+from app.schemas.ingestion import (
+    ScreenshotIngestionResult,
+    TextInput,
+    TextIngestionResult,
+    VoiceIngestionResult,
+)
 
 __all__ = [
     "Verdict",
@@ -52,4 +57,5 @@ __all__ = [
     "TextInput",
     "TextIngestionResult",
     "ScreenshotIngestionResult",
+    "VoiceIngestionResult",
 ]

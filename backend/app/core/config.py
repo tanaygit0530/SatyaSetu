@@ -47,5 +47,12 @@ class Settings(BaseSettings):
     TESSERACT_CMD: Optional[str] = None
     GOOGLE_VISION_API_KEY: Optional[str] = None
 
+    # Voice Ingestion & STT Configuration
+    MAX_VOICE_DURATION_SECONDS: float = 60.0  # 60s max for MVP
+    MAX_VOICE_FILE_SIZE_BYTES: int = 15 * 1024 * 1024  # 15 MB
+    STT_CONFIDENCE_THRESHOLD: float = 0.65  # Below 0.65 triggers needs_confirmation
+    SARVAM_API_KEY: Optional[str] = None
+    SARVAM_API_URL: str = "https://api.sarvam.ai/speech-to-text"
+
 
 settings = Settings()
