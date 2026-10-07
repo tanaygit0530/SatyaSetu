@@ -37,6 +37,15 @@ class Settings(BaseSettings):
 
     # Ingestion Constraints
     MAX_TEXT_INPUT_LENGTH: int = 15000
+    MAX_IMAGE_FILE_SIZE_BYTES: int = 10 * 1024 * 1024  # 10 MB
+    ALLOWED_IMAGE_MIME_TYPES: List[str] = Field(
+        default_factory=lambda: ["image/jpeg", "image/png"]
+    )
+
+    # OCR Engine Configuration
+    OCR_CONFIDENCE_THRESHOLD: float = 0.70  # Below 0.70 triggers fallback or needs_confirmation
+    TESSERACT_CMD: Optional[str] = None
+    GOOGLE_VISION_API_KEY: Optional[str] = None
 
 
 settings = Settings()

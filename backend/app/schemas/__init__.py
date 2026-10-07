@@ -24,7 +24,7 @@ from app.schemas.core import (
     VerificationResult,
 )
 from app.schemas.health import HealthResponse
-from app.schemas.ingestion import TextInput, TextIngestionResult
+from app.schemas.ingestion import ScreenshotIngestionResult, TextInput, TextIngestionResult
 
 __all__ = [
     "Verdict",
@@ -51,4 +51,5 @@ __all__ = [
     "HealthResponse",
     "TextInput",
     "TextIngestionResult",
+    "ScreenshotIngestionResult",
 ]
