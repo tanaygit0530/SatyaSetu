@@ -72,6 +72,10 @@ from app.services.confidence_engine import (
     ConfidenceEngine,
     confidence_engine,
 )
+from app.services.explanation_generator import (
+    ExplanationGeneratorService,
+    explanation_generator_service,
+)
 
 
 __all__ = [
@@ -115,4 +119,6 @@ __all__ = [
     "deterministic_rule_engine",
     "ConfidenceEngine",
     "confidence_engine",
+    "ExplanationGeneratorService",
+    "explanation_generator_service",
 ]

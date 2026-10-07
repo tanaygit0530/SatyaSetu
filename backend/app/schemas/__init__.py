@@ -101,6 +101,10 @@ from app.schemas.confidence import (
     MessageConfidenceInput,
     MessageConfidenceOutput,
 )
+from app.schemas.explanation import (
+    ExplanationInput,
+    ExplanationOutput,
+)
 
 __all__ = [
     "Verdict",
@@ -180,4 +184,6 @@ __all__ = [
     "ClaimConfidenceItem",
     "MessageConfidenceInput",
     "MessageConfidenceOutput",
+    "ExplanationInput",
+    "ExplanationOutput",
 ]

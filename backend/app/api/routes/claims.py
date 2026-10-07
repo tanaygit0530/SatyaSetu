@@ -33,6 +33,10 @@ from app.schemas.confidence import (
     MessageConfidenceInput,
     MessageConfidenceOutput,
 )
+from app.schemas.explanation import (
+    ExplanationInput,
+    ExplanationOutput,
+)
 from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
@@ -46,6 +50,7 @@ from app.services.evidence_judge import evidence_judge_service
 from app.services.temporal_verification import temporal_verification_service
 from app.services.rule_engine import DeterministicRuleEngine
 from app.services.confidence_engine import confidence_engine
+from app.services.explanation_generator import explanation_generator_service
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -262,6 +267,31 @@ async def message_confidence_endpoint(payload: MessageConfidenceInput) -> Messag
     - Limited by the weakest important claim.
     """
     return confidence_engine.calculate_message_confidence_detailed(payload.claims)
+
+
+@router.post(
+    "/generate-explanation",
+    response_model=ExplanationOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Generate forensic explanation under 80 words with factual grounding",
+    description="Generated AFTER verdict. Ensures every number/date exists in claim or evidence. Regenerates once if invalid, then falls back to safe template.",
+)
+async def generate_explanation_endpoint(payload: ExplanationInput) -> ExplanationOutput:
+    """
+    Executes Explanation Generation:
+    - Generated AFTER the verdict.
+    - Simple explanation strictly under 80 words.
+    - Validates that every factual number/date exists in claim or validated evidence.
+    - Regenerates once on failure, then falls back to safe template.
+    """
+    return explanation_generator_service.generate_explanation(
+        claim=payload.claim,
+        verdict=payload.verdict,
+        validated_evidence=payload.validated_evidence,
+        rule_trace=payload.rule_trace,
+        temporal_status=payload.temporal_status,
+    )
+
 
 
 
