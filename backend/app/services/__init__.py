@@ -48,6 +48,10 @@ from app.services.retrieval import (
     WebSearchProvider,
     evidence_retrieval_pipeline,
 )
+from app.services.evidence_extractor import (
+    EvidenceExtractorService,
+    evidence_extractor_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -78,4 +82,6 @@ __all__ = [
     "CompositeWebSearchProvider",
     "EvidenceRetrievalPipeline",
     "evidence_retrieval_pipeline",
+    "EvidenceExtractorService",
+    "evidence_extractor_service",
 ]

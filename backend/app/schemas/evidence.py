@@ -1,11 +1,101 @@
-from typing import Optional
-from datetime import datetime
-from pydantic import BaseModel, Field, HttpUrl
+from datetime import datetime, timezone
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 from app.schemas.enums import SourceTier
 
 
+class RetrievedSource(BaseModel):
+    """
+    Stage 1: Retrieved Evidence.
+    A document, page, or statutory bulletin fetched from the web, fact-check tool, or official portal.
+    """
+    source_id: Optional[str] = Field(None, description="Authoritative registry source identifier (e.g. src_npci)")
+    url: str = Field(..., description="Canonical source URL (strictly verified, never invented)")
+    title: Optional[str] = Field(None, description="Document or article headline")
+    publisher: Optional[str] = Field(None, description="Issuing authority or news publication")
+    domain: Optional[str] = Field(None, description="Domain name (e.g. npci.org.in)")
+    published_date: Optional[str] = Field(None, description="Publication date string (ISO or YYYY-MM-DD)")
+    retrieved_date: Optional[str] = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="ISO timestamp when the source was retrieved",
+    )
+    text: str = Field(..., description="Full text or extracted article body")
+    tier: Optional[int] = Field(None, description="Optional precedence tier (1, 2, or 3)")
+
+    @field_validator("url")
+    @classmethod
+    def validate_url_present(cls, v: str) -> str:
+        clean = v.strip()
+        if not clean.startswith("http://") and not clean.startswith("https://"):
+            raise ValueError(f"Invalid source URL '{v}'. Must be a valid HTTP/HTTPS URL.")
+        return clean
+
+
+class EvidenceCandidate(BaseModel):
+    """
+    Stage 2: Candidate Evidence.
+    Relevant passages, quotes, and metadata extracted from a retrieved source for a claim.
+    CRITICAL: This is candidate evidence and has NOT yet been validated against statutory rules.
+    """
+    candidate_id: str = Field(..., description="Unique candidate identifier (e.g. cand_001)")
+    claim_id: Optional[str] = Field(None, description="Atomic claim identifier")
+    claim_text: str = Field(..., description="Target claim statement being evaluated")
+    source_id: str = Field(..., description="Stored source identifier (e.g. src_npci, src_pib_gov_in)")
+    title: str = Field(..., description="Extracted document title")
+    publisher: str = Field(..., description="Extracted publisher name")
+    url: str = Field(..., description="Source URL strictly bound to the retrieved document (never invented)")
+    published_date: Optional[str] = Field(None, description="Document publication date")
+    retrieved_date: str = Field(..., description="Timestamp when original document was fetched")
+    relevant_text: str = Field(..., description="Contextual passage or paragraph identified as relevant to the claim")
+    candidate_quotes: List[str] = Field(
+        default_factory=list,
+        description="Candidate quote(s) identified in the passage that directly relate to the claim",
+    )
+    relevance_score: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Semantic or lexical relevance score of the passage to the claim",
+    )
+    stance_hint: Optional[str] = Field(
+        None,
+        description="Preliminary stance hint: REFUTES (supports FALSE verdict), SUPPORTS, or NEUTRAL",
+    )
+    is_validated: bool = Field(
+        default=False,
+        description="Explicit guarantee: candidate evidence is NOT yet marked as validated evidence",
+    )
+    validation_notes: Optional[str] = Field(
+        default="Candidate evidence pending statutory and temporal rule engine validation.",
+        description="Status notes regarding validation stage",
+    )
+
+
+class EvidenceExtractionInput(BaseModel):
+    """Input payload for extracting candidate evidence from retrieved sources."""
+    claim_text: str = Field(..., min_length=3, description="Claim statement")
+    claim_id: Optional[str] = Field("clm_001", description="Claim identifier")
+    retrieved_sources: List[RetrievedSource] = Field(
+        ...,
+        description="List of retrieved documents to extract candidates from",
+    )
+
+
+class EvidenceExtractionOutput(BaseModel):
+    """Structured output containing extracted candidate evidence."""
+    claim_text: str = Field(..., description="Claim statement")
+    candidates: List[EvidenceCandidate] = Field(
+        default_factory=list,
+        description="Extracted candidate evidence items",
+    )
+    total_candidates: int = Field(default=0, ge=0)
+
+
 class EvidenceItem(BaseModel):
-    """A documentary or statutory citation retrieved from official registries."""
+    """
+    Stage 3: Validated Evidence.
+    A statutory citation that has passed validation against government registries.
+    """
     id: str = Field(..., description="Unique evidence citation ID (e.g. CIT-01)")
     publisher: str = Field(..., description="Issuing body (e.g. The Gazette of India, PIB Fact Check)")
     domain: str = Field(..., description="Official registrar domain (e.g. egazette.gov.in)")

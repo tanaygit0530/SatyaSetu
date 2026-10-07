@@ -62,6 +62,14 @@ from app.schemas.source import (
     SourceRecord,
     SourceTierLevel,
 )
+from app.schemas.evidence import (
+    EvidenceCandidate,
+    EvidenceExtractionInput,
+    EvidenceExtractionOutput,
+    EvidenceInterpretation,
+    EvidenceItem,
+    RetrievedSource,
+)
 from app.schemas.retrieval import (
     CandidateEvidence,
     RetrievalInput,
@@ -120,4 +128,10 @@ __all__ = [
     "CandidateEvidence",
     "RetrievalPipelineOutput",
     "RetrievalInput",
+    "RetrievedSource",
+    "EvidenceCandidate",
+    "EvidenceExtractionInput",
+    "EvidenceExtractionOutput",
+    "EvidenceItem",
+    "EvidenceInterpretation",
 ]

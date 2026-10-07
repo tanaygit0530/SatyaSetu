@@ -8,6 +8,10 @@ from app.schemas.dependency import (
     ClaimDependencyGraph,
     DependencyAnalysisInput,
 )
+from app.schemas.evidence import (
+    EvidenceExtractionInput,
+    EvidenceExtractionOutput,
+)
 from app.schemas.query import (
     ClaimSearchQueries,
     QueryGenerationInput,
@@ -21,6 +25,7 @@ from app.services.claim_extractor import claim_extractor_service
 from app.services.claim_dependency import claim_dependency_service
 from app.services.query_generator import evidence_query_generator_service
 from app.services.retrieval import evidence_retrieval_pipeline
+from app.services.evidence_extractor import evidence_extractor_service
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -105,6 +110,31 @@ async def retrieve_evidence_endpoint(payload: RetrievalInput) -> RetrievalPipeli
         claim_text=payload.claim_text,
         language=payload.language,
         max_candidates=payload.max_results,
+    )
+
+
+@router.post(
+    "/extract-evidence",
+    response_model=EvidenceExtractionOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Extract candidate evidence from retrieved sources",
+    description="Extracts relevant passages, candidate quotes, source IDs, and uninvented URLs for a claim. Does not mark candidates as validated evidence.",
+)
+async def extract_evidence_endpoint(payload: EvidenceExtractionInput) -> EvidenceExtractionOutput:
+    """
+    Executes Stage 2: Candidate Evidence Extraction.
+    Extracts title, publisher, URL, published date, retrieved date, relevant text, and candidate quotes.
+    Candidate evidence is explicitly marked is_validated=False.
+    """
+    candidates = evidence_extractor_service.extract_candidates(
+        claim_text=payload.claim_text,
+        sources=payload.retrieved_sources,
+        claim_id=payload.claim_id,
+    )
+    return EvidenceExtractionOutput(
+        claim_text=payload.claim_text,
+        candidates=candidates,
+        total_candidates=len(candidates),
     )
 
 
