@@ -22,6 +22,10 @@ from app.services.language_detection import (
     LanguageDetectorService,
     language_detector_service,
 )
+from app.services.claim_extractor import (
+    ClaimExtractorService,
+    claim_extractor_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -36,4 +40,6 @@ __all__ = [
     "url_ingestion_service",
     "LanguageDetectorService",
     "language_detector_service",
+    "ClaimExtractorService",
+    "claim_extractor_service",
 ]

@@ -63,3 +63,33 @@ class DatabaseOperationError(SachCheckException):
             status_code=500,
             details=details,
         )
+
+
+class ProviderUnavailableException(SachCheckException):
+    """Raised when an external AI/OCR/STT provider is unconfigured or unavailable."""
+    def __init__(self, provider_name: str, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=f"Provider '{provider_name}' is unavailable: {message}",
+            code="PROVIDER_UNAVAILABLE",
+            status_code=503,
+            details=details or {"provider": provider_name},
+        )
+
+
+class CheckNotFoundException(ResourceNotFoundException):
+    """Raised when a specific verification check dossier is not found."""
+    def __init__(self, check_id: str):
+        super().__init__(resource_name="Verification Check", resource_id=check_id)
+
+
+class PromptInjectionDetectedException(SachCheckException):
+    """Raised when adversarial prompt injection patterns are detected in input."""
+    def __init__(self, message: str = "Adversarial prompt injection pattern detected in input.", details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            code="PROMPT_INJECTION_DETECTED",
+            status_code=400,
+            details=details,
+        )
+
+

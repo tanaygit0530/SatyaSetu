@@ -34,6 +34,12 @@ from app.schemas.ingestion import (
     URLIngestionResult,
     VoiceIngestionResult,
 )
+from app.schemas.claim import (
+    AtomicClaim,
+    AtomicClaimsOutput,
+    ClaimExtractionInput,
+    ExtractedClaim,
+)
 from app.schemas.language import (
     ClaimRepresentation,
     LanguageDetectionInput,
@@ -76,4 +82,8 @@ __all__ = [
     "LanguageDetectionResult",
     "LanguageNeutralFacts",
     "ClaimRepresentation",
+    "AtomicClaim",
+    "AtomicClaimsOutput",
+    "ClaimExtractionInput",
+    "ExtractedClaim",
 ]

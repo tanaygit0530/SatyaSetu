@@ -65,5 +65,12 @@ class Settings(BaseSettings):
     URL_MAX_RESPONSE_BYTES: int = 5 * 1024 * 1024  # 5 MB
     URL_MAX_REDIRECTS: int = 5
 
+    # LLM Structured Extraction Configuration
+    LLM_PROVIDER: str = "gemini"
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+    OPENAI_API_KEY: Optional[str] = None
+    DEMO_MODE: bool = False
+
 
 settings = Settings()
