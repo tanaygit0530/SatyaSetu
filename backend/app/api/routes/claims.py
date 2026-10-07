@@ -8,10 +8,16 @@ from app.schemas.dependency import (
     ClaimDependencyGraph,
     DependencyAnalysisInput,
 )
+from app.schemas.query import (
+    ClaimSearchQueries,
+    QueryGenerationInput,
+    SearchQueryGenerationOutput,
+)
 from app.services.claim_extractor import claim_extractor_service
 from app.services.claim_dependency import claim_dependency_service
+from app.services.query_generator import evidence_query_generator_service
 
-router = APIRouter(prefix="/claims", tags=["Claim Extraction & Dependency Analysis"])
+router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
 
 @router.post(
@@ -48,4 +54,33 @@ async def analyze_dependencies_endpoint(payload: DependencyAnalysisInput) -> Cla
     - Produces topological execution order for verification
     """
     return claim_dependency_service.analyze_dependencies(payload.claims)
+
+
+@router.post(
+    "/generate-queries",
+    response_model=SearchQueryGenerationOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Generate 5-dimensional evidence search queries for claims",
+    description="Generates original, English, entity-focused, number/date-aware, and contradiction queries with deduplication without browsing the web.",
+)
+async def generate_queries_endpoint(payload: QueryGenerationInput) -> SearchQueryGenerationOutput:
+    """
+    Generates structured search queries across 5 dimensions:
+    1. Original-language query
+    2. English query
+    3. Entity-focused query
+    4. Number/date-aware query
+    5. Contradiction query
+    Includes automatic deduplication.
+    """
+    if payload.claims:
+        return evidence_query_generator_service.generate_queries_batch(payload.claims)
+    if payload.claim_text:
+        single_res = evidence_query_generator_service.generate_queries_for_claim(payload.claim_text)
+        return SearchQueryGenerationOutput(
+            claim_queries=[single_res],
+            total_unique_queries=len(single_res.all_queries),
+        )
+    return SearchQueryGenerationOutput(claim_queries=[], total_unique_queries=0)
+
 

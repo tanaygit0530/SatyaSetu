@@ -30,6 +30,10 @@ from app.services.claim_dependency import (
     ClaimDependencyService,
     claim_dependency_service,
 )
+from app.services.query_generator import (
+    EvidenceQueryGeneratorService,
+    evidence_query_generator_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -48,4 +52,6 @@ __all__ = [
     "claim_extractor_service",
     "ClaimDependencyService",
     "claim_dependency_service",
+    "EvidenceQueryGeneratorService",
+    "evidence_query_generator_service",
 ]

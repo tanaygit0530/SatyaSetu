@@ -52,6 +52,11 @@ from app.schemas.dependency import (
     DependencyAnalysisInput,
     DependencyRelationship,
 )
+from app.schemas.query import (
+    ClaimSearchQueries,
+    QueryGenerationInput,
+    SearchQueryGenerationOutput,
+)
 
 __all__ = [
     "Verdict",
@@ -96,4 +101,7 @@ __all__ = [
     "ClaimDependency",
     "ClaimDependencyGraph",
     "DependencyAnalysisInput",
+    "ClaimSearchQueries",
+    "SearchQueryGenerationOutput",
+    "QueryGenerationInput",
 ]
