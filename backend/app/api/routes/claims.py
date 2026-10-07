@@ -17,6 +17,10 @@ from app.schemas.query import (
     QueryGenerationInput,
     SearchQueryGenerationOutput,
 )
+from app.schemas.judge import (
+    JudgeEvaluationInput,
+    JudgeEvaluationOutput,
+)
 from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
@@ -26,6 +30,7 @@ from app.services.claim_dependency import claim_dependency_service
 from app.services.query_generator import evidence_query_generator_service
 from app.services.retrieval import evidence_retrieval_pipeline
 from app.services.evidence_extractor import evidence_extractor_service
+from app.services.evidence_judge import evidence_judge_service
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -135,6 +140,31 @@ async def extract_evidence_endpoint(payload: EvidenceExtractionInput) -> Evidenc
         claim_text=payload.claim_text,
         candidates=candidates,
         total_candidates=len(candidates),
+    )
+
+
+@router.post(
+    "/judge-evidence",
+    response_model=JudgeEvaluationOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Evaluate evidence stance using sandboxed Evidence Judge",
+    description="Judges evidence stance (SUPPORTS, CONTRADICTS, MIXED, IRRELEVANT) without deciding final verdict, browsing, or inventing URLs.",
+)
+async def judge_evidence_endpoint(payload: JudgeEvaluationInput) -> JudgeEvaluationOutput:
+    """
+    Executes Evidence Judge:
+    - Sandboxed view: sees ONLY claim, validated quotes, IDs, and source metadata.
+    - Strictly prohibited from browsing, creating URLs, or deciding TRUE/FALSE verdicts.
+    - Defense against prompt injection inside quotes.
+    - Returns structured JSON assessments passed to deterministic code.
+    """
+    assessments = evidence_judge_service.judge_evidence_batch(
+        claim_text=payload.claim_text,
+        evidence_items=payload.evidence_items,
+    )
+    return JudgeEvaluationOutput(
+        claim_text=payload.claim_text,
+        assessments=assessments,
     )
 
 

@@ -77,6 +77,14 @@ from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
 )
+from app.schemas.judge import (
+    EvidenceAssessmentLevel,
+    EvidenceJudgeAssessment,
+    EvidenceStance,
+    JudgeEvidenceInputItem,
+    JudgeEvaluationInput,
+    JudgeEvaluationOutput,
+)
 
 __all__ = [
     "Verdict",
@@ -138,4 +146,10 @@ __all__ = [
     "EvidenceInterpretation",
     "LockedEvidenceItem",
     "GroundingValidationResult",
+    "EvidenceStance",
+    "EvidenceAssessmentLevel",
+    "EvidenceJudgeAssessment",
+    "JudgeEvidenceInputItem",
+    "JudgeEvaluationInput",
+    "JudgeEvaluationOutput",
 ]

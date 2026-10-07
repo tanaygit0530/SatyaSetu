@@ -56,6 +56,10 @@ from app.services.evidence_locking import (
     EvidenceLockingService,
     evidence_locking_service,
 )
+from app.services.evidence_judge import (
+    EvidenceJudgeService,
+    evidence_judge_service,
+)
 
 
 __all__ = [
@@ -91,4 +95,6 @@ __all__ = [
     "evidence_extractor_service",
     "EvidenceLockingService",
     "evidence_locking_service",
+    "EvidenceJudgeService",
+    "evidence_judge_service",
 ]
