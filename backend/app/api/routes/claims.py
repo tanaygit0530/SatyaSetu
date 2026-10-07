@@ -13,9 +13,14 @@ from app.schemas.query import (
     QueryGenerationInput,
     SearchQueryGenerationOutput,
 )
+from app.schemas.retrieval import (
+    RetrievalInput,
+    RetrievalPipelineOutput,
+)
 from app.services.claim_extractor import claim_extractor_service
 from app.services.claim_dependency import claim_dependency_service
 from app.services.query_generator import evidence_query_generator_service
+from app.services.retrieval import evidence_retrieval_pipeline
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -82,5 +87,24 @@ async def generate_queries_endpoint(payload: QueryGenerationInput) -> SearchQuer
             total_unique_queries=len(single_res.all_queries),
         )
     return SearchQueryGenerationOutput(claim_queries=[], total_unique_queries=0)
+
+
+@router.post(
+    "/retrieve-evidence",
+    response_model=RetrievalPipelineOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Execute multi-provider evidence retrieval pipeline",
+    description="Orchestrates Fact Check API, search API, candidate deduplication, source ranking, page fetch, and quote extraction.",
+)
+async def retrieve_evidence_endpoint(payload: RetrievalInput) -> RetrievalPipelineOutput:
+    """
+    Executes the 8-stage evidence retrieval pipeline:
+    claim -> Fact Check API -> search API -> deduplicate -> rank -> fetch -> extract.
+    """
+    return evidence_retrieval_pipeline.retrieve_evidence_for_claim(
+        claim_text=payload.claim_text,
+        language=payload.language,
+        max_candidates=payload.max_results,
+    )
 
 

@@ -72,5 +72,14 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     DEMO_MODE: bool = False
 
+    # Evidence Retrieval & Search Providers Configuration
+    GOOGLE_FACT_CHECK_API_KEY: Optional[str] = None
+    GOOGLE_FACT_CHECK_API_URL: str = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
+    TAVILY_API_KEY: Optional[str] = None
+    TAVILY_API_URL: str = "https://api.tavily.com/search"
+    SEARCH_PROVIDER: str = "tavily"
+    MAX_RETRIEVAL_CANDIDATES: int = 10
+    MAX_EVIDENCE_ITEMS: int = 5
+
 
 settings = Settings()

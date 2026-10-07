@@ -38,6 +38,16 @@ from app.services.source_registry import (
     SourceRegistryService,
     source_registry_service,
 )
+from app.services.retrieval import (
+    CompositeWebSearchProvider,
+    DuckDuckGoSearchProvider,
+    EvidenceRetrievalPipeline,
+    FactCheckProvider,
+    GoogleFactCheckProvider,
+    TavilySearchProvider,
+    WebSearchProvider,
+    evidence_retrieval_pipeline,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -60,4 +70,12 @@ __all__ = [
     "evidence_query_generator_service",
     "SourceRegistryService",
     "source_registry_service",
+    "FactCheckProvider",
+    "WebSearchProvider",
+    "GoogleFactCheckProvider",
+    "TavilySearchProvider",
+    "DuckDuckGoSearchProvider",
+    "CompositeWebSearchProvider",
+    "EvidenceRetrievalPipeline",
+    "evidence_retrieval_pipeline",
 ]

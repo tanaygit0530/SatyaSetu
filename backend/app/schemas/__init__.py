@@ -62,6 +62,11 @@ from app.schemas.source import (
     SourceRecord,
     SourceTierLevel,
 )
+from app.schemas.retrieval import (
+    CandidateEvidence,
+    RetrievalInput,
+    RetrievalPipelineOutput,
+)
 
 __all__ = [
     "Verdict",
@@ -112,4 +117,7 @@ __all__ = [
     "SourceRecord",
     "SourceRankResult",
     "SourceTierLevel",
+    "CandidateEvidence",
+    "RetrievalPipelineOutput",
+    "RetrievalInput",
 ]
