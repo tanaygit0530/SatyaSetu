@@ -118,3 +118,32 @@ class EvidenceInterpretation(BaseModel):
     actual_amount: Optional[float] = Field(None, description="Verified numerical or financial figure in record")
     domain_flagged_malicious: bool = Field(default=False, description="Whether URL/domain is on CERT-In blacklist")
     discrepancy_explanation: Optional[str] = Field(None, description="Detailed explanation of discrepancy")
+
+
+class LockedEvidenceItem(BaseModel):
+    """
+    Locked / Grounded Evidence Item.
+    Guarantees that exact_quote is verbatim grounded in the stored source text.
+    """
+    source_url: str = Field(..., description="Canonical source URL")
+    source_title: str = Field(..., description="Document or article headline")
+    publisher: str = Field(..., description="Issuing authority or publisher")
+    published_date: Optional[str] = Field(None, description="Publication date string")
+    retrieved_at: str = Field(..., description="Timestamp when original document was retrieved")
+    source_tier: int = Field(..., description="Precedence tier of source (1, 2, or 3)")
+    exact_quote: str = Field(..., description="Verbatim quote strictly grounded in source text")
+    source_text_reference: str = Field(..., description="Reference pointer / offset location in the source text")
+    claim_relation: str = Field(..., description="Stance or relation to the claim: SUPPORTS, REFUTES, or NEUTRAL")
+
+
+class GroundingValidationResult(BaseModel):
+    """
+    Result returned by the Grounding Validator.
+    If quote does not exist in stored source text:
+    valid is False and reason is 'QUOTE_NOT_FOUND'.
+    """
+    valid: bool = Field(..., description="Whether quote is strictly grounded in stored source text")
+    reason: Optional[str] = Field(None, description="Failure reason (e.g. 'QUOTE_NOT_FOUND') if invalid")
+    source_text_reference: Optional[str] = Field(None, description="Reference pointer in source text if grounded")
+    locked_evidence: Optional[LockedEvidenceItem] = Field(None, description="Locked evidence item if valid")
+

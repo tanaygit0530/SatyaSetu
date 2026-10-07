@@ -68,6 +68,8 @@ from app.schemas.evidence import (
     EvidenceExtractionOutput,
     EvidenceInterpretation,
     EvidenceItem,
+    GroundingValidationResult,
+    LockedEvidenceItem,
     RetrievedSource,
 )
 from app.schemas.retrieval import (
@@ -134,4 +136,6 @@ __all__ = [
     "EvidenceExtractionOutput",
     "EvidenceItem",
     "EvidenceInterpretation",
+    "LockedEvidenceItem",
+    "GroundingValidationResult",
 ]

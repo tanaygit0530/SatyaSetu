@@ -52,6 +52,11 @@ from app.services.evidence_extractor import (
     EvidenceExtractorService,
     evidence_extractor_service,
 )
+from app.services.evidence_locking import (
+    EvidenceLockingService,
+    evidence_locking_service,
+)
+
 
 __all__ = [
     "TextIngestionService",
@@ -84,4 +89,6 @@ __all__ = [
     "evidence_retrieval_pipeline",
     "EvidenceExtractorService",
     "evidence_extractor_service",
+    "EvidenceLockingService",
+    "evidence_locking_service",
 ]

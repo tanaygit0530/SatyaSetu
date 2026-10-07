@@ -1,8 +1,9 @@
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 from app.schemas.enums import SourceTier, TemporalStatus, Verdict
 from app.schemas.claim import ClaimResult, ExtractedClaim
 from app.schemas.evidence import EvidenceItem, EvidenceInterpretation
 from app.services.source_registry import source_registry_service
+from app.services.evidence_locking import evidence_locking_service
 from app.core.logging import logger
 
 
@@ -21,11 +22,36 @@ class DeterministicRuleEngine:
         claim: ExtractedClaim,
         evidence_list: List[EvidenceItem],
         interpretation: EvidenceInterpretation,
+        source_texts: Optional[Dict[str, str]] = None,
     ) -> ClaimResult:
         """
         Determines the verdict for a single atomic claim using pure deterministic rules.
+        Runs Evidence Locking validation BEFORE verdict calculation.
         """
         claim_id = f"CLM-{claim.claim_number}"
+
+        # 0. Evidence Locking Grounding Check (Runs BEFORE verdict calculation)
+        if source_texts:
+            grounded_evidence, rejected = evidence_locking_service.validate_and_filter_evidence(
+                evidence_list, source_texts
+            )
+            evidence_list = grounded_evidence
+            if rejected and not evidence_list:
+                logger.warning("All evidence citations failed grounding validation [QUOTE_NOT_FOUND].")
+                return ClaimResult(
+                    id=claim_id,
+                    claim_number=claim.claim_number,
+                    claim_text=claim.claim_text,
+                    original_language_text=claim.original_language_text,
+                    language=claim.language,
+                    verdict=Verdict.CANNOT_BE_CONFIRMED,
+                    confidence=0.0,
+                    summary="Evidence citation rejected: exact quote was not found in stored source text.",
+                    detailed_analysis="Evidence Locking System rejected citations under strict anti-fabrication policy.",
+                    temporal_status=TemporalStatus.UNDATED,
+                    rule_matched="RULE-EVIDENCE-LOCKING-REJECTED",
+                    source_citations=[],
+                )
 
         # 1. Check for malicious/phishing domain or security alert
         if interpretation.domain_flagged_malicious:
