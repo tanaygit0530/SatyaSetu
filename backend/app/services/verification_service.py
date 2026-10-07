@@ -8,6 +8,7 @@ from app.schemas.claim import ClaimResult
 from app.services.claim_extractor import ClaimExtractorService
 from app.services.evidence_retriever import EvidenceRetrieverService
 from app.services.rule_engine import DeterministicRuleEngine
+from app.services.confidence_engine import confidence_engine
 from app.repositories.verification_repo import verification_repo
 from app.core.exceptions import CheckNotFoundException
 from app.core.logging import logger
@@ -47,6 +48,7 @@ class VerificationService:
 
         # 3. Aggregate atomic claim verdicts into overall dossier finding
         overall_verdict, verdict_summary = DeterministicRuleEngine.aggregate_verdicts(claim_results)
+        overall_confidence = confidence_engine.calculate_message_confidence(claim_results)
 
         # 4. Generate unique Case IDs
         random_suffix = uuid.uuid4().hex[:4].upper()
@@ -64,6 +66,7 @@ class VerificationService:
             source_origin="WHATSAPP" if request.input_type.value == "WHATSAPP" else "WEB_PORTAL",
             original_message=request.content,
             overall_verdict=overall_verdict,
+            overall_confidence=overall_confidence,
             verdict_summary=verdict_summary,
             claims=claim_results,
             cache_hit=False,

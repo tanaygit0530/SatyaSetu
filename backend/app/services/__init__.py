@@ -68,6 +68,10 @@ from app.services.rule_engine import (
     DeterministicRuleEngine,
     deterministic_rule_engine,
 )
+from app.services.confidence_engine import (
+    ConfidenceEngine,
+    confidence_engine,
+)
 
 
 __all__ = [
@@ -109,4 +113,6 @@ __all__ = [
     "temporal_verification_service",
     "DeterministicRuleEngine",
     "deterministic_rule_engine",
+    "ConfidenceEngine",
+    "confidence_engine",
 ]

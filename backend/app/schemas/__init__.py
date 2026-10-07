@@ -1,5 +1,6 @@
 from app.schemas.enums import (
     ConfidenceLevel,
+    ContradictionStrength,
     FeedbackType,
     InputType,
     ProcessingStatus,
@@ -92,12 +93,21 @@ from app.schemas.temporal import (
     TemporalVerificationResult,
 )
 from app.schemas.rule_engine import VerdictEngineInput
+from app.schemas.confidence import (
+    ConfidenceFactorsBreakdown,
+    ConfidenceInput,
+    ConfidenceOutput,
+    ClaimConfidenceItem,
+    MessageConfidenceInput,
+    MessageConfidenceOutput,
+)
 
 __all__ = [
     "Verdict",
     "InputType",
     "ProcessingStatus",
     "ConfidenceLevel",
+    "ContradictionStrength",
     "UserRole",
     "FeedbackType",
     "User",
@@ -164,4 +174,10 @@ __all__ = [
     "TemporalVerificationInput",
     "TemporalVerificationResult",
     "VerdictEngineInput",
+    "ConfidenceFactorsBreakdown",
+    "ConfidenceInput",
+    "ConfidenceOutput",
+    "ClaimConfidenceItem",
+    "MessageConfidenceInput",
+    "MessageConfidenceOutput",
 ]

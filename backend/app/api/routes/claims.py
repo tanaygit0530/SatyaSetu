@@ -27,6 +27,12 @@ from app.schemas.temporal import (
     TemporalVerificationResult,
 )
 from app.schemas.rule_engine import VerdictEngineInput
+from app.schemas.confidence import (
+    ConfidenceInput,
+    ConfidenceOutput,
+    MessageConfidenceInput,
+    MessageConfidenceOutput,
+)
 from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
@@ -39,6 +45,7 @@ from app.services.evidence_extractor import evidence_extractor_service
 from app.services.evidence_judge import evidence_judge_service
 from app.services.temporal_verification import temporal_verification_service
 from app.services.rule_engine import DeterministicRuleEngine
+from app.services.confidence_engine import confidence_engine
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -223,5 +230,38 @@ async def compute_verdict_endpoint(payload: VerdictEngineInput) -> ClaimResult:
         recency=payload.recency,
         retrieval_quality=payload.retrieval_quality,
     )
+
+
+@router.post(
+    "/calculate-confidence",
+    response_model=ConfidenceOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Compute deterministic confidence without LLM calls",
+    description="Calculates categorical confidence (HIGH, MEDIUM, LOW) from credibility, agreement, relevance, recency, retrieval quality, contradiction strength, ambiguity, and evidence quantity.",
+)
+async def calculate_confidence_endpoint(payload: ConfidenceInput) -> ConfidenceOutput:
+    """
+    Executes Deterministic Confidence Calculation:
+    - Strictly does NOT call an LLM.
+    - Evaluates 8 core evidentiary signals.
+    - Returns strictly HIGH, MEDIUM, or LOW without exposing fake precision.
+    """
+    return confidence_engine.calculate_confidence_detailed(payload)
+
+
+@router.post(
+    "/message-confidence",
+    response_model=MessageConfidenceOutput,
+    status_code=status.HTTP_200_OK,
+    summary="Compute aggregate message confidence limited by weakest important claim",
+    description="Aggregates individual atomic claim confidence ratings. Overall confidence is limited by the weakest important claim.",
+)
+async def message_confidence_endpoint(payload: MessageConfidenceInput) -> MessageConfidenceOutput:
+    """
+    Executes Aggregate Message Confidence:
+    - Limited by the weakest important claim.
+    """
+    return confidence_engine.calculate_message_confidence_detailed(payload.claims)
+
 
 

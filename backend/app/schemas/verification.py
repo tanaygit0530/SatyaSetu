@@ -1,7 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-from app.schemas.enums import InputType, Language, Verdict
+from app.schemas.enums import ConfidenceLevel, InputType, Language, Verdict
 from app.schemas.claim import ClaimResult
 
 
@@ -25,6 +25,10 @@ class VerificationResponse(BaseModel):
     source_origin: str = Field(default="WHATSAPP")
     original_message: str
     overall_verdict: Verdict = Field(..., description="Aggregate verdict computed across atomic claims")
+    overall_confidence: Optional[ConfidenceLevel] = Field(
+        default=ConfidenceLevel.HIGH,
+        description="Overall message confidence rating limited by the weakest important claim",
+    )
     verdict_summary: str = Field(..., description="Clear citizen summary in simple language")
     claims: List[ClaimResult] = Field(..., min_length=1)
     cache_hit: bool = Field(default=False)

@@ -2,11 +2,18 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from app.core.logging import logger
 from app.schemas.claim import ClaimResult, ExtractedClaim
-from app.schemas.enums import Language, SourceTier, TemporalStatus, Verdict
+from app.schemas.enums import (
+    ConfidenceLevel,
+    Language,
+    SourceTier,
+    TemporalStatus,
+    Verdict,
+)
 from app.schemas.evidence import EvidenceInterpretation, EvidenceItem, LockedEvidenceItem
 from app.schemas.judge import EvidenceAssessmentLevel, EvidenceJudgeAssessment, EvidenceStance
 from app.services.evidence_locking import evidence_locking_service
 from app.services.source_registry import source_registry_service
+from app.services.confidence_engine import confidence_engine
 
 
 class DeterministicRuleEngine:
@@ -66,6 +73,7 @@ class DeterministicRuleEngine:
                     language=lang,
                     verdict=Verdict.CANNOT_BE_CONFIRMED,
                     confidence=0.0,
+                    confidence_level=ConfidenceLevel.LOW,
                     summary="Evidence citation rejected: exact quote was not found in stored source text.",
                     detailed_analysis="Evidence Locking System rejected citations under strict anti-fabrication policy.",
                     temporal_status=TemporalStatus.DATE_UNKNOWN,
@@ -116,6 +124,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.FALSE,
                 confidence=100.0,
+                confidence_level=ConfidenceLevel.HIGH,
                 summary="Malicious phishing or fraudulent link. Blacklisted by cybersecurity advisory.",
                 detailed_analysis=(
                     interpretation.discrepancy_explanation
@@ -154,6 +163,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.OUTDATED,
                 confidence=96.5,
+                confidence_level=ConfidenceLevel.HIGH,
                 summary="Authentic historical order misleadingly recirculated out of chronological context.",
                 detailed_analysis=(
                     (interpretation.discrepancy_explanation if interpretation else None)
@@ -190,6 +200,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.FALSE,
                 confidence=98.8,
+                confidence_level=ConfidenceLevel.HIGH,
                 summary=f"Financial amount discrepancy: Claimed ₹{interpretation.claimed_amount:,.0f} vs Sanctioned ₹{interpretation.actual_amount:,.0f}.",
                 detailed_analysis=(
                     interpretation.discrepancy_explanation
@@ -242,6 +253,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.PARTLY_SUPPORTED,
                 confidence=78.5,
+                confidence_level=ConfidenceLevel.MEDIUM,
                 summary="Partly supported: factual foundation exists but secondary details or conditions are inaccurate, unverified, or contested.",
                 detailed_analysis=(
                     (evidence_judgments[0].reason if has_mixed_judgment and evidence_judgments else None)
@@ -286,6 +298,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.FALSE,
                 confidence=98.5,
+                confidence_level=ConfidenceLevel.HIGH,
                 summary="Claim is factually false and directly contradicted by authoritative public records.",
                 detailed_analysis=explanation,
                 temporal_status=temporal_status or TemporalStatus.CURRENT,
@@ -336,6 +349,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.VERIFIED,
                 confidence=99.2,
+                confidence_level=ConfidenceLevel.HIGH,
                 summary="Corroborated by official gazette notification and statutory records.",
                 detailed_analysis=f"Verified against {pub} ({dom}). Quotation: '{quote_snip}'",
                 temporal_status=temporal_status or TemporalStatus.CURRENT,
@@ -355,6 +369,7 @@ class DeterministicRuleEngine:
                 language=lang,
                 verdict=Verdict.PARTLY_SUPPORTED,
                 confidence=78.5,
+                confidence_level=ConfidenceLevel.MEDIUM,
                 summary="Partially supported: core premise has factual basis but secondary details remain unverified.",
                 detailed_analysis=(
                     (interpretation.discrepancy_explanation if interpretation else None)
@@ -390,6 +405,7 @@ class DeterministicRuleEngine:
             language=lang,
             verdict=Verdict.CANNOT_BE_CONFIRMED,
             confidence=48.0 if evidence_items else 0.0,
+            confidence_level=ConfidenceLevel.LOW,
             summary="Cannot be confirmed due to lack of authoritative primary documentary trail.",
             detailed_analysis=(
                 "No official gazette, court order, or ministry bulletin corroborates or refutes this claim. "

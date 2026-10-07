@@ -38,6 +38,10 @@ class ConfidenceLevel(str, Enum):
     MEDIUM = "MEDIUM"
     LOW = "LOW"
 
+    def __str__(self) -> str:
+        return self.value
+
+
 
 class UserRole(str, Enum):
     """Access control roles."""
@@ -87,3 +91,12 @@ class TemporalStatus(str, Enum):
     OUTDATED = "OUTDATED"
     HISTORICAL_MISMATCH = "HISTORICAL_MISMATCH"
     UNDATED = "UNDATED"
+
+
+class ContradictionStrength(str, Enum):
+    """Strength of contradiction against an assertion."""
+    STRONG = "STRONG"
+    MODERATE = "MODERATE"
+    WEAK = "WEAK"
+    NONE = "NONE"
+

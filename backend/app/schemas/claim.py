@@ -1,6 +1,6 @@
 from typing import Any, List, Optional, Union
 from pydantic import BaseModel, Field, model_validator
-from app.schemas.enums import Language, TemporalStatus, Verdict
+from app.schemas.enums import ConfidenceLevel, Language, TemporalStatus, Verdict
 from app.schemas.evidence import EvidenceItem
 
 
@@ -72,7 +72,8 @@ class ClaimResult(BaseModel):
     original_language_text: Optional[str] = None
     language: Language = Language.EN
     verdict: Verdict = Field(..., description="Deterministic decision from 5 canonical verdicts")
-    confidence: float = Field(..., ge=0.0, le=100.0, description="Algorithmic certainty percentage")
+    confidence: Union[ConfidenceLevel, float, str] = Field(..., description="Categorical confidence rating (HIGH, MEDIUM, LOW) or numeric percentage")
+    confidence_level: Optional[ConfidenceLevel] = Field(default=None, description="Categorical confidence rating: HIGH, MEDIUM, LOW")
     summary: str = Field(..., description="Clear human-readable reason for verdict")
     detailed_analysis: str = Field(..., description="Forensic evidential reasoning and legal citation context")
     temporal_status: TemporalStatus = Field(default=TemporalStatus.CURRENT)
