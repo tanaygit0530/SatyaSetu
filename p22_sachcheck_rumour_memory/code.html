@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-secondary-fixed":"#321200","surface-dim":"#cedafa","on-secondary-container":"#642b00","tertiary-container":"#006a36","surface-container-highest":"#d8e2ff","primary-fixed":"#dce1ff","on-error-container":"#93000a","surface-tint":"#2151da","on-surface":"#0f1b33","primary-container":"#1d4ed8","error-container":"#ffdad6","outline-variant":"#c4c5d7","tertiary-fixed-dim":"#74db92","on-secondary-fixed-variant":"#753400","primary-fixed-dim":"#b7c4ff","on-error":"#ffffff","error":"#ba1a1a","inverse-surface":"#253049","on-tertiary-container":"#82ea9f","tertiary":"#004f27","surface-bright":"#faf9ff","on-secondary":"#ffffff","surface-container-high":"#e1e8ff","outline":"#747686","inverse-on-surface":"#edf0ff","primary":"#0037b0","tertiary-fixed":"#90f8ad","surface-container-lowest":"#ffffff","on-primary-fixed-variant":"#0039b5","surface-container-low":"#f1f3ff","on-surface-variant":"#434655","background":"#faf9ff","surface-container":"#e9edff","surface-variant":"#d8e2ff","secondary":"#9a4600","on-primary-fixed":"#001551","secondary-fixed-dim":"#ffb68c","on-background":"#0f1b33","on-tertiary-fixed-variant":"#005228","inverse-primary":"#b7c4ff","secondary-container":"#fe852f","on-tertiary":"#ffffff","on-primary-container":"#cad3ff","secondary-fixed":"#ffdbc9","surface":"#faf9ff","on-primary":"#ffffff","on-tertiary-fixed":"#00210d"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-tablet":"1.5rem","space-2xl":"3rem","space-sm":"0.5rem","space-lg":"1.5rem","space-xs":"0.25rem","space-xl":"2rem","gutter":"1rem","gutter-desktop":"1.5rem","margin-desktop":"2rem","margin":"1rem","space-md":"1rem"},"fontFamily":{"code-sm":["Space Mono"],"body-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"quoted-claim":["\"Source Serif 4\""],"quoted-claim-lg":["\"Source Serif 4\""],"body-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"]},"fontSize":{"code-sm":["12px",{"lineHeight":"16px","letterSpacing":"0","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"28px","letterSpacing":"0","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"quoted-claim":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"quoted-claim-lg":["19px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"400"}],"body-md":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.015em","fontWeight":"700"}],"headline-lg-mobile":["22px",{"lineHeight":"30px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center justify-between border-b border-surface-container-high"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-headline-sm text-headline-sm">S</div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">SachCheck</span><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px] uppercase font-bold tracking-wider">Ops</span></div><span class="font-label-sm text-[10px] text-on-surface-variant">Admin Console</span></div></div></div><div class="px-space-md py-space-sm"><div class="px-2.5 py-1.5 rounded-lg bg-surface-container-low flex items-center justify-between"><span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Desk Unit</span><span class="font-code-sm text-[11px] text-primary font-bold">DESK-DL-41</span></div></div><nav class="flex-1 px-space-sm py-space-xs space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg shadow-sm"><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="overview" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-label-md text-label-md">Overview</span></div></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="live-checks" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">fact_check</span><span class="font-label-md text-label-md">Live Checks</span></div></a><a aria-current="page" class="flex items-center justify-between px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-semibold rounded-lg shadow-sm" data-path="rumour-memory" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">fingerprint</span><span class="font-label-md text-label-md">Rumour Memory</span></div></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="review-queue" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">rate_review</span><span class="font-label-md text-label-md">Review Queue</span></div><span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-[11px] font-bold">14</span></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="evaluation" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="font-label-md text-label-md">Evaluation</span></div></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="sources" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">policy</span><span class="font-label-md text-label-md">Sources</span></div></a></nav></div><div class="p-space-md border-t border-surface-container-high bg-surface-container-lowest"><div class="space-y-1.5 mb-space-md"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span><span class="font-code-sm text-[11px] text-on-surface-variant">Civic Truth Engine v4.2</span></div><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[14px] text-tertiary-container">verified</span><span class="font-label-sm text-[11px] text-on-surface-variant">IFCN Standards Audited</span></div></div><a class="flex items-center gap-2 px-2.5 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="logout" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span class="font-label-md text-label-md">Log out</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md flex-1 max-w-xl"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm font-bold uppercase tracking-wider">DEMO ENVIRONMENT</span></div><div class="relative flex-1"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span><input class="w-full h-9 pl-9 pr-12 rounded-lg bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm focus:outline-none focus:bg-surface-container focus:ring-1 focus:ring-primary-container" placeholder="Search checks, claims, domains, audit IDs..." type="text"/><span class="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-code-sm text-[10px] font-bold">⌘K</span></div></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-low"><span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface font-medium">NIC &amp; PIB Crawlers: Online 99.9%</span></div><div class="flex items-center bg-surface-container-low rounded-lg p-0.5 text-on-surface-variant font-label-sm text-label-sm"><button class="px-2 py-1 rounded bg-surface-container-lowest font-bold text-on-surface shadow-xs" type="button">EN</button><button class="px-2 py-1 rounded hover:text-on-surface" type="button">हिं</button><button class="px-2 py-1 rounded hover:text-on-surface" type="button">मरा</button></div><button class="relative w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" title="Review Queue Alerts" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></button><div class="flex items-center gap-2.5 pl-space-xs border-l border-surface-container-high"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden md:flex flex-col text-left"><span class="font-label-sm text-label-sm font-semibold text-on-surface leading-tight">Auditor Desk</span><span class="font-code-sm text-[11px] text-on-surface-variant leading-tight">DESK-DL-41</span></div></div></div></header><main class="relative pt-16 min-h-screen bg-background"><div class="max-w-[1440px] mx-auto p-space-lg"><div class="flex flex-col w-full gap-space-lg pb-space-2xl">
+<!-- Header Context & Quick Actions -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm text-primary uppercase font-bold tracking-wider">Subsystem 04 // Semantic Deduplication Engine</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-code-sm text-[11px] text-tertiary font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+          Vector Cache: Online
+        </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-0.5">Rumour Memory &amp; Deterministic Cache</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+        Cross-lingual semantic caching across Indic dialects. Citizen verifications instantly resolve identical claims without re-running models.
+      </p>
+</div>
+<!-- Right Controls -->
+<div class="flex items-center gap-space-sm self-start lg:self-center">
+<div class="flex items-center bg-surface-container-low p-1 rounded-lg">
+<button class="px-3 py-1.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-on-surface shadow-sm font-bold" type="button">
+          Active Store
+        </button>
+<button class="px-3 py-1.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface" type="button">
+          Sunset Vault (89)
+        </button>
+</div>
+<button class="h-10 px-4 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md flex items-center gap-2 hover:bg-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+        Force Eviction Sweep
+      </button>
+</div>
+</div>
+<!-- Primary Impact & Savings Banner -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary-container p-space-lg text-on-primary shadow-sm">
+<div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-surface-container-lowest/5 pointer-events-none blur-2xl"></div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start md:items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest/10 backdrop-blur-md flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary text-[28px]">electric_bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-[11px] text-surface-variant uppercase tracking-widest font-bold">Realtime Ingestion Bypass Metric</span>
+<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-0.5">
+<span class="font-headline-xl text-headline-xl text-on-primary font-bold">1,284 LLM Calls Avoided Today</span>
+<span class="font-label-md text-label-md text-surface-container-lowest/90 font-medium">(₹14,280 saved in tokens)</span>
+</div>
+<span class="font-body-sm text-body-sm text-primary-fixed mt-0.5">Average served response time: <strong class="text-on-primary font-code-sm">22ms</strong> vs 3,840ms cold synthesis.</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-lowest/10 backdrop-blur-md px-4 py-2.5 rounded-lg border-0 shrink-0">
+<div class="flex flex-col text-right">
+<span class="font-code-sm text-[10px] text-surface-variant uppercase font-bold">P99 Latency</span>
+<span class="font-code-sm text-headline-sm text-on-primary font-bold">28.4ms</span>
+</div>
+<span class="w-px h-8 bg-surface-container-lowest/20"></span>
+<div class="flex flex-col text-right">
+<span class="font-code-sm text-[10px] text-surface-variant uppercase font-bold">Precision Shield</span>
+<span class="font-code-sm text-headline-sm text-tertiary-fixed font-bold">100.0%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Privacy & Citizen Integrity Mandate Banner -->
+<div class="rounded-xl bg-surface-container-low p-space-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]">privacy_tip</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface font-bold uppercase tracking-wider">Privacy &amp; Citizen Integrity Mandate</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          No user identity is stored in claim memory. We cache factual claims, never people. All forwarded sender phone hashes, WhatsApp metadata, and ephemeral session tokens are permanently stripped prior to vector ingestion.
+        </p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-code-sm text-[11px] font-bold shrink-0">
+      ISO/IEC 27701 Compliant
+    </span>
+</div>
+<!-- Top KPI Grid: 6 Operational Metrics -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-space-sm">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Memory Entries</span>
+<span class="material-symbols-outlined text-primary text-[18px]">database</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">18,420</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">Verified propositions</span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Hits Today</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]">task_alt</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">1,284</span>
+<span class="font-body-sm text-[11px] text-tertiary font-bold mt-0.5 flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">trending_up</span> +34% wow
+        </span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">New Ingestion</span>
+<span class="material-symbols-outlined text-secondary text-[18px]">input</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">2,844</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">Misses (Cold pipeline)</span>
+</div>
+</div>
+<!-- Metric 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Re-checks</span>
+<span class="material-symbols-outlined text-primary-container text-[18px]">published_with_changes</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">142</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">Freshness re-runs</span>
+</div>
+</div>
+<!-- Metric 5 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Expired</span>
+<span class="material-symbols-outlined text-secondary text-[18px]">event_busy</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">89</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">Past sunset date</span>
+</div>
+</div>
+<!-- Metric 6 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Wrong-Match</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]">verified_user</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-lg text-headline-lg font-bold text-tertiary tracking-tight">0.00%</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">Deterministic guards</span>
+</div>
+</div>
+</div>
+<!-- Main Work Area: Table on Left, Live Detail Drawer on Right -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Table Section (7 columns on desktop) -->
+<div class="xl:col-span-7 flex flex-col gap-space-md bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<!-- Table Header & Filter Strip -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm pb-space-sm bg-surface-container-lowest">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Most-Checked Canonical Claims</h2>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Claims ordered by citizen query frequency over the last 30 days</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">filter_list</span>
+<input class="h-8 pl-8 pr-3 rounded bg-surface-container-low font-body-sm text-[12px] text-on-surface focus:outline-none focus:bg-surface-container" placeholder="Filter claims..." type="text"/>
+</div>
+<button class="h-8 px-2.5 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-[11px] flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">file_download</span> CSV
+          </button>
+</div>
+</div>
+<!-- Claim Table -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-[11px] uppercase tracking-wider">
+<th class="py-2.5 px-3 rounded-l-lg font-bold">Canonical Claim</th>
+<th class="py-2.5 px-3 font-bold">Verdict</th>
+<th class="py-2.5 px-3 font-bold">Asks</th>
+<th class="py-2.5 px-3 font-bold">Langs</th>
+<th class="py-2.5 px-3 font-bold">Freshness</th>
+<th class="py-2.5 px-3 rounded-r-lg font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-on-surface font-body-sm text-[13px]">
+<!-- Row 1: Active Selection Example -->
+<tr class="bg-surface-container-low/70 hover:bg-surface-container-low transition-colors group">
+<td class="py-3 px-3 max-w-[280px]">
+<div class="flex flex-col">
+<span class="font-headline-sm text-[13px] text-primary font-bold line-clamp-2">
+                    National Merit Scholarship ₹50,000 direct payout
+                  </span>
+<div class="flex items-center gap-1.5 mt-1 font-code-sm text-[11px] text-on-surface-variant">
+<span>#SC-MEM-1029</span>
+<span>•</span>
+<span>Checked 4m ago</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">contrast</span>
+                  Partly Supported
+                </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-code-sm font-bold text-on-surface">1,482</span>
+<span class="font-label-sm text-[10px] text-tertiary">+88 today</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">EN</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">हिं</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">मरा</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="inline-flex items-center gap-1 text-[11px] font-label-sm font-bold text-tertiary">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Fresh
+                  </span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Until 31 Oct 2026</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded bg-primary-container text-on-primary" title="Inspect Cache Details" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Force Fresh Verification" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-3 max-w-[280px]">
+<div class="flex flex-col">
+<span class="font-headline-sm text-[13px] text-on-surface font-semibold line-clamp-2">
+                    Old ₹500 currency note green ribbon invalidity
+                  </span>
+<div class="flex items-center gap-1.5 mt-1 font-code-sm text-[11px] text-on-surface-variant">
+<span>#SC-MEM-0894</span>
+<span>•</span>
+<span>Checked 18m ago</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container text-[11px] font-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">cancel</span>
+                  False
+                </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-code-sm font-bold text-on-surface">924</span>
+<span class="font-label-sm text-[10px] text-tertiary">+14 today</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">EN</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">हिं</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="inline-flex items-center gap-1 text-[11px] font-label-sm font-bold text-tertiary">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Fresh
+                  </span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Permanent Myth</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Inspect Cache Details" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Force Fresh Verification" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-3 max-w-[280px]">
+<div class="flex flex-col">
+<span class="font-headline-sm text-[13px] text-on-surface font-semibold line-clamp-2">
+                    PAN-Aadhaar free linking deadline extension
+                  </span>
+<div class="flex items-center gap-1.5 mt-1 font-code-sm text-[11px] text-on-surface-variant">
+<span>#SC-MEM-0742</span>
+<span>•</span>
+<span>Checked 2h ago</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[11px] font-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">history_toggle_off</span>
+                  Outdated
+                </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-code-sm font-bold text-on-surface">612</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">+3 today</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">EN</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">हिं</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="inline-flex items-center gap-1 text-[11px] font-label-sm font-bold text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Expired
+                  </span>
+<span class="font-code-sm text-[10px] text-secondary">Sunset: 31 Jun 2024</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Inspect Cache Details" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Force Fresh Verification" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-3 max-w-[280px]">
+<div class="flex flex-col">
+<span class="font-headline-sm text-[13px] text-on-surface font-semibold line-clamp-2">
+                    Pune Metro Line 3 extension sanction
+                  </span>
+<div class="flex items-center gap-1.5 mt-1 font-code-sm text-[11px] text-on-surface-variant">
+<span>#SC-MEM-1180</span>
+<span>•</span>
+<span>Checked 5h ago</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+                  Verified
+                </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-code-sm font-bold text-on-surface">480</span>
+<span class="font-label-sm text-[10px] text-tertiary">+22 today</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">EN</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">मरा</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="inline-flex items-center gap-1 text-[11px] font-label-sm font-bold text-tertiary">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Fresh
+                  </span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Until 15 Dec 2026</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Inspect Cache Details" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface" title="Force Fresh Verification" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="flex items-center justify-between pt-2 border-0 text-on-surface-variant font-body-sm text-[12px]">
+<span>Showing 4 of 18,420 cached propositions</span>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-bold disabled:opacity-40" disabled="" type="button">Previous</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-bold" type="button">Next</button>
+</div>
+</div>
+</div>
+<!-- Claim Detail Drawer / Inspection Panel (5 columns on desktop) -->
+<div class="xl:col-span-5 flex flex-col gap-space-md bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<!-- Drawer Title Header -->
+<div class="flex items-start justify-between pb-2 bg-surface-container-lowest">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-code-sm text-[11px] font-bold">ENTRY #SC-MEM-1029</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-[10px] font-bold">PARTLY SUPPORTED</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface mt-1">Live Deduplication Inspection</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg" type="button">
+<span class="material-symbols-outlined text-[20px]">close_fullscreen</span>
+</button>
+</div>
+<!-- Core Stored Knowledge Box -->
+<div class="rounded-lg bg-surface-container-low p-space-md flex flex-col gap-2.5">
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Canonical Truth Proposition</span>
+<blockquote class="font-quoted-claim text-quoted-claim text-on-surface italic pl-3 border-l-2 border-primary-container">
+          “Government launched ₹50,000 scholarship for every student”
+        </blockquote>
+<div class="grid grid-cols-2 gap-2 mt-1 pt-2 bg-surface-container-low">
+<div class="flex flex-col">
+<span class="font-code-sm text-[10px] text-on-surface-variant uppercase">Evidence Gazette IDs</span>
+<span class="font-code-sm text-code-sm text-on-surface font-bold">#GAZ-MoE-448, #PIB-9801</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-code-sm text-[10px] text-on-surface-variant uppercase">Validity Window</span>
+<span class="font-code-sm text-code-sm text-on-surface font-bold">06 Oct 2026 → 31 Oct 2026</span>
+</div>
+</div>
+</div>
+<!-- Section: Variants Matched (Cross-Lingual Successes) -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-tertiary text-[16px]">hub</span>
+            Variants Matched (Cache Hits)
+          </span>
+<span class="font-code-sm text-[11px] text-on-surface-variant">Cos-Distance &lt; 0.12</span>
+</div>
+<!-- Matched Variant 1 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">EN PARAPHRASE</span>
+<span class="font-label-sm text-[11px] text-tertiary font-bold">94.2% Similarity</span>
+</div>
+<span class="font-code-sm text-[10px] text-tertiary font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Served (21ms)
+            </span>
+</div>
+<p class="font-body-sm text-[13px] text-on-surface">
+            “PM Scholarship 50000 rupees apply now”
+          </p>
+</div>
+<!-- Matched Variant 2 (Cross-lingual Hindi) -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-code-sm text-[10px] font-bold">HINDI TRANSLATION</span>
+<span class="font-label-sm text-[11px] text-tertiary font-bold">91.8% Embedding Match</span>
+</div>
+<span class="font-code-sm text-[10px] text-tertiary font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Served (24ms)
+            </span>
+</div>
+<p class="font-body-sm text-[13px] text-on-surface">
+            “छात्रों के लिए ₹50,000 की नई छात्रवृत्ति”
+          </p>
+</div>
+</div>
+<!-- Section: Determinism Match Guards -->
+<div class="flex flex-col gap-2 rounded-lg bg-surface-container-low p-3">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[16px]">security</span>
+            Deterministic Match Guards
+          </span>
+<span class="font-label-sm text-[10px] text-tertiary uppercase font-bold">Strict Passing</span>
+</div>
+<p class="font-body-sm text-[11px] text-on-surface-variant">
+          Embeddings alone are never trusted. All numerical values, statutory names, and temporal anchors must precisely reconcile.
+        </p>
+<div class="grid grid-cols-1 gap-1.5 mt-1 font-body-sm text-[12px]">
+<div class="flex items-center justify-between p-1.5 rounded bg-surface-container-lowest">
+<span class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[16px]">check</span>
+<strong>Numbers Equal:</strong> Both state ₹50,000
+            </span>
+<span class="font-code-sm text-[10px] text-tertiary font-bold">CONFIRMED</span>
+</div>
+<div class="flex items-center justify-between p-1.5 rounded bg-surface-container-lowest">
+<span class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[16px]">check</span>
+<strong>Dates Equal:</strong> Both refer to October 2026
+            </span>
+<span class="font-code-sm text-[10px] text-tertiary font-bold">CONFIRMED</span>
+</div>
+<div class="flex items-center justify-between p-1.5 rounded bg-surface-container-lowest">
+<span class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[16px]">check</span>
+<strong>Entities Equal:</strong> Ministry of Education / PM Scheme
+            </span>
+<span class="font-code-sm text-[10px] text-tertiary font-bold">CONFIRMED</span>
+</div>
+</div>
+</div>
+<!-- Section: Blocked Near-Match (Safety Catch Showcase) -->
+<div class="flex flex-col gap-2 rounded-lg bg-error-container/40 p-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-on-error-container">
+<span class="material-symbols-outlined text-[16px]">gpp_bad</span>
+<span class="font-label-sm text-label-sm font-bold">Blocked Near-Match (Safety Catch)</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-error text-on-error font-code-sm text-[10px] font-bold">GUARD TRIGGERED</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container-lowest flex flex-col gap-1.5 mt-1">
+<span class="font-code-sm text-[10px] text-on-surface-variant uppercase">Incoming Forward Payload</span>
+<p class="font-body-sm text-[13px] text-on-surface font-medium">
+            “Government launched ₹5,000 scholarship for every student”
+          </p>
+<div class="flex items-center gap-1.5 text-error font-body-sm text-[11px] font-bold pt-1 bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[14px]">close</span>
+            Number mismatch: ₹5,000 ≠ ₹50,000. Vector similarity (96.4%) overridden.
+          </div>
+</div>
+<div class="flex items-center justify-between text-on-error-container font-body-sm text-[11px] px-1">
+<span>Status: <strong>Not served from memory</strong></span>
+<span class="font-code-sm text-[10px]">Routed to cold gazette pipeline →</span>
+</div>
+</div>
+<!-- Bottom Drawer Action -->
+<div class="flex items-center gap-2 pt-2 bg-surface-container-lowest">
+<button class="flex-1 h-10 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">rule</span>
+          Edit Match Guards
+        </button>
+<button class="h-10 px-4 rounded-lg bg-error-container text-on-error-container hover:opacity-90 font-label-md text-label-md transition-opacity flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+          Evict Entry
+        </button>
+</div>
+</div>
+</div>
+</div></div></main></div></body></html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#90f8ad", "on-tertiary-fixed": "#00210d", "on-secondary": "#ffffff", "secondary-container": "#fe852f", "on-primary-fixed-variant": "#0039b5", "on-tertiary-container": "#82ea9f", "on-secondary-fixed-variant": "#753400", "outline": "#747686", "on-secondary-fixed": "#321200", "surface-container-high": "#e1e8ff", "surface-bright": "#faf9ff", "inverse-primary": "#b7c4ff", "secondary-fixed-dim": "#ffb68c", "on-surface": "#0f1b33", "inverse-surface": "#253049", "on-error": "#ffffff", "on-tertiary": "#ffffff", "surface-container-lowest": "#ffffff", "on-secondary-container": "#642b00", "surface-container-highest": "#d8e2ff", "primary-fixed-dim": "#b7c4ff", "on-error-container": "#93000a", "on-primary": "#ffffff", "outline-variant": "#c4c5d7", "inverse-on-surface": "#edf0ff", "surface-variant": "#d8e2ff", "primary": "#0037b0", "error": "#ba1a1a", "on-surface-variant": "#434655", "secondary": "#9a4600", "primary-container": "#1d4ed8", "on-primary-container": "#cad3ff", "surface-dim": "#cedafa", "on-primary-fixed": "#001551", "on-tertiary-fixed-variant": "#005228", "surface": "#faf9ff", "surface-container": "#e9edff", "surface-container-low": "#f1f3ff", "secondary-fixed": "#ffdbc9", "primary-fixed": "#dce1ff", "background": "#faf9ff", "tertiary": "#004f27", "tertiary-container": "#006a36", "error-container": "#ffdad6", "surface-tint": "#2151da", "on-background": "#0f1b33", "tertiary-fixed-dim": "#74db92" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-sm": "0.5rem", "margin-tablet": "1.5rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "2rem", "space-2xl": "3rem", "margin": "1rem", "space-xl": "2rem" }, "fontFamily": { "label-sm": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "quoted-claim-lg": ["\"Source Serif 4\""], "code-sm": ["Space Mono"], "headline-sm": ["Plus Jakarta Sans"], "quoted-claim": ["\"Source Serif 4\""], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}], "body-sm": ["13px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}], "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "700"}], "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}], "body-md": ["15px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}], "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}], "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "400"}], "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}], "quoted-claim-lg": ["19px", {"lineHeight": "30px", "letterSpacing": "0", "fontWeight": "400"}], "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400"}], "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "600"}], "quoted-claim": ["16px", {"lineHeight": "26px", "letterSpacing": "0", "fontWeight": "400"}], "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}], "headline-lg-mobile": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest border-b border-outline-variant"><div class="h-16 max-w-7xl mx-auto px-margin-desktop flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><img alt="SachCheck Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1V5nPBOWqp8I-AH02hP-0Soj3uU1ZbC8nr6bF1G7V0jSgl_gkM7IukfJ-oiXZ-yo3MeHnwS7PzIARrAh3Gemfpt4VgwXtS1OJRgNJJihEg7cTPGAmEXwsBgZaa59xR-MZcaHqdeZJlGoKhBdrWAy5mytpNpH6Oj9Sb-NXUR3AXq8tg2txCxPClFyfwcFkCUuDkVGXMTZGmR94LESNo_uxO5QjLhAmuf-_6K_wzH2yYR"/><span class="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">SachCheck</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-surface-container text-primary font-bold"><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="check" href="#">Check a forward</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="history" href="#">History</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="whatsapp" href="#">WhatsApp</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="methodology" href="#">How we decide</a></nav></div><div class="flex items-center gap-space-md"><div aria-label="Language Selector" class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs border border-outline-variant"><button class="px-space-sm py-space-xs rounded text-on-surface font-label-sm text-label-sm bg-surface-container-lowest shadow-sm" type="button">EN</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">हिं</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">मरा</button></div><div aria-label="Civic Font Scaler Widget" class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs border border-outline-variant"><button class="px-space-sm py-space-xs rounded text-on-surface font-label-sm text-label-sm bg-surface-container-lowest shadow-sm" title="Standard Font Size" type="button">A</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" title="Medium Font Size" type="button">A+</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" title="Large Font Size" type="button">A++</button></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Forensic Breadcrumb & Session Context -->
+<div class="w-full bg-surface-container-low py-space-sm px-margin-desktop">
+<div class="max-w-7xl mx-auto flex items-center justify-between text-outline">
+<div class="flex items-center gap-space-sm font-code-sm text-code-sm">
+<span class="text-primary font-bold">CASE-REF #2026-IN-88910</span>
+<span>/</span>
+<span>ROUTE: /check/url</span>
+<span>/</span>
+<span class="text-secondary font-bold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary inline-block animate-pulse"></span>
+          REAL-TIME TELEMETRY ENGAGED
+        </span>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm">
+<span class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-tertiary">lock</span>
+          Sandboxed Crawl Engine v4.2
+        </span>
+<span class="text-outline">|</span>
+<span class="text-on-surface-variant">Server: Mumbai Cluster B</span>
+</div>
+</div>
+</div>
+<div class="w-full px-margin-desktop py-space-xl max-w-7xl mx-auto flex flex-col gap-space-2xl">
+<!-- 1. COMPOSER HERO & INPUT MODULE -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-xl shadow-sm flex flex-col gap-space-lg">
+<!-- Input Mode Switcher (5 Civic Ingestion Tabs) -->
+<div class="flex flex-wrap items-center gap-space-xs p-space-xs bg-surface-container rounded-lg w-fit">
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+<span>Text Forward</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px]">image</span>
+<span>Screenshot</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+<span>Voice Note</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>Circular / PDF</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">link</span>
+<span>Web Link</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+</button>
+</div>
+<!-- Header & Explanation -->
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm uppercase tracking-wider font-bold">Forensic Pipeline</span>
+<span class="text-outline text-label-sm font-label-sm">Dual Parser: Domain Sandbox + Truth Corpus</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface">Check a link</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+          Paste a webpage or forwarded link. We'll inspect the article, test publisher authenticity, and verify its claims against official records.
+        </p>
+</div>
+<!-- High Contrast Input Bar -->
+<div class="flex flex-col gap-space-sm">
+<form class="flex flex-col sm:flex-row items-stretch gap-space-sm" onsubmit="event.preventDefault();">
+<div class="relative flex-1">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input aria-label="URL to be verified" class="w-full h-12 pl-11 pr-space-md bg-surface-container-low text-on-surface font-code-sm text-code-sm rounded-lg focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary shadow-inner" id="url-target" name="url-target" type="url" value="https://national-merit-scholarship-gov.fake-portal.org/apply-50000"/>
+</div>
+<button class="h-12 px-space-xl bg-primary-container text-on-primary hover:bg-primary transition-all font-label-md text-label-md rounded-lg flex items-center justify-center gap-space-sm shrink-0 shadow-sm active:scale-[0.99]" type="submit">
+<span class="material-symbols-outlined text-[20px]">policy</span>
+<span>Check this link</span>
+</button>
+</form>
+<!-- Quick example chip -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Or try trusted sample:</span>
+<button class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface-variant font-code-sm text-code-sm group" onclick="document.getElementById('url-target').value='https://pib.gov.in/PressReleasePage.aspx?PRID=18921';" type="button">
+<span class="material-symbols-outlined text-[14px] text-tertiary">verified</span>
+<span>pib.gov.in/PressReleasePage.aspx?PRID=18921</span>
+<span class="material-symbols-outlined text-[14px] text-outline group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 2. PRE-FLIGHT ARTICLE & RESOLVED DOMAIN CARD -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-xl shadow-sm flex flex-col gap-space-lg">
+<!-- Short URL Resolution Terminal Callout -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start md:items-center gap-space-sm">
+<div class="p-2 bg-surface-container-highest rounded-lg text-primary">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">Canonical Hop Trace</span>
+<div class="font-code-sm text-code-sm text-on-surface flex flex-wrap items-center gap-space-xs">
+<span class="text-outline">Forwarded shortlink:</span>
+<span class="bg-surface-container-high px-1.5 py-0.5 rounded text-on-surface font-bold">bit.ly/scholarship-claim</span>
+<span class="text-secondary font-bold">→ Resolved destination:</span>
+<span class="text-error font-bold break-all">https://national-merit-scholarship-gov.fake-portal.org/apply-50000</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-start md:self-auto bg-surface-container-lowest px-space-sm py-1 rounded shadow-sm text-outline font-code-sm text-code-sm shrink-0">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>HTTP 301 Followed (1 hop)</span>
+</div>
+</div>
+<!-- Main Article Profile Header -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left: Parsed Document Metadata -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Source Tier Badge -->
+<span class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px] text-error">shield_with_heart</span>
+<span>Tier 5: Unverified / Social Network Entity</span>
+</span>
+<span class="text-outline text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+              Captured: 07 Oct 2026 (Live Snapshot)
+            </span>
+<span class="text-outline text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">fingerprint</span>
+              SHA-256 Digest: c4e9...8b21
+            </span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface leading-snug">
+            URGENT: ₹50,000 National Merit Scholarship 2025 Registration Open for All Students
+          </h2>
+<div class="flex flex-wrap items-center gap-space-lg pt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<div>
+<span class="text-outline block text-[11px] uppercase tracking-wider font-bold">Publisher Meta</span>
+<span class="font-bold text-on-surface">Unverified Blog Network / Aggregator</span>
+</div>
+<div class="w-px h-6 bg-surface-container"></div>
+<div>
+<span class="text-outline block text-[11px] uppercase tracking-wider font-bold">Autonomous System (ASN)</span>
+<span class="font-code-sm text-code-sm">AS49811 (Commercial Host, Belize)</span>
+</div>
+<div class="w-px h-6 bg-surface-container"></div>
+<div>
+<span class="text-outline block text-[11px] uppercase tracking-wider font-bold">Ingestion Latency</span>
+<span class="font-code-sm text-code-sm text-tertiary">382 ms</span>
+</div>
+</div>
+</div>
+<!-- Right: Forensic Snapshot Preview Mock -->
+<div class="lg:col-span-4 w-full bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+              Render Preview
+            </span>
+<span class="font-code-sm text-code-sm text-error bg-error-container text-on-error-container px-1.5 py-0.5 rounded">Scam Layout Match</span>
+</div>
+<div class="relative w-full h-32 rounded bg-surface-container-highest overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-85 hover:scale-105 transition-transform duration-300" data-alt="Digital forensic sandbox screenshot showing a fake government scholarship portal with distorted blue emblems, urgent flashing timer banners, and UPI QR code payment buttons designed to scam students." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQItrhioHWV4QAW8HGxquASf54TopwSrLNab11cyEFBLbdfCI6mYSI9hdDPmXHLFMSEfXCyARNwjYHk_Q9qsglhZV1WtczZg0dDBZf-lrSv45dq4MCROvD6EHI5zT-44Dht4Hqw2mU3vyE8LC8hGbzJEsySHe1LHL-z7Lqfd-PeVI7IHhm0Z58gixtyp7ulw6dyAFzNDfIgNeMdmVHkkgyF_FTCND9t0-0tMUuaOc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent flex items-end p-2">
+<span class="font-code-sm text-[11px] text-on-surface bg-surface-container-lowest/90 px-1.5 py-0.5 rounded backdrop-blur">Viewport 1440x900 (WAF Passed)</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Document uses low-resolution emblem artifacts and illicitly forged National Emblem vector assets.
+          </p>
+</div>
+</div>
+</div>
+<!-- 3. PRE-FLIGHT SECURITY & ARTICLE-LEVEL HEURISTIC CHECKS -->
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-space-xs">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">troubleshoot</span>
+            Heuristic Validation Matrix
+          </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Autonomous pre-flight checks examine carrier safety, urgency vectors, and publisher structure before claim fact-checking.
+          </p>
+</div>
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm bg-surface-container px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+<span>5 Automated Guardrails Checked</span>
+</div>
+</div>
+<!-- Heuristics 5-Card Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md">
+<!-- Heuristic 1: Domain Authenticity (Spans 2 cols on desktop for deep legal context) -->
+<div class="md:col-span-2 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">1. Domain Authenticity</span>
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                Potentially Suspicious Domain
+              </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">
+              Deceptive Government Nomenclature Mimicry
+            </div>
+<div class="p-space-md bg-surface-container-low rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-2 font-code-sm text-code-sm text-on-surface">
+<span class="text-error font-bold">Registered Host:</span>
+<span class="bg-surface-container px-1 rounded">fake-portal.org</span>
+<span class="text-outline">← Subdomain tricks user with: "national-merit-scholarship-gov"</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                This domain mimics official <code class="font-code-sm text-code-sm text-primary">.gov.in</code> nomenclature but resolves to an offshore commercial TLD (.org). 
+              </p>
+</div>
+</div>
+<!-- Crucial Civic Accountability Note -->
+<div class="p-space-sm bg-surface-container rounded flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-outline text-[18px] shrink-0 mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+<strong>Evidentiary Principle:</strong> A suspicious domain flags an urgency/phishing vector, but does not alone decide factual truth. Factual status requires cross-referencing against Gazette databases.
+            </p>
+</div>
+</div>
+<!-- Heuristic 2: Headline vs Body Alignment -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">2. Coherence Alignment</span>
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+                Consistent Internal Claims
+              </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">
+              Headline vs Body Alignment
+            </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Body text directly repeats the headline claims without editorial hedging, retraction footnotes, or external gazette citations.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs font-code-sm text-code-sm text-outline">
+<span>Semantic Divergence</span>
+<span class="font-bold text-on-surface">0.04 (Identical)</span>
+</div>
+</div>
+<!-- Heuristic 3: Publication Freshness -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">3. Freshness Cycle</span>
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
+                Recent — 6 hours ago
+              </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">
+              Viral Inception Velocity
+            </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              First indexed 6 hours ago via peer WhatsApp forwarding clusters in Rajasthan and Uttar Pradesh. High propagation speed.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs font-code-sm text-code-sm text-outline">
+<span>Spread Multiplier</span>
+<span class="font-bold text-secondary">3.8x (Viral Surge)</span>
+</div>
+</div>
+<!-- Heuristic 4: Source Tier Weight -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">4. Authority Matrix</span>
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]">domain_disabled</span>
+                Tier 5 — Zero Weight
+              </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">
+              No Statutory Authority
+            </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Publisher provides no RTI nodal officer, physical editorial office, or registration under the Press and Registration of Periodicals Act.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs font-code-sm text-code-sm text-outline">
+<span>Statutory Backing</span>
+<span class="font-bold text-error">None Documented</span>
+</div>
+</div>
+<!-- Heuristic 5: Clickbait / Urgency Index -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">5. Psychological Triggers</span>
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]">alarm</span>
+                Urgent Deadline Tactic
+              </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">
+              Artificial Scarcity Vector
+            </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Phrases like "Registration Closes in 24 Hours", "Seats Limited", and "Immediate UPI Transfer" are typical social engineering triggers.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs font-code-sm text-code-sm text-outline">
+<span>Urgency Score</span>
+<span class="font-bold text-error">94 / 100 (Severe)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. ATOMIC CLAIMS EXTRACTED FROM THIS ARTICLE -->
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded-full bg-primary-container inline-block"></span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Atomic claims extracted from this webpage</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Individual factual propositions isolated by semantic parsing and checked independently against official repositories.
+          </p>
+</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-space-md py-space-xs rounded-lg">
+          3 CLAIMS ISOLATED • 2 FALSE • 1 UNVERIFIABLE
+        </div>
+</div>
+<!-- Compact Claim Cards Container -->
+<div class="flex flex-col gap-space-md">
+<!-- Claim Card 1 -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md flex-1">
+<span class="w-7 h-7 rounded-full bg-surface-container-highest text-primary font-code-sm text-code-sm font-bold flex items-center justify-center shrink-0">
+                01
+              </span>
+<div class="flex flex-col gap-space-xs flex-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">Extracted Claim Proposition</span>
+<!-- Quoted claim text component -->
+<div class="p-space-md bg-surface-container-low rounded-lg font-quoted-claim text-quoted-claim text-on-surface">
+                  “The Central Government is offering a ₹50,000 National Merit Scholarship for all Class 10 &amp; 12 students for the 2025–26 academic session.”
+                </div>
+</div>
+</div>
+<!-- Verdict Badge Pill -->
+<div class="shrink-0 flex md:flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-full bg-error-container text-on-error-container font-label-md text-label-md font-bold shadow-sm">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>False</span>
+</span>
+<span class="font-code-sm text-[11px] text-outline">Confidence: 99.4%</span>
+</div>
+</div>
+<!-- Evidentiary Findings Footer -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm text-body-sm font-body-sm">
+<div class="flex items-start gap-space-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">menu_book</span>
+<div>
+<strong>Counter-Evidence:</strong> Statutory gazette notification from the Ministry of Education confirms the National Means-cum-Merit Scholarship Scheme (NMMSS) awards a maximum statutory cap of <strong>₹12,000 per annum</strong>, strictly subject to income eligibility.
+              </div>
+</div>
+<a class="inline-flex items-center gap-1 text-primary hover:underline font-label-sm text-label-sm shrink-0" href="#">
+<span>Gazette Ref #ED-2024-91</span>
+<span class="material-symbols-outlined text-[16px]">arrow_outward</span>
+</a>
+</div>
+</div>
+<!-- Claim Card 2 -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md flex-1">
+<span class="w-7 h-7 rounded-full bg-surface-container-highest text-primary font-code-sm text-code-sm font-bold flex items-center justify-center shrink-0">
+                02
+              </span>
+<div class="flex flex-col gap-space-xs flex-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">Extracted Claim Proposition</span>
+<!-- Quoted claim text component -->
+<div class="p-space-md bg-surface-container-low rounded-lg font-quoted-claim text-quoted-claim text-on-surface">
+                  “Applications close tomorrow midnight; students failing to submit immediately will lose their entitlement permanently.”
+                </div>
+</div>
+</div>
+<!-- Verdict Badge Pill -->
+<div class="shrink-0 flex md:flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-md text-label-md font-bold shadow-sm">
+<span class="material-symbols-outlined text-[18px]">help</span>
+<span>Cannot Be Confirmed</span>
+</span>
+<span class="font-code-sm text-[11px] text-outline">Synthetic Deadline Vector</span>
+</div>
+</div>
+<!-- Evidentiary Findings Footer -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm text-body-sm font-body-sm">
+<div class="flex items-start gap-space-sm text-on-surface">
+<span class="material-symbols-outlined text-outline text-[20px] shrink-0 mt-0.5">policy</span>
+<div>
+<strong>Evidentiary Status:</strong> No formal central notification exists for this window. The 24-hour urgency deadline is an engineered phishing mechanism designed to bypass parental verification and trigger panic registration.
+              </div>
+</div>
+<span class="text-outline font-code-sm text-code-sm shrink-0">Phishing Heuristic Pattern #P404</span>
+</div>
+</div>
+<!-- Claim Card 3 -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md flex-1">
+<span class="w-7 h-7 rounded-full bg-surface-container-highest text-primary font-code-sm text-code-sm font-bold flex items-center justify-center shrink-0">
+                03
+              </span>
+<div class="flex flex-col gap-space-xs flex-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-bold">Extracted Claim Proposition</span>
+<!-- Quoted claim text component -->
+<div class="p-space-md bg-surface-container-low rounded-lg font-quoted-claim text-quoted-claim text-on-surface">
+                  “All students must pay a mandatory ₹450 verification and server processing fee via direct UPI transfer to complete registration.”
+                </div>
+</div>
+</div>
+<!-- Verdict Badge Pill -->
+<div class="shrink-0 flex md:flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-full bg-error-container text-on-error-container font-label-md text-label-md font-bold shadow-sm">
+<span class="material-symbols-outlined text-[18px]">gpp_bad</span>
+<span>Flagged Scam / False</span>
+</span>
+<span class="font-code-sm text-[11px] text-error font-bold">Severe Financial Threat</span>
+</div>
+</div>
+<!-- Evidentiary Findings Footer -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm text-body-sm font-body-sm">
+<div class="flex items-start gap-space-sm text-on-surface">
+<span class="material-symbols-outlined text-error text-[20px] shrink-0 mt-0.5">report</span>
+<div>
+<strong>Official Clarification:</strong> National Scholarship Portal (NSP: scholarships.gov.in) never levies processing fees or requests peer-to-peer UPI transfers for any central or state scholarship schemes.
+              </div>
+</div>
+<a class="inline-flex items-center gap-1 text-primary hover:underline font-label-sm text-label-sm shrink-0" href="https://scholarships.gov.in" rel="noopener noreferrer" target="_blank">
+<span>Official NSP Guidelines</span>
+<span class="material-symbols-outlined text-[16px]">arrow_outward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. CIVIC ACTION & ESCALATION CONTROLS -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-space-lg">
+<div class="flex flex-col gap-1 max-w-xl">
+<div class="flex items-center gap-space-xs text-error font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[20px]">security</span>
+          High Risk Phishing Flag Active
+        </div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          This URL contains both demonstrably false central government representations and financial harvesting mechanisms. You can read the forensic audit or notify statutory response cells.
+        </p>
+</div>
+<div class="flex flex-wrap items-center gap-space-md w-full md:w-auto justify-end">
+<!-- Secondary / Outline Button: Report to CERT-In -->
+<button class="h-11 px-space-lg bg-surface-container-low hover:bg-surface-container text-error font-label-md text-label-md rounded-lg flex items-center justify-center gap-space-sm transition-colors shadow-sm" onclick="alert('Report draft compiled for submission to CERT-In (incident@cert-in.org.in) and PIB Fact Check (+91 8799711259).');" type="button">
+<span class="material-symbols-outlined text-[20px]">report_problem</span>
+<span>Report domain to CERT-In / PIB</span>
+</button>
+<!-- Primary Action: Full Evidentiary Dossier -->
+<button class="h-11 px-space-xl bg-primary-container text-on-primary hover:bg-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-space-sm transition-colors shadow-sm" type="button">
+<span>Proceed to Full Evidentiary Dossier</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Methodology Verification Guarantee Micro-Banner -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md text-outline font-body-sm text-body-sm px-space-xs pb-space-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-tertiary">balance</span>
+<span>Independent Non-Governmental Verification • Standards compliant with IFCN Core Principles</span>
+</div>
+<div class="flex items-center gap-space-md">
+<a class="hover:text-on-surface underline" href="#">Auditor Signature #SachCheck-712</a>
+<span>•</span>
+<a class="hover:text-on-surface underline" href="#">View Crawl RAW HAR Logs</a>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive feedback for URL submission testing
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('url-target');
+    if (input) {
+      input.addEventListener('focus', () => input.select());
+    }
+  });
+</script></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant py-space-xl"><div class="max-w-7xl mx-auto px-margin-desktop flex flex-col sm:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-tertiary text-[20px]">verified_user</span><p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck explains its evidence. It does not replace official notices.</p></div><div class="flex items-center gap-space-lg text-outline font-label-sm text-label-sm"><span>Civic Accountability Standard</span><span>•</span><span>Open Methodology</span></div></div></footer></body></html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>SachCheck - Civic Verification System</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary": "#ffffff", "tertiary-fixed": "#90f8ad", "on-primary": "#ffffff", "surface-container-low": "#f1f3ff", "primary-container": "#1d4ed8", "surface-variant": "#d8e2ff", "on-secondary-fixed": "#321200", "tertiary-container": "#006a36", "secondary-fixed": "#ffdbc9", "primary": "#0037b0", "on-secondary-container": "#642b00", "surface": "#faf9ff", "on-primary-fixed": "#001551", "background": "#faf9ff", "on-tertiary-fixed-variant": "#005228", "surface-dim": "#cedafa", "on-surface": "#0f1b33", "tertiary-fixed-dim": "#74db92", "on-tertiary": "#ffffff", "on-error": "#ffffff", "surface-container-highest": "#d8e2ff", "on-secondary-fixed-variant": "#753400", "secondary-fixed-dim": "#ffb68c", "inverse-on-surface": "#edf0ff", "secondary-container": "#fe852f", "primary-fixed": "#dce1ff", "tertiary": "#004f27", "on-tertiary-container": "#82ea9f", "error-container": "#ffdad6", "surface-bright": "#faf9ff", "secondary": "#9a4600", "outline": "#747686", "inverse-primary": "#b7c4ff", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", "on-background": "#0f1b33", "surface-container": "#e9edff", "error": "#ba1a1a", "surface-container-high": "#e1e8ff", "primary-fixed-dim": "#b7c4ff", "on-primary-container": "#cad3ff", "surface-tint": "#2151da", "inverse-surface": "#253049", "on-surface-variant": "#434655", "outline-variant": "#c4c5d7", "on-tertiary-fixed": "#00210d", "on-primary-fixed-variant": "#0039b5" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter": "1rem", "margin-desktop": "2rem", "space-md": "1rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "gutter-desktop": "1.5rem", "margin-tablet": "1.5rem", "margin": "1rem", "space-xs": "0.25rem", "space-2xl": "3rem", "space-xl": "2rem" }, fontFamily: { "headline-sm": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "quoted-claim-lg": ["\"Source Serif 4\""], "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "quoted-claim": ["\"Source Serif 4\""], "headline-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "code-sm": ["Space Mono"], "label-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"] }, fontSize: { "headline-sm": ["16px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "600" }], "headline-xl-mobile": ["28px", { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-xl": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0", fontWeight: "400" }], "quoted-claim-lg": ["19px", { lineHeight: "30px", letterSpacing: "0", fontWeight: "400" }], "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0", fontWeight: "400" }], "body-md": ["15px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "400" }], "quoted-claim": ["16px", { lineHeight: "26px", letterSpacing: "0", fontWeight: "400" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "700" }], "headline-lg-mobile": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "code-sm": ["12px", { lineHeight: "16px", letterSpacing: "0", fontWeight: "400" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(15,27,51,0.06)]"><div class="h-20 max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-xs text-on-surface group focus:outline-none" data-path="check-a-forward" href="#"><span class="material-symbols-outlined text-primary text-[28px]">verified_user</span><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight leading-none text-on-surface">SachCheck</span><span class="font-label-sm text-label-sm text-on-surface-variant font-normal leading-none mt-1">Fact Verification</span></div></a><nav class="hidden lg:flex items-center gap-space-lg" data-active-classes="text-primary font-bold"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="check-a-forward" href="#">Check a forward</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="history" href="#">History</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="whatsapp" href="#">WhatsApp</a><a aria-current="page" class="transition-colors py-space-xs text-primary font-bold" data-path="how-we-decide" href="#">How we decide</a></nav></div><div class="flex items-center gap-space-sm sm:gap-space-md"><div class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface text-primary font-bold shadow-[0_1px_2px_rgba(15,27,51,0.05)]" type="button">EN</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">हिं</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">मरा</button></div><div class="hidden md:flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface text-on-surface font-semibold shadow-[0_1px_2px_rgba(15,27,51,0.05)]" title="Standard Font" type="button">A</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Medium Font" type="button">A+</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Large Font" type="button">A++</button></div><a class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="settings" href="#" title="Settings"><span class="material-symbols-outlined text-[22px]">settings</span></a><a class="hidden sm:inline-flex items-center justify-center h-11 px-5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2" data-path="check-a-forward" href="#">Check a forward</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Ambient Banner / Breadcrumb & Overview -->
+<div class="w-full bg-surface-container-low/70 py-space-xl px-margin md:px-margin-tablet lg:px-margin-desktop shadow-sm">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="hover:text-primary transition-colors cursor-pointer">System Specification</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-bold">Resilience &amp; State Directory</span>
+<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-surface text-on-surface-variant text-[11px] font-code-sm shadow-sm">SPEC-V2.4</span>
+</div>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pt-space-xs">
+<div class="max-w-3xl">
+<h1 class="font-headline-xl text-headline-xl tracking-tight text-on-surface mb-space-xs">
+            System States &amp; Exception Patterns
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+            Calm, non-punitive system feedback across edge-cases, network degradation, and extraction boundaries. SachCheck never shifts culpability onto the citizen.
+          </p>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-container-lowest p-2 rounded-xl shadow-sm self-start lg:self-auto">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-tertiary text-[18px]">verified</span>
+<span>13 Civic Standard Patterns</span>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary text-label-sm font-label-sm transition-opacity hover:opacity-95" id="toggle-filter-all">
+            Full Matrix
+          </button>
+</div>
+</div>
+<!-- Quick Principles Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md mt-space-md pt-space-md">
+<div class="flex items-start gap-3 bg-surface-container-lowest p-3.5 rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-primary text-[22px] mt-0.5">sentiment_neutral</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Zero Blame Architecture</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">User error is treated as an input boundary constraint, never an infraction.</div>
+</div>
+</div>
+<div class="flex items-start gap-3 bg-surface-container-lowest p-3.5 rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[22px] mt-0.5">restore</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Explicit Recovery Paths</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Every dead-end carries an actionable citizen escape or fallback alternative.</div>
+</div>
+</div>
+<div class="flex items-start gap-3 bg-surface-container-lowest p-3.5 rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[22px] mt-0.5">shield_with_heart</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Cryptographic Integrity</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Errors report transaction IDs, data safety affirmations, and audit trails.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main States Showcase Canvas -->
+<div class="max-w-[1200px] w-full mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop py-space-2xl">
+<div class="flex items-center justify-between mb-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary inline-block"></span>
+<span class="font-headline-md text-headline-md text-on-surface">Standard Citizen Feedback States</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm ml-2">INDEXED (01–13)</span>
+</div>
+<div class="hidden md:flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-tertiary"></span> Ready
+        <span class="inline-block w-2 h-2 rounded-full bg-secondary ml-3"></span> Informational
+        <span class="inline-block w-2 h-2 rounded-full bg-error ml-3"></span> Interrupted
+      </div>
+</div>
+<!-- The 13 States Responsive Masonry / Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+<!-- 1. EMPTY HISTORY -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-primary font-bold">STATE 01</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Empty History</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">inventory_2</span>
+</div>
+<div class="my-auto py-space-md text-center flex flex-col items-center">
+<div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center mb-space-md text-primary">
+<span class="material-symbols-outlined text-[32px]">manage_search</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">You haven't checked anything yet.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mb-space-md">
+            Verified claims you inspect will be saved on this device if your local browsing memory is enabled. Nothing is logged on central servers without consent.
+          </p>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface-container text-on-surface-variant text-code-sm font-code-sm mb-space-md">
+<span class="material-symbols-outlined text-[14px] text-tertiary">lock</span>
+<span>Zero-Knowledge Storage: Active</span>
+</div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_task</span>
+<span>Check a forward</span>
+</button>
+</div>
+</div>
+<!-- 2. NO CLAIM (OPINION / GREETING) -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-secondary font-bold">STATE 02</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Input Boundary</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[20px]">lightbulb</span>
+</div>
+<div>
+<div class="flex items-center gap-2 text-secondary mb-2">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<span class="font-headline-sm text-headline-sm">Non-Verifiable Text</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            This looks like an opinion, greeting, or prediction.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            SachCheck verifies verifiable factual propositions, data indices, gazette orders, and government announcements rather than personal philosophy.
+          </p>
+<!-- Input Extraction Inset -->
+<div class="bg-surface-container-low p-space-sm rounded-lg mb-space-md">
+<div class="text-label-sm font-label-sm text-on-surface-variant mb-1 uppercase tracking-wider text-[10px]">Extracted Text Payload</div>
+<p class="font-quoted-claim text-quoted-claim text-on-surface italic bg-surface-container-lowest p-2.5 rounded">
+              "Have a blessed morning! ☀️ Life is what you make it and positivity always triumphs over darkness."
+            </p>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-space-sm">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-[11px] font-label-sm">Greeting Detected</span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-[11px] font-label-sm">No Statistical Claim</span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-[11px] font-label-sm">No Legal Directive</span>
+</div>
+</div>
+<div class="pt-space-md mt-auto flex items-center justify-between gap-2">
+<button class="h-10 px-4 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex-1">
+            Learn what we check
+          </button>
+<button class="h-10 px-4 rounded-lg bg-surface-container-low text-primary font-label-md text-label-md hover:bg-surface-container transition-colors">
+            Try another
+          </button>
+</div>
+</div>
+<!-- 3. CANNOT CONFIRM -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-on-surface-variant font-bold">STATE 03</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Evidential Inconclusive</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">help</span>
+</div>
+<div>
+<!-- Badge -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-label-sm font-label-sm mb-space-sm">
+<span class="material-symbols-outlined text-[16px]">help_outline</span>
+<span class="font-bold">Cannot Be Confirmed</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            We couldn't find enough reliable evidence.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Our autonomous crawlers searched official gazettes, press bureaus, and validated ministry directories, but public documentation is currently contradictory or pending.
+          </p>
+<!-- Audit Ledger Summary -->
+<div class="bg-surface-container-low rounded-lg p-space-sm space-y-2 mb-space-md text-body-sm font-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant">Official Repositories:</span>
+<span class="font-code-sm text-on-surface">PIB, NIC, RBI Gazette (3/3 null)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant">Investigation Status:</span>
+<span class="text-secondary font-semibold">Missing statutory release</span>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-auto flex flex-col gap-2">
+<button class="w-full h-11 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">outgoing_mail</span>
+<span>Submit to IFCN Desk for Manual Review</span>
+</button>
+</div>
+</div>
+<!-- 4. LOW QUALITY IMAGE -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-secondary font-bold">STATE 04</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">OCR Degraded</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[20px]">broken_image</span>
+</div>
+<div>
+<!-- Visual Representation -->
+<div class="relative w-full h-28 rounded-lg overflow-hidden mb-space-md bg-surface-container-high flex items-center justify-center">
+<img class="w-full h-full object-cover filter blur-[2px] opacity-40" data-alt="A heavily pixelated, compressed smartphone screenshot of a regional Indian newspaper clipping with visible digital compression artifacts and blurriness against a neutral clean laboratory background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkSrKWnQj5Vy1NplSQ2JL8EothFsS4-weawCv8lQbdkHobSwJnzyc7FJtcyPIwIqEsJ3FVdU6h_AEOlO5XnBm3SjUZ88cgnLqN_rzydhdryzaXnEh4SpJ6IwEvtqg6x9pCLSkqKdlIFnhGLLuSxYMr5tIPPHVAnqJG3cBuJc9eezETqa31LSq8A0ZAIOQNtOdOXRTMipHA0FfFhKCQpwMwYYa-5_RHby504LH3UUY"/>
+<div class="absolute inset-0 bg-surface/40 flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[28px] mb-1">blur_on</span>
+<span class="font-code-sm text-code-sm text-on-surface font-bold">OCR CONFIDENCE: 14%</span>
+</div>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            That screenshot is difficult to read.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Heavy compression or camera glare obscured the text. Crop out extraneous phone borders, or grab a direct screengrab from the app before forwarding.
+          </p>
+<div class="p-2.5 rounded bg-surface-container-low text-body-sm font-body-sm text-on-surface-variant flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">tips_and_updates</span>
+<span>Tip: If it is a printed circular, hold your camera flat with good indoor light.</span>
+</div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">upload</span>
+<span>Upload a clearer screenshot</span>
+</button>
+</div>
+</div>
+<!-- 5. LOW QUALITY AUDIO -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-secondary font-bold">STATE 05</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ASR Degraded</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[20px]">mic_off</span>
+</div>
+<div>
+<!-- Simulated Audio Waveform with Noise -->
+<div class="bg-surface-container-low p-space-md rounded-lg mb-space-md">
+<div class="flex items-center justify-between text-code-sm font-code-sm text-on-surface-variant mb-2">
+<span>VOICE_NOTE_0918.opus</span>
+<span class="text-secondary font-bold">SNR &lt; 3dB (Severe Traffic Noise)</span>
+</div>
+<!-- Mini Waveform Visualizer -->
+<div class="flex items-end gap-1 h-12 w-full pt-2">
+<span class="w-1.5 h-3 bg-outline rounded-full"></span>
+<span class="w-1.5 h-6 bg-secondary rounded-full"></span>
+<span class="w-1.5 h-10 bg-error rounded-full"></span>
+<span class="w-1.5 h-11 bg-error rounded-full"></span>
+<span class="w-1.5 h-7 bg-secondary rounded-full"></span>
+<span class="w-1.5 h-4 bg-outline rounded-full"></span>
+<span class="w-1.5 h-2 bg-outline rounded-full"></span>
+<span class="w-1.5 h-8 bg-secondary rounded-full"></span>
+<span class="w-1.5 h-12 bg-error rounded-full"></span>
+<span class="w-1.5 h-9 bg-secondary rounded-full"></span>
+<span class="w-1.5 h-5 bg-outline rounded-full"></span>
+<span class="w-1.5 h-3 bg-outline rounded-full"></span>
+<span class="w-1.5 h-6 bg-secondary rounded-full"></span>
+<span class="w-1.5 h-10 bg-error rounded-full"></span>
+<span class="w-1.5 h-4 bg-outline rounded-full"></span>
+<span class="w-1.5 h-2 bg-outline rounded-full"></span>
+</div>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            We couldn't confidently transcribe this voice note.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Loud ambient street sounds or acoustic distortion masked spoken speech words. You can record again in a quieter area or simply summarize it in text.
+          </p>
+</div>
+<div class="pt-space-md mt-auto flex flex-col sm:flex-row gap-2">
+<button class="h-11 px-4 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex-1 flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+<span>Record again</span>
+</button>
+<button class="h-11 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex-1 flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">keyboard</span>
+<span>Type the text</span>
+</button>
+</div>
+</div>
+<!-- 6. SERVICE FAILURE -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-error font-bold">STATE 06</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Service Unreachable</span>
+</div>
+<span class="material-symbols-outlined text-error text-[20px]">sync_problem</span>
+</div>
+<div>
+<div class="w-10 h-10 rounded-full bg-error-container text-error flex items-center justify-center mb-space-sm">
+<span class="material-symbols-outlined text-[24px]">cloud_off</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            We couldn't complete the check.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Our evidence retrieval clusters experienced an intermittent connection reset while contacting regional state portals.
+          </p>
+<div class="bg-surface-container-low p-space-sm rounded-lg text-code-sm font-code-sm text-on-surface-variant mb-space-md flex items-center justify-between">
+<span>DISPATCH: NIC_GATEWAY_TIMEOUT</span>
+<span class="text-tertiary">SAFE_FAILOVER</span>
+</div>
+</div>
+<div class="pt-space-md mt-auto flex flex-col gap-2">
+<button class="w-full h-11 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+<span>Try again</span>
+</button>
+<button class="w-full h-11 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">content_paste</span>
+<span>Paste the text instead</span>
+</button>
+</div>
+</div>
+<!-- 7. RATE LIMIT -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-secondary font-bold">STATE 07</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Congestion Defense</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[20px]">hourglass_top</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-2 text-secondary">
+<span class="material-symbols-outlined text-[20px]">speed</span>
+<span class="font-label-md text-label-md font-bold">System Throttle Active</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            You're checking a little too quickly.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            SachCheck conducts live cryptographic gazette queries on civic infrastructure. We pace incoming queries to avoid overloading public government datasets for other citizens.
+          </p>
+<!-- Circular / Progress Countdown Component -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface flex items-center justify-center font-code-sm text-[16px] text-secondary font-bold shadow-sm">
+                18s
+              </div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface">Cooling interval</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Resuming automatically</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[24px]">hourglass_bottom</span>
+</div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-surface-container-high text-on-surface-variant font-label-md text-label-md cursor-not-allowed flex items-center justify-center gap-2 opacity-80" disabled="">
+<span class="material-symbols-outlined text-[18px]">timer</span>
+<span>Please wait 18 seconds...</span>
+</button>
+</div>
+</div>
+<!-- 8. OFFLINE -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-on-surface-variant font-bold">STATE 08</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Device Offline</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">wifi_off</span>
+</div>
+<div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-label-sm font-label-sm mb-space-sm">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span>Local Cache Mirror</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            You're offline.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            No internet connection detected. You can still inspect previously verified records saved to your browser's persistent storage.
+          </p>
+<!-- Cached Result Pill Card -->
+<div class="bg-surface-container-low p-space-sm rounded-lg mb-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">Scholarship Claim #SC-8921</span>
+<span class="font-code-sm text-[11px] px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant">CACHED</span>
+</div>
+<div class="flex items-center gap-1.5 text-tertiary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Verified True (Gazette indexed)</span>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">network_check</span>
+<span>Retry connection</span>
+</button>
+</div>
+</div>
+<!-- 9. MAINTENANCE -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-primary font-bold">STATE 09</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Scheduled Sync</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">construction</span>
+</div>
+<div>
+<div class="w-10 h-10 rounded-full bg-surface-container-low text-primary flex items-center justify-center mb-space-sm">
+<span class="material-symbols-outlined text-[24px]">database</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            SachCheck is temporarily unavailable.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Scheduled gazette indexing synchronization with National Informatics Centre (NIC) and Press Information Bureau feeds is underway.
+          </p>
+<div class="bg-surface-container-low p-space-sm rounded-lg mb-space-md space-y-2">
+<div class="flex items-center justify-between font-body-sm text-body-sm">
+<span class="text-on-surface-variant">Synchronization window:</span>
+<span class="font-bold text-on-surface">~14 minutes remaining</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-3/4 rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">notifications</span>
+<span>Notify me when completed</span>
+</button>
+</div>
+</div>
+<!-- 10. 404 NOT FOUND -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-on-surface-variant font-bold">STATE 10</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Record Void</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">find_in_page</span>
+</div>
+<div>
+<span class="font-code-sm text-[28px] font-bold text-on-surface-variant tracking-tighter block mb-1">404</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            That check could not be found.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            This verification link may have expired past our zero-knowledge retention cycle, or the audit hash string may contain a typographical error.
+          </p>
+<div class="p-3 bg-surface-container-low rounded-lg mb-space-md text-body-sm font-body-sm text-on-surface-variant">
+<div class="font-semibold text-on-surface mb-0.5">Looking for a viral forward?</div>
+            Verify fresh statements directly with our extraction engine.
+          </div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span>Go to Check a forward</span>
+</button>
+</div>
+</div>
+<!-- 11. 500 SERVER ERROR -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-error font-bold">STATE 11</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Internal Fault</span>
+</div>
+<span class="material-symbols-outlined text-error text-[20px]">error_outline</span>
+</div>
+<div>
+<span class="font-code-sm text-[28px] font-bold text-error tracking-tighter block mb-1">500</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            Something went wrong.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            An unforeseen exception occurred on the processing node. Our site reliability desk has received the anonymized trace.
+          </p>
+<!-- Citizen Safety Guarantee -->
+<div class="bg-surface-container-low p-space-sm rounded-lg mb-space-md space-y-1.5 font-code-sm text-code-sm">
+<div class="flex items-center justify-between text-on-surface">
+<span class="text-on-surface-variant">REF ID:</span>
+<span class="font-bold">#ERR-992-MUMBAI</span>
+</div>
+<div class="flex items-center gap-1.5 text-tertiary">
+<span class="material-symbols-outlined text-[14px]">format_image_left</span>
+<span>No user data was retained or leaked.</span>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-auto flex items-center gap-2">
+<button class="h-11 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex-1 flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span>Reload</span>
+</button>
+<button class="h-11 px-4 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center" title="Copy Incident Reference">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- 12. PARTIAL RESULT (MULTI-CLAIM) -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow md:col-span-2 lg:col-span-2">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-primary font-bold">STATE 12</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Asynchronous Partial Completion</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">rule</span>
+</div>
+<div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-space-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">
+              We verified some claims, but couldn't complete every check.
+            </h2>
+<span class="px-2.5 py-1 rounded bg-secondary-fixed/50 text-on-secondary-fixed-variant text-code-sm font-code-sm shrink-0">
+              1 of 2 Verified
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Complex forwards often combine truth with unproven assertions. sachCheck splits compound text to avoid oversimplified "True" or "False" classifications.
+          </p>
+<!-- Split Claims Inspection Table -->
+<div class="space-y-space-sm mb-space-md">
+<!-- Claim 1 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-tertiary text-[20px] shrink-0 mt-0.5">check_circle</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Claim 1: National Merit Scholarship exists for 2025</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Confirmed via Ministry of Education Gazette Notification F.No.12-8/2024.</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-label-sm font-label-sm shrink-0 self-start sm:self-center">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                Verified True
+              </span>
+</div>
+<!-- Claim 2 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5 animate-spin">sync</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Claim 2: Immediate Rs 50,000 disbursement via SMS link</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Investigating state banking archives... NIC server query pending.</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-label-sm font-label-sm shrink-0 self-start sm:self-center">
+<span class="material-symbols-outlined text-[14px]">pending</span>
+                Pending Review
+              </span>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-auto flex items-center justify-between gap-space-sm">
+<span class="text-body-sm font-body-sm text-on-surface-variant">Live polling active • Updates in background</span>
+<button class="h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors">
+            Inspect Claim 1 sources
+          </button>
+</div>
+</div>
+<!-- 13. BETA LANGUAGE -->
+<div class="flex flex-col justify-between bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-low text-primary font-bold">STATE 13</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Linguistic Boundary</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">translate</span>
+</div>
+<div>
+<!-- Beta Badge -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-variant text-primary font-label-sm text-label-sm mb-space-sm">
+<span class="material-symbols-outlined text-[16px]">science</span>
+<span>Maithili / Santali Pilot Model</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            This language model is in open civic beta.
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Accuracy benchmarks for this regional language are currently undergoing linguistic validation with our university partners. Interpret results carefully.
+          </p>
+<!-- Fallback Translation Notice -->
+<div class="bg-surface-container-low p-space-sm rounded-lg mb-space-md flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">g_translate</span>
+<span class="font-label-sm text-label-sm text-on-surface">Fallback to standard Hindi / English</span>
+</div>
+<button class="text-primary font-label-sm text-label-sm hover:underline">Toggle</button>
+</div>
+</div>
+<div class="pt-space-md mt-auto">
+<button class="w-full h-11 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+<span>View Hindi Translation instead</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Editorial / Governance Note Section -->
+<div class="mt-space-2xl bg-surface-container-lowest rounded-xl p-space-xl shadow-sm">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg">
+<div class="max-w-2xl">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined text-[20px]">rule_folder</span>
+<span class="font-headline-sm text-headline-sm">Evidential State Principles</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            In compliance with the Civic Accountability Protocol, SachCheck enforces deterministic state responses. If a statement cannot be definitively traced to an official gazette, parliamentary transcript, or verifiable institutional register, our models default to calm neutrality over speculation.
+          </p>
+</div>
+<div class="flex flex-col sm:flex-row gap-space-sm w-full md:w-auto shrink-0">
+<a class="h-11 px-5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2" data-path="open-methodology" href="#">
+<span>Open Methodology</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<a class="h-11 px-5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2" data-path="check-a-forward" href="#">
+<span>Test a Live Query</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-container-lowest mt-space-2xl shadow-[0_-1px_8px_rgba(15,27,51,0.03)]"><div class="max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop py-space-xl"><div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg pb-space-lg"><div class="max-w-xl"><div class="flex items-center gap-space-xs text-on-surface mb-2"><span class="material-symbols-outlined text-primary text-[20px]">gavel</span><span class="font-headline-sm text-headline-sm text-on-surface">Civic Transparency Standard</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck explains its evidence. It does not replace official notices.</p></div><nav class="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="civic-accountability-standard" href="#">Civic Accountability Standard</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="open-methodology" href="#">Open Methodology</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="privacy-policy" href="#">Privacy Policy</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="settings" href="#">Settings</a></nav></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm"><p>© 2025 SachCheck Initiative. Public evidential service across India.</p><div class="flex items-center gap-space-xs text-tertiary"><span class="material-symbols-outlined text-[16px]">verified</span><span class="font-code-sm text-code-sm">VERIFIABLE RECORD PROTOCOL v2.4</span></div></div></div></footer></body></html>

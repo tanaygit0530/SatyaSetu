@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#90f8ad", "on-tertiary-fixed": "#00210d", "on-secondary": "#ffffff", "secondary-container": "#fe852f", "on-primary-fixed-variant": "#0039b5", "on-tertiary-container": "#82ea9f", "on-secondary-fixed-variant": "#753400", "outline": "#747686", "on-secondary-fixed": "#321200", "surface-container-high": "#e1e8ff", "surface-bright": "#faf9ff", "inverse-primary": "#b7c4ff", "secondary-fixed-dim": "#ffb68c", "on-surface": "#0f1b33", "inverse-surface": "#253049", "on-error": "#ffffff", "on-tertiary": "#ffffff", "surface-container-lowest": "#ffffff", "on-secondary-container": "#642b00", "surface-container-highest": "#d8e2ff", "primary-fixed-dim": "#b7c4ff", "on-error-container": "#93000a", "on-primary": "#ffffff", "outline-variant": "#c4c5d7", "inverse-on-surface": "#edf0ff", "surface-variant": "#d8e2ff", "primary": "#0037b0", "error": "#ba1a1a", "on-surface-variant": "#434655", "secondary": "#9a4600", "primary-container": "#1d4ed8", "on-primary-container": "#cad3ff", "surface-dim": "#cedafa", "on-primary-fixed": "#001551", "on-tertiary-fixed-variant": "#005228", "surface": "#faf9ff", "surface-container": "#e9edff", "surface-container-low": "#f1f3ff", "secondary-fixed": "#ffdbc9", "primary-fixed": "#dce1ff", "background": "#faf9ff", "tertiary": "#004f27", "tertiary-container": "#006a36", "error-container": "#ffdad6", "surface-tint": "#2151da", "on-background": "#0f1b33", "tertiary-fixed-dim": "#74db92" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-sm": "0.5rem", "margin-tablet": "1.5rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "2rem", "space-2xl": "3rem", "margin": "1rem", "space-xl": "2rem" }, "fontFamily": { "label-sm": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "quoted-claim-lg": ["\"Source Serif 4\""], "code-sm": ["Space Mono"], "headline-sm": ["Plus Jakarta Sans"], "quoted-claim": ["\"Source Serif 4\""], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}], "body-sm": ["13px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}], "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "700"}], "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}], "body-md": ["15px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}], "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}], "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "400"}], "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}], "quoted-claim-lg": ["19px", {"lineHeight": "30px", "letterSpacing": "0", "fontWeight": "400"}], "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400"}], "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "600"}], "quoted-claim": ["16px", {"lineHeight": "26px", "letterSpacing": "0", "fontWeight": "400"}], "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}], "headline-lg-mobile": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest border-b border-outline-variant"><div class="h-16 max-w-7xl mx-auto px-margin-desktop flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><img alt="SachCheck Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1V5nPBOWqp8I-AH02hP-0Soj3uU1ZbC8nr6bF1G7V0jSgl_gkM7IukfJ-oiXZ-yo3MeHnwS7PzIARrAh3Gemfpt4VgwXtS1OJRgNJJihEg7cTPGAmEXwsBgZaa59xR-MZcaHqdeZJlGoKhBdrWAy5mytpNpH6Oj9Sb-NXUR3AXq8tg2txCxPClFyfwcFkCUuDkVGXMTZGmR94LESNo_uxO5QjLhAmuf-_6K_wzH2yYR"/><span class="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">SachCheck</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-surface-container text-primary font-bold"><a aria-current="page" class="px-space-md py-space-xs rounded transition-colors bg-surface-container text-primary font-bold" data-path="check" href="#">Check a forward</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="history" href="#">History</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="whatsapp" href="#">WhatsApp</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="methodology" href="#">How we decide</a></nav></div><div class="flex items-center gap-space-md"><div aria-label="Language Selector" class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs border border-outline-variant"><button class="px-space-sm py-space-xs rounded text-on-surface font-label-sm text-label-sm bg-surface-container-lowest shadow-sm" type="button">EN</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">हिं</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">मरा</button></div><div aria-label="Civic Font Scaler Widget" class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs border border-outline-variant"><button class="px-space-sm py-space-xs rounded text-on-surface font-label-sm text-label-sm bg-surface-container-lowest shadow-sm" title="Standard Font Size" type="button">A</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" title="Medium Font Size" type="button">A+</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" title="Large Font Size" type="button">A++</button></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<section class="w-full max-w-[1200px] mx-auto px-margin md:px-margin-desktop py-space-xl">
+<!-- Editorial Headline & Objective Intro -->
+<div class="mb-space-xl max-w-3xl">
+<div class="inline-flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded-full text-primary font-label-sm text-label-sm mb-space-sm">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Public Verification Service</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight mb-space-xs">
+        Check a forward
+      </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+        Paste the message you received. SachCheck will separate the claims and check them against reliable sources.
+      </p>
+</div>
+<!-- Main Ingestion Module & Workflow Shell -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- Left Column: Input Composer Primary Interface -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Input Composer Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md sm:p-space-lg flex flex-col">
+<!-- Tab Navigation (5 Ingestion Modalities) -->
+<div aria-label="Ingestion Type" class="flex items-center gap-space-xs overflow-x-auto pb-space-sm mb-space-md scrollbar-none" role="tablist">
+<button aria-selected="true" class="relative px-space-md py-2.5 font-label-md text-label-md text-primary flex items-center gap-space-xs transition-colors group whitespace-nowrap focus:outline-none" id="tab-text" role="tab">
+<span class="material-symbols-outlined text-[18px]">notes</span>
+<span>Text</span>
+<span class="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full"></span>
+</button>
+<button aria-selected="false" class="relative px-space-md py-2.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs transition-colors group whitespace-nowrap focus:outline-none" id="tab-screenshot" role="tab">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+<span>Screenshot</span>
+</button>
+<button aria-selected="false" class="relative px-space-md py-2.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs transition-colors group whitespace-nowrap focus:outline-none" id="tab-voice" role="tab">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+<span>Voice</span>
+</button>
+<button aria-selected="false" class="relative px-space-md py-2.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs transition-colors group whitespace-nowrap focus:outline-none" id="tab-pdf" role="tab">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>PDF / Circular</span>
+</button>
+<button aria-selected="false" class="relative px-space-md py-2.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs transition-colors group whitespace-nowrap focus:outline-none" id="tab-link" role="tab">
+<span class="material-symbols-outlined text-[18px]">link</span>
+<span>Web Link</span>
+</button>
+</div>
+<!-- Active Text Input Area -->
+<div class="relative flex flex-col bg-surface-container-low rounded-lg p-space-sm sm:p-space-md transition-shadow">
+<label class="sr-only" for="forward-textarea">Forwarded message text</label>
+<div class="flex items-center justify-between pb-space-xs mb-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">content_paste</span>
+<span>Original forward verbatim</span>
+</span>
+<span class="bg-surface-container-high text-on-primary-fixed-variant px-2 py-0.5 rounded text-[11px] font-code-sm">INPUT_RAW</span>
+</div>
+<textarea class="w-full bg-surface-container-lowest rounded-lg p-space-md font-quoted-claim text-quoted-claim text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container resize-y transition-all leading-relaxed" id="forward-textarea" maxlength="2000" placeholder="Paste WhatsApp message, Telegram broadcast, SMS alert, or rumor text here..." rows="6">Government launched a ₹50,000 scholarship for every student. Applications close tomorrow.</textarea>
+<!-- Textarea Under-Bar: Language & Length Metas -->
+<div class="mt-space-sm flex flex-wrap items-center justify-between gap-space-sm pt-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5 bg-surface-container-lowest px-2.5 py-1 rounded">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span>
+<span class="font-code-sm text-code-sm text-on-surface" id="lang-indicator">Language: Auto-detect (English)</span>
+</div>
+<div class="flex items-center gap-1">
+<label class="text-on-surface-variant hidden sm:inline" for="reply-lang-select">Reply in:</label>
+<select class="bg-surface-container-lowest text-on-surface font-label-sm text-label-sm py-1 px-2 rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" id="reply-lang-select">
+<option selected="" value="en">English</option>
+<option value="hi">हिंदी (Hindi)</option>
+<option value="mr">मराठी (Marathi)</option>
+</select>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-outline" id="char-counter">89 / 2000 characters</span>
+</div>
+</div>
+<!-- Action Controls Toolbar -->
+<div class="mt-space-lg flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md">
+<button class="h-11 px-space-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors inline-flex items-center justify-center gap-space-xs focus:outline-none" id="clear-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">backspace</span>
+<span>Clear text</span>
+</button>
+<button class="h-11 px-space-lg bg-primary-container text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary transition-all flex items-center justify-center gap-space-sm shadow-sm active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" id="submit-forward-btn" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">rule</span>
+<span>Check this forward</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Example Prompts / Citizen Fast Test Chips -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md sm:p-space-lg">
+<div class="flex items-center gap-space-xs mb-space-sm text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">lightbulb</span>
+<span>Or try an example forward:</span>
+</div>
+<div class="flex flex-wrap gap-space-sm">
+<button class="example-chip group flex items-center gap-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm px-space-md py-2 rounded-full transition-colors focus:outline-none" data-forward="Government launched a ₹50,000 scholarship for every student under PM Vidya Nidhi. Applications close tomorrow." type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Government scheme</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-[14px]">north_east</span>
+</button>
+<button class="example-chip group flex items-center gap-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm px-space-md py-2 rounded-full transition-colors focus:outline-none" data-forward="Boiled garlic water cures seasonal influenza within 3 hours according to WHO memo dated yesterday." type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span>Health claim</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-[14px]">north_east</span>
+</button>
+<button class="example-chip group flex items-center gap-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm px-space-md py-2 rounded-full transition-colors focus:outline-none" data-forward="RBI declares 2,000 rupee notes completely invalid from midnight with mandatory bank freezing." type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Breaking news</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-[14px]">north_east</span>
+</button>
+<button class="example-chip group flex items-center gap-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm px-space-md py-2 rounded-full transition-colors focus:outline-none" data-forward="Income tax department sends automated fine of ₹10,000 if PAN is not linked to electricity meter." type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>Financial claim</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-[14px]">north_east</span>
+</button>
+</div>
+</div>
+<!-- Civic Privacy & Trust Guarantee Banner -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Zero Data Retention for Privacy</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">We check the content you provide. Media is not kept after processing or linked to your telephone number.</p>
+</div>
+</div>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container flex items-center gap-1 shrink-0 whitespace-nowrap self-end sm:self-center" href="#">
+<span>How we decide</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Right Column: Institutional Verification Standards & Live Ledger -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- Public Verification Pipeline Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-md pb-space-sm bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Methodology</span>
+<span class="font-code-sm text-code-sm text-primary font-bold">STAGE 01 / 03</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            How verification works
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
+            SachCheck splits forwarded rumors into testable factual claims and correlates each with public gazettes, agency bulletins, and verified transcripts.
+          </p>
+<!-- Step Progression Indicator -->
+<div class="flex flex-col gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-code-sm text-code-sm font-bold shrink-0">
+                1
+              </div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Claim Extraction</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Synthesizes dates, monetary promises, and named authorities from raw WhatsApp text.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-code-sm text-code-sm font-bold shrink-0">
+                2
+              </div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Primary Source Match</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Cross-checks against PIB, Gazette of India, RBI notifications, and official portals.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-code-sm text-code-sm font-bold shrink-0">
+                3
+              </div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Transparent Verdict</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Issues unambiguous status: Verified, False, Outdated, or Partly Supported.</p>
+</div>
+</div>
+</div>
+<!-- Evidentiary Verdict Scale Legend -->
+<div class="mt-space-lg pt-space-md bg-surface-container-low rounded-lg p-space-sm">
+<span class="block font-label-sm text-label-sm text-on-surface-variant mb-space-xs">Standardized verdict scale</span>
+<div class="grid grid-cols-2 gap-1.5 font-label-sm text-[11px]">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#EAF6EE] text-[#146336]">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Verified</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#FDF2F2] text-[#991B1B]">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+<span>False</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#FEF7ED] text-[#A04F05]">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span>Outdated</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#FEFCE8] text-[#856807]">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Partly true</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Verified Fact Audit Graphic & Real-Time Stats -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Civic Audit Record</p>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Daily Verification Volume</h4>
+</div>
+<span class="material-symbols-outlined text-primary text-[24px]">query_stats</span>
+</div>
+<!-- Inline Data Visualization (SVG Bar Graph) -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-md mb-space-md">
+<div class="flex justify-between items-end h-24 gap-2 pt-2">
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t h-[35%] transition-all hover:bg-primary"></div>
+<span class="font-code-sm text-[10px] text-outline">Mon</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t h-[55%] transition-all hover:bg-primary"></div>
+<span class="font-code-sm text-[10px] text-outline">Tue</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t h-[42%] transition-all hover:bg-primary"></div>
+<span class="font-code-sm text-[10px] text-outline">Wed</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t h-[78%] transition-all hover:bg-primary"></div>
+<span class="font-code-sm text-[10px] text-outline">Thu</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-primary-container rounded-t h-[94%] transition-all"></div>
+<span class="font-code-sm text-[10px] text-primary font-bold">Today</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-2 pt-2 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Claims analyzed today</span>
+<span class="font-code-sm text-primary font-bold">4,128</span>
+</div>
+</div>
+<!-- Investigator Dispatch Note -->
+<div class="flex items-center gap-space-sm p-space-sm bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-tertiary text-[18px]">verified_user</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              PIB Fact Check &amp; State Press Bureaus monitored continuously.
+            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Extraction Preview Mock (Visual proof for investigative layout) -->
+<div class="mt-space-xl bg-surface-container-lowest rounded-xl p-space-lg shadow-sm" id="extraction-preview">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-md mb-space-md gap-space-sm border-b border-surface-container">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">segment</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Evidentiary Dissection (Live Preview)</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck engine isolates distinct factual assertions before cross-checking archives.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm self-start sm:self-center">
+<span class="px-2.5 py-1 rounded bg-[#FDF2F2] text-[#991B1B] font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+<span>Flagged: Unverified Claim</span>
+</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Claim Sub-Unit 1 -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span class="font-code-sm text-code-sm">ASSERTION_01</span>
+<span class="text-error font-bold text-label-sm">No record found</span>
+</div>
+<blockquote class="font-quoted-claim text-quoted-claim text-on-surface pl-space-sm border-l-2 border-primary mb-space-sm">
+              "Government launched a ₹50,000 scholarship for every student."
+            </blockquote>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Ministry of Education lists National Scholarship Portal schemes. No universal ₹50,000 direct transfer scheme exists under this designation.
+            </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-[11px] font-label-sm text-outline">
+<span>Source: NSP Portal / PIB</span>
+<span class="text-primary font-bold">100% matched</span>
+</div>
+</div>
+<!-- Claim Sub-Unit 2 -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span class="font-code-sm text-code-sm">ASSERTION_02</span>
+<span class="text-secondary font-bold text-label-sm">Urgency tactic</span>
+</div>
+<blockquote class="font-quoted-claim text-quoted-claim text-on-surface pl-space-sm border-l-2 border-secondary mb-space-sm">
+              "Applications close tomorrow."
+            </blockquote>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Artificial urgency pattern typical of phishing campaigns to induce rapid forwarding without scrutiny.
+            </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-[11px] font-label-sm text-outline">
+<span>Pattern: Urgency Trigger</span>
+<span class="text-secondary font-bold">High confidence</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  (function initCheckComposer() {
+    const textarea = document.getElementById('forward-textarea');
+    const charCounter = document.getElementById('char-counter');
+    const clearBtn = document.getElementById('clear-btn');
+    const submitBtn = document.getElementById('submit-forward-btn');
+    const langIndicator = document.getElementById('lang-indicator');
+    const exampleChips = document.querySelectorAll('.example-chip');
+
+    // Live character counter and language detection simulation
+    function updateMetadata() {
+      if (!textarea || !charCounter) return;
+      const len = textarea.value.length;
+      charCounter.textContent = len + ' / 2000 characters';
+      
+      const val = textarea.value.trim();
+      // Simple devanagari detection
+      const hasDevanagari = /[\u0900-\u097F]/.test(val);
+      if (hasDevanagari) {
+        langIndicator.textContent = 'Language: Auto-detect (हिंदी / मराठी)';
+      } else if (val.length > 0) {
+        langIndicator.textContent = 'Language: Auto-detect (English)';
+      } else {
+        langIndicator.textContent = 'Language: Waiting for input';
+      }
+    }
+
+    if (textarea) {
+      textarea.addEventListener('input', updateMetadata);
+      updateMetadata();
+    }
+
+    // Clear Button
+    if (clearBtn && textarea) {
+      clearBtn.addEventListener('click', function() {
+        textarea.value = '';
+        textarea.focus();
+        updateMetadata();
+      });
+    }
+
+    // Example Chips Ingestion
+    exampleChips.forEach(chip => {
+      chip.addEventListener('click', function() {
+        const textToInject = this.getAttribute('data-forward');
+        if (textToInject && textarea) {
+          textarea.value = textToInject;
+          updateMetadata();
+          textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          textarea.focus();
+        }
+      });
+    });
+
+    // Check Button Action Mock
+    if (submitBtn && textarea) {
+      submitBtn.addEventListener('click', function() {
+        const query = textarea.value.trim();
+        if (!query) {
+          textarea.focus();
+          return;
+        }
+        submitBtn.disabled = true;
+        const prevHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+          <span>Cross-referencing gazettes...</span>
+        `;
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = prevHtml;
+          const preview = document.getElementById('extraction-preview');
+          if (preview) {
+            preview.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 800);
+      });
+    }
+  })();
+</script></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant py-space-xl"><div class="max-w-7xl mx-auto px-margin-desktop flex flex-col sm:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-tertiary text-[20px]">verified_user</span><p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck explains its evidence. It does not replace official notices.</p></div><div class="flex items-center gap-space-lg text-outline font-label-sm text-label-sm"><span>Civic Accountability Standard</span><span>•</span><span>Open Methodology</span></div></div></footer></body></html>

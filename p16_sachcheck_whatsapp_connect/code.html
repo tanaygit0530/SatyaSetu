@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>SachCheck - Civic Verification System</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary": "#ffffff", "tertiary-fixed": "#90f8ad", "on-primary": "#ffffff", "surface-container-low": "#f1f3ff", "primary-container": "#1d4ed8", "surface-variant": "#d8e2ff", "on-secondary-fixed": "#321200", "tertiary-container": "#006a36", "secondary-fixed": "#ffdbc9", "primary": "#0037b0", "on-secondary-container": "#642b00", "surface": "#faf9ff", "on-primary-fixed": "#001551", "background": "#faf9ff", "on-tertiary-fixed-variant": "#005228", "surface-dim": "#cedafa", "on-surface": "#0f1b33", "tertiary-fixed-dim": "#74db92", "on-tertiary": "#ffffff", "on-error": "#ffffff", "surface-container-highest": "#d8e2ff", "on-secondary-fixed-variant": "#753400", "secondary-fixed-dim": "#ffb68c", "inverse-on-surface": "#edf0ff", "secondary-container": "#fe852f", "primary-fixed": "#dce1ff", "tertiary": "#004f27", "on-tertiary-container": "#82ea9f", "error-container": "#ffdad6", "surface-bright": "#faf9ff", "secondary": "#9a4600", "outline": "#747686", "inverse-primary": "#b7c4ff", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", "on-background": "#0f1b33", "surface-container": "#e9edff", "error": "#ba1a1a", "surface-container-high": "#e1e8ff", "primary-fixed-dim": "#b7c4ff", "on-primary-container": "#cad3ff", "surface-tint": "#2151da", "inverse-surface": "#253049", "on-surface-variant": "#434655", "outline-variant": "#c4c5d7", "on-tertiary-fixed": "#00210d", "on-primary-fixed-variant": "#0039b5" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter": "1rem", "margin-desktop": "2rem", "space-md": "1rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "gutter-desktop": "1.5rem", "margin-tablet": "1.5rem", "margin": "1rem", "space-xs": "0.25rem", "space-2xl": "3rem", "space-xl": "2rem" }, fontFamily: { "headline-sm": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "quoted-claim-lg": ["\"Source Serif 4\""], "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "quoted-claim": ["\"Source Serif 4\""], "headline-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "code-sm": ["Space Mono"], "label-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"] }, fontSize: { "headline-sm": ["16px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "600" }], "headline-xl-mobile": ["28px", { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-xl": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0", fontWeight: "400" }], "quoted-claim-lg": ["19px", { lineHeight: "30px", letterSpacing: "0", fontWeight: "400" }], "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0", fontWeight: "400" }], "body-md": ["15px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "400" }], "quoted-claim": ["16px", { lineHeight: "26px", letterSpacing: "0", fontWeight: "400" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "700" }], "headline-lg-mobile": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "code-sm": ["12px", { lineHeight: "16px", letterSpacing: "0", fontWeight: "400" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(15,27,51,0.06)]"><div class="h-20 max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-xs text-on-surface group focus:outline-none" data-path="check-a-forward" href="#"><span class="material-symbols-outlined text-primary text-[28px]">verified_user</span><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight leading-none text-on-surface">SachCheck</span><span class="font-label-sm text-label-sm text-on-surface-variant font-normal leading-none mt-1">Fact Verification</span></div></a><nav class="hidden lg:flex items-center gap-space-lg" data-active-classes="text-primary font-bold"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="check-a-forward" href="#">Check a forward</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="history" href="#">History</a><a aria-current="page" class="transition-colors py-space-xs text-primary font-bold" data-path="whatsapp" href="#">WhatsApp</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="how-we-decide" href="#">How we decide</a></nav></div><div class="flex items-center gap-space-sm sm:gap-space-md"><div class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface text-primary font-bold shadow-[0_1px_2px_rgba(15,27,51,0.05)]" type="button">EN</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">हिं</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">मरा</button></div><div class="hidden md:flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface text-on-surface font-semibold shadow-[0_1px_2px_rgba(15,27,51,0.05)]" title="Standard Font" type="button">A</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Medium Font" type="button">A+</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Large Font" type="button">A++</button></div><a class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="settings" href="#" title="Settings"><span class="material-symbols-outlined text-[22px]">settings</span></a><a class="hidden sm:inline-flex items-center justify-center h-11 px-5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2" data-path="check-a-forward" href="#">Check a forward</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Ambient Verification Ribbon -->
+<div class="w-full bg-surface-container-high py-space-sm px-margin md:px-margin-tablet lg:px-margin-desktop">
+<div class="max-w-[1200px] mx-auto flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-code-sm text-code-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-semibold text-on-surface">GATEWAY STATUS:</span>
+<span>NODE DEL-04 LIVE</span>
+<span class="text-outline-variant">•</span>
+<span>LATENCY: 1.2s</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Live Civic Gateway • Official Gazette Cross-Indexing v2.4</span>
+</div>
+</div>
+</div>
+<!-- Hero Section -->
+<section class="w-full px-margin md:px-margin-tablet lg:px-margin-desktop pt-space-2xl pb-space-2xl bg-surface">
+<div class="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<!-- Left Content Column -->
+<div class="lg:col-span-7 flex flex-col items-start gap-space-lg">
+<div class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">chat</span>
+<span>WHATSAPP CIVIC DESK • +91 99999 00000</span>
+</div>
+<div class="space-y-space-xs">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">
+            Verify forwards where they already arrive.
+          </h1>
+<p class="font-headline-md text-headline-md text-primary font-semibold">
+            व्हाट्सएप पर ही संदेशों, फ़ोटो और आवाज़ की जाँच करें।
+          </p>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+          Send a forwarded text, voice note, circular screenshot, or link directly to SachCheck. Receive a forensic, evidence-backed verdict in seconds without leaving your chat window.
+        </p>
+<!-- CTAs & QR Trigger Panel -->
+<div class="w-full bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col sm:flex-row items-center gap-space-lg">
+<div class="flex-1 w-full flex flex-col gap-space-sm">
+<a class="w-full inline-flex items-center justify-center gap-space-sm px-6 py-4 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white font-label-md text-label-md transition-all shadow-sm group" href="https://wa.me/919999900000?text=Hi%20SachCheck" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+<span class="tracking-wide font-bold">Connect on WhatsApp</span>
+<span class="bg-white/20 px-2 py-0.5 rounded text-xs tracking-normal font-code-sm">+91 99999 00000</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm px-1">
+<span>ZERO FEES • CIVIC PUBLIC UTILITY</span>
+<span class="flex items-center gap-1 text-tertiary font-bold"><span class="material-symbols-outlined text-[14px]">lock</span> 256-BIT DISPATCH</span>
+</div>
+</div>
+<div class="sm:border-l-0 sm:pl-0 flex flex-col items-center justify-center bg-surface-container-low p-3 rounded-lg min-w-[130px]">
+<!-- Inline High-Precision Clean SVG QR Code Representation -->
+<svg class="w-24 h-24 text-on-surface" fill="currentColor" viewbox="0 0 100 100">
+<!-- Corner Position Markers -->
+<path d="M5 5h30v30h-30z M11 11h18v18h-18z M15 15h10v10h-10z"></path>
+<path d="M65 5h30v30h-30z M71 11h18v18h-18z M75 15h10v10h-10z"></path>
+<path d="M5 65h30v30h-30z M11 71h18v18h-18z M15 75h10v10h-10z"></path>
+<!-- Data Modules -->
+<rect height="6" width="6" x="42" y="8"></rect>
+<rect height="12" width="6" x="52" y="14"></rect>
+<rect height="6" width="16" x="42" y="24"></rect>
+<rect height="6" width="12" x="8" y="42"></rect>
+<rect height="12" width="6" x="24" y="42"></rect>
+<rect height="6" width="6" x="8" y="52"></rect>
+<rect height="8" width="8" x="42" y="42"></rect>
+<rect height="6" width="10" x="54" y="46"></rect>
+<rect height="18" width="6" x="42" y="58"></rect>
+<rect height="6" width="8" x="52" y="62"></rect>
+<rect height="18" width="6" x="65" y="42"></rect>
+<rect height="6" width="16" x="75" y="46"></rect>
+<rect height="12" width="6" x="85" y="56"></rect>
+<rect height="6" width="10" x="71" y="68"></rect>
+<rect height="14" width="6" x="65" y="78"></rect>
+<rect height="10" width="16" x="75" y="82"></rect>
+<rect height="8" width="10" x="48" y="84"></rect>
+</svg>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 font-semibold text-center leading-none">Scan to Chat</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-space-lg text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-tertiary text-[18px]">verified_user</span>
+<span>Official Green Tick Verified</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">bolt</span>
+<span>Average response: under 8 seconds</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-outline text-[18px]">translate</span>
+<span>Hindi • English • Marathi Auto-Detect</span>
+</div>
+</div>
+</div>
+<!-- Right Visual Preview: Interactive Realistic Chat Mockup -->
+<div class="lg:col-span-5 flex justify-center">
+<div class="w-full max-w-sm rounded-[32px] bg-[#0B141A] p-3 shadow-xl">
+<!-- Phone Speaker & Camera Notch -->
+<div class="flex justify-between items-center px-4 py-1 text-white/70 font-code-sm text-[11px] mb-1">
+<span>9:41</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[14px]">wifi</span>
+<span class="material-symbols-outlined text-[14px]">battery_full</span>
+</div>
+</div>
+<!-- Chat Window Frame -->
+<div class="bg-[#ECE5DD] rounded-[24px] overflow-hidden flex flex-col h-[580px] shadow-inner">
+<!-- Chat Header -->
+<div class="bg-[#075E54] text-white px-3 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-white/90">arrow_back</span>
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-primary relative">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#25D366] flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[9px] font-bold">check</span>
+</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="font-headline-sm text-[14px] leading-tight font-bold">SachCheck Civic Desk</span>
+<span class="material-symbols-outlined text-[#25D366] text-[14px]">verified</span>
+</div>
+<span class="text-[11px] text-white/80 leading-none">Official Institutional Account</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-white/90">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+<span class="material-symbols-outlined text-[20px]">call</span>
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</div>
+</div>
+<!-- Chat Area Messages -->
+<div class="flex-1 p-3 overflow-y-auto space-y-3 font-body-sm text-[13px] leading-snug">
+<!-- Date Divider -->
+<div class="flex justify-center">
+<span class="bg-[#FFFFFF]/90 text-on-surface-variant font-label-sm text-[10px] px-2.5 py-0.5 rounded-md shadow-sm uppercase tracking-wider">
+                  Today
+                </span>
+</div>
+<!-- Citizen Forward Message -->
+<div class="flex justify-end">
+<div class="bg-[#E7FFDB] text-[#111B21] rounded-lg rounded-tr-none p-2.5 max-w-[85%] shadow-sm space-y-1">
+<div class="flex items-center gap-1 text-[#667781] text-[11px] italic">
+<span class="material-symbols-outlined text-[13px]">forward</span>
+<span>Forwarded many times</span>
+</div>
+<p class="font-quoted-claim text-[13px]">
+                    "Urgent! Govt announced ₹50,000 scholarship for all 10th &amp; 12th pass students. Apply before tomorrow at pm-scholarship.fake-portal.org"
+                  </p>
+<div class="flex items-center justify-end gap-1 text-[10px] text-[#667781] mt-0.5">
+<span>09:41</span>
+<span class="material-symbols-outlined text-[14px] text-[#53BDEB]">done_all</span>
+</div>
+</div>
+</div>
+<!-- SachCheck Instant Civic Analysis Card -->
+<div class="flex justify-start">
+<div class="bg-surface-container-lowest text-on-surface rounded-lg rounded-tl-none p-3 max-w-[92%] shadow-sm space-y-2.5">
+<!-- Header Pill -->
+<div class="flex items-center justify-between pb-1.5 border-b border-surface-container">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-container font-label-sm text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">error</span>
+                      PARTLY SUPPORTED
+                    </span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">ID: #SC-8941</span>
+</div>
+<!-- Claim Decomposition -->
+<div class="space-y-1.5 font-body-sm text-[12px]">
+<div class="flex items-start gap-1.5">
+<span class="material-symbols-outlined text-tertiary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<p><span class="font-bold">Scholarship exists:</span> Yes, under MoE Central Sector Scheme.</p>
+</div>
+<div class="flex items-start gap-1.5">
+<span class="material-symbols-outlined text-error text-[16px] shrink-0 mt-0.5">cancel</span>
+<p><span class="font-bold">Amount ₹50,000:</span> False. Actual stipend is ₹12,000/year.</p>
+</div>
+<div class="flex items-start gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">help</span>
+<p><span class="font-bold">Deadline tomorrow:</span> Misleading. Genuine window closes Oct 31.</p>
+</div>
+</div>
+<!-- Source Record Anchor -->
+<div class="bg-surface-container-low p-2 rounded text-[11px] text-on-surface-variant flex items-center justify-between">
+<div class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-primary text-[15px]">account_balance</span>
+<span class="font-medium truncate">scholarships.gov.in (MoE)</span>
+</div>
+<span class="text-tertiary font-bold text-[10px] uppercase">Official Record</span>
+</div>
+<!-- Deep Link -->
+<a class="block text-center py-1.5 px-2 bg-primary text-on-primary font-label-sm text-[11px] rounded hover:bg-primary-container transition-colors" href="#">
+                    See full proof &amp; Gazette doc →
+                  </a>
+<!-- Command Hints Footer -->
+<div class="text-[10px] text-on-surface-variant font-code-sm pt-1 border-t border-surface-container flex justify-between">
+<span>Reply: WHY | PROOF | WRONG</span>
+<span>09:41</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat Bottom Input Bar (Display Only) -->
+<div class="bg-[#F0F2F5] px-3 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[#54656F] text-[20px]">sentiment_satisfied</span>
+<span class="material-symbols-outlined text-[#54656F] text-[20px]">attach_file</span>
+<div class="flex-1 bg-white rounded-lg px-3 py-1.5 text-[12px] text-[#54656F]">
+                Type "Hi SachCheck" to begin...
+              </div>
+<div class="w-8 h-8 rounded-full bg-[#00A884] flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3-Step Visual Onboarding Flow -->
+<section class="w-full px-margin md:px-margin-tablet lg:px-margin-desktop py-space-2xl bg-surface-container-low">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-space-xl">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<span class="font-code-sm text-code-sm text-primary uppercase font-bold tracking-wider">Protocol Ingestion Flow</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-1">
+            Three steps to truth in your inbox.
+          </h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+          Designed with zero friction for family WhatsApp groups, village panchayat notices, and regional student forums.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- Step 1 Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-primary-fixed text-primary font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                01
+              </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">contact_phone</span>
+</div>
+<div class="space-y-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Save the Civic Number</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Save <strong class="text-on-surface">+91 99999 00000</strong> to your smartphone contacts as <span class="italic text-primary font-semibold">SachCheck</span>, or directly tap our verified web trigger.
+              </p>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md border-t border-surface-container flex items-center justify-between">
+<span class="font-code-sm text-code-sm text-primary font-semibold">wa.me/919999900000</span>
+<span class="material-symbols-outlined text-primary text-[18px]">open_in_new</span>
+</div>
+</div>
+<!-- Step 2 Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-primary-fixed text-primary font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                02
+              </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">send</span>
+</div>
+<div class="space-y-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Send Join Phrase</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Text <span class="px-2 py-0.5 rounded bg-surface-container text-primary font-code-sm font-bold">"Hi SachCheck"</span> or simply <span class="px-2 py-0.5 rounded bg-surface-container text-primary font-bold">"सत्य"</span> to initiate the verified gateway handshake.
+              </p>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md border-t border-surface-container flex items-center justify-between">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Instant session start</span>
+<span class="inline-block w-2 h-2 rounded-full bg-tertiary"></span>
+</div>
+</div>
+<!-- Step 3 Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-primary-fixed text-primary font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                03
+              </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">forward</span>
+</div>
+<div class="space-y-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Forward Anything</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Forward ambiguous text rumors, newspaper clippings, audio messages, or PDF government orders. SachCheck parses and responds with structured evidence.
+              </p>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md border-t border-surface-container flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Audio • Image • PDF • Text</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]">done_all</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Natural Keyword Follow-Up Interactive Matrix -->
+<section class="w-full px-margin md:px-margin-tablet lg:px-margin-desktop py-space-2xl bg-surface">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-space-xl">
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<span class="font-code-sm text-code-sm text-primary uppercase font-bold tracking-wider">Citizen Control Commands</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Talk to the findings. Not a mindless bot.
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          SachCheck avoids generative chat confusion. Use structured conversational keywords directly in WhatsApp to examine rationale, trace raw sources, or challenge findings.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Keyword 1: WHY -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 rounded bg-primary-fixed text-primary font-code-sm text-headline-sm font-bold">"WHY"</span>
+<span class="material-symbols-outlined text-primary text-[20px]">psychology</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Plain-Language Rationale</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Translates regulatory clauses and complex forensic comparisons into everyday, easily explainable sentences you can forward to your family group.
+            </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-surface-container font-code-sm text-code-sm text-on-surface-variant">
+            Example: "Why is this partly false?"
+          </div>
+</div>
+<!-- Keyword 2: PROOF -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-code-sm text-headline-sm font-bold">"PROOF"</span>
+<span class="material-symbols-outlined text-tertiary text-[20px]">source_notes</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Direct Primary Records</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Replies immediately with the official Gazette notification PDF link, ministry bulletin timestamp, and verifiable archival web link.
+            </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-surface-container font-code-sm text-code-sm text-on-surface-variant">
+            Example: "Send Gazette notification PDF"
+          </div>
+</div>
+<!-- Keyword 3: WRONG -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-code-sm text-headline-sm font-bold">"WRONG"</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">flag</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Challenge &amp; Human Review</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Disputes the verdict or provides localized ground evidence. Immediately escalates the claim to an independent senior human fact-checker.
+            </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-surface-container font-code-sm text-code-sm text-on-surface-variant">
+            Tickets opened within 15 minutes
+          </div>
+</div>
+<!-- Keyword 4: DELETE MY DATA -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 rounded bg-error-container text-on-error-container font-code-sm text-[12px] font-bold">"DELETE MY DATA"</span>
+<span class="material-symbols-outlined text-error text-[20px]">delete_forever</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Zero-Trace Purge</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Executes a cryptographically verifiable purge of any conversational session logs, ephemeral tokens, and message hash links immediately.
+            </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-surface-container font-code-sm text-code-sm text-on-surface-variant">
+            Immediate receipt hash generated
+          </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Editorial Field Investigation Strip with Visuals -->
+<section class="w-full px-margin md:px-margin-tablet lg:px-margin-desktop py-space-xl bg-surface-container-low">
+<div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-space-lg items-center">
+<div class="md:col-span-5 relative rounded-xl overflow-hidden shadow-sm">
+<img class="w-full h-72 object-cover" data-alt="A diverse group of Indian college students and an elderly citizen standing at an outdoor community center under warm natural light, examining factual notices on an accessible smartphone screen with calm focus and confidence, showcasing civic digital literacy and verification tools." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMx5CgTMpuAf-26ggx8bi7jmUAkXgE-ftWw1ua2eti3QU0FsSKq1Xh_WRB6nIZP-MGnJUbkZMnBWD27ooF70w4Gvk0DBppE1cK-ll4_dXc1GHUzoXFs-xBseRPLr6ReJDMP8JMM3gWwj6lcTGIpAulhCRtn0wjHcXtP2SACz8Tkjmn_veNtn-Z-qWhnMaFKnAxEeh9QFnKw6M5CfpD-NT35BllvgMUcYAMi_rk-5o"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent flex items-end p-space-md">
+<span class="text-on-primary font-label-sm text-label-sm font-semibold">Civic verification deployed across 28 states &amp; 8 UTs.</span>
+</div>
+</div>
+<div class="md:col-span-7 flex flex-col gap-space-md">
+<span class="font-code-sm text-code-sm text-tertiary font-bold uppercase tracking-wider">Democratizing Evidential Literacy</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Building community immunity against dangerous viral panic.
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          During election cycles, bank runs, pension revisions, and disaster updates, misinformation travels fastest in WhatsApp family groups. SachCheck serves as an impartial, institutional companion ensuring ordinary citizens can counter fake forward chains with incontestable evidence.
+        </p>
+<div class="flex items-center gap-space-lg pt-space-xs">
+<div>
+<div class="font-headline-lg text-headline-lg text-primary font-bold">4.2M+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Forwards checked in 2024</div>
+</div>
+<div class="w-[1px] h-10 bg-surface-container-highest"></div>
+<div>
+<div class="font-headline-lg text-headline-lg text-tertiary font-bold">99.8%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Official record traceability</div>
+</div>
+<div class="w-[1px] h-10 bg-surface-container-highest"></div>
+<div>
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold">&lt; 8s</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Median verification turnaround</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Zero-Data Privacy Guarantee (Deep Architecture Anchor) -->
+<section class="w-full px-margin md:px-margin-tablet lg:px-margin-desktop py-space-2xl bg-surface">
+<div class="max-w-[1200px] mx-auto bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-[28px]">shield</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+            Zero-Data Privacy Guarantee.
+          </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            We don’t keep your forwarded media. We don’t track your telephone number. We believe civic fact-checking must never become an engine for state surveillance or corporate profiling.
+          </p>
+<div class="flex items-center gap-2 text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[20px]">lock_reset</span>
+<span>Ephemeral volatile RAM pipeline</span>
+</div>
+</div>
+<div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-low p-space-md rounded-lg space-y-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">timer_off</span>
+<span>60-Second Auto Purge</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Forwarded images, voice notes, and documents are securely extracted into mathematical perceptual hashes, verified against gazette indices, and irreversibly wiped from memory within 60 seconds.
+            </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg space-y-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">phone_disabled</span>
+<span>Anonymized Ingestion IDs</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Your real telephone number is salted and irreversibly hashed before touching verification worker nodes. SachCheck investigators cannot see who forwarded a claim.
+            </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg space-y-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">dns</span>
+<span>Audited Infrastructure</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Operates exclusively on ISO 27001 certified municipal hosting centers within the Republic of India. No conversational data ever traverses commercial advertising brokers.
+            </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg space-y-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">security_update_good</span>
+<span>Cryptographic Proof Hashes</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Every issued verdict card contains an immutable SHA-256 verification hash, guaranteeing that the evidence provided has not been intercepted, doctored, or revoked.
+            </p>
+</div>
+</div>
+</div>
+<!-- Infrastructure Diagnostic Bar -->
+<div class="mt-space-lg pt-space-md border-t border-surface-container flex flex-col sm:flex-row items-center justify-between gap-space-sm font-code-sm text-code-sm text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[16px]">cloud_done</span>
+<span>WHATSAPP BUSINESS CIVIC CLOUD: TIER-3 VERIFIED BY META TRUST ENGINE</span>
+</div>
+<div class="flex items-center gap-4">
+<span>MONITORING: 24/7/365</span>
+<a class="text-primary hover:underline font-bold" href="#">Read Audit Log →</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Final Sticky-Style Ready Action Strip -->
+<section class="w-full px-margin md:px-margin-tablet lg:px-margin-desktop py-space-xl bg-surface-container">
+<div class="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-space-lg text-center md:text-left">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">
+          Received a forward that sounds too shocking to be true?
+        </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+          Don’t forward panic. Forward to SachCheck. Get the official truth in seconds.
+        </p>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-space-sm">
+<a class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#25D366] text-white font-label-md text-label-md font-bold hover:bg-[#1EBE5D] transition-colors shadow-sm" href="https://wa.me/919999900000?text=Hi%20SachCheck">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+          Start WhatsApp Verification
+        </a>
+<a class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-surface text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-high transition-colors" data-path="check-a-forward" href="#">
+          Use Web Browser Instead
+        </a>
+</div>
+</div>
+</section>
+</div></main><footer class="w-full bg-surface-container-lowest mt-space-2xl shadow-[0_-1px_8px_rgba(15,27,51,0.03)]"><div class="max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop py-space-xl"><div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg pb-space-lg"><div class="max-w-xl"><div class="flex items-center gap-space-xs text-on-surface mb-2"><span class="material-symbols-outlined text-primary text-[20px]">gavel</span><span class="font-headline-sm text-headline-sm text-on-surface">Civic Transparency Standard</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck explains its evidence. It does not replace official notices.</p></div><nav class="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="civic-accountability-standard" href="#">Civic Accountability Standard</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="open-methodology" href="#">Open Methodology</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="privacy-policy" href="#">Privacy Policy</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="settings" href="#">Settings</a></nav></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm"><p>© 2025 SachCheck Initiative. Public evidential service across India.</p><div class="flex items-center gap-space-xs text-tertiary"><span class="material-symbols-outlined text-[16px]">verified</span><span class="font-code-sm text-code-sm">VERIFIABLE RECORD PROTOCOL v2.4</span></div></div></div></footer></body></html>

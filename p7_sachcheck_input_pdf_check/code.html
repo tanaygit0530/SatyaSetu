@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#90f8ad", "on-tertiary-fixed": "#00210d", "on-secondary": "#ffffff", "secondary-container": "#fe852f", "on-primary-fixed-variant": "#0039b5", "on-tertiary-container": "#82ea9f", "on-secondary-fixed-variant": "#753400", "outline": "#747686", "on-secondary-fixed": "#321200", "surface-container-high": "#e1e8ff", "surface-bright": "#faf9ff", "inverse-primary": "#b7c4ff", "secondary-fixed-dim": "#ffb68c", "on-surface": "#0f1b33", "inverse-surface": "#253049", "on-error": "#ffffff", "on-tertiary": "#ffffff", "surface-container-lowest": "#ffffff", "on-secondary-container": "#642b00", "surface-container-highest": "#d8e2ff", "primary-fixed-dim": "#b7c4ff", "on-error-container": "#93000a", "on-primary": "#ffffff", "outline-variant": "#c4c5d7", "inverse-on-surface": "#edf0ff", "surface-variant": "#d8e2ff", "primary": "#0037b0", "error": "#ba1a1a", "on-surface-variant": "#434655", "secondary": "#9a4600", "primary-container": "#1d4ed8", "on-primary-container": "#cad3ff", "surface-dim": "#cedafa", "on-primary-fixed": "#001551", "on-tertiary-fixed-variant": "#005228", "surface": "#faf9ff", "surface-container": "#e9edff", "surface-container-low": "#f1f3ff", "secondary-fixed": "#ffdbc9", "primary-fixed": "#dce1ff", "background": "#faf9ff", "tertiary": "#004f27", "tertiary-container": "#006a36", "error-container": "#ffdad6", "surface-tint": "#2151da", "on-background": "#0f1b33", "tertiary-fixed-dim": "#74db92" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-sm": "0.5rem", "margin-tablet": "1.5rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "2rem", "space-2xl": "3rem", "margin": "1rem", "space-xl": "2rem" }, "fontFamily": { "label-sm": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "quoted-claim-lg": ["\"Source Serif 4\""], "code-sm": ["Space Mono"], "headline-sm": ["Plus Jakarta Sans"], "quoted-claim": ["\"Source Serif 4\""], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}], "body-sm": ["13px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}], "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "700"}], "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}], "body-md": ["15px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}], "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}], "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "400"}], "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}], "quoted-claim-lg": ["19px", {"lineHeight": "30px", "letterSpacing": "0", "fontWeight": "400"}], "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400"}], "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "600"}], "quoted-claim": ["16px", {"lineHeight": "26px", "letterSpacing": "0", "fontWeight": "400"}], "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}], "headline-lg-mobile": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest border-b border-outline-variant"><div class="h-16 max-w-7xl mx-auto px-margin-desktop flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><img alt="SachCheck Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1V5nPBOWqp8I-AH02hP-0Soj3uU1ZbC8nr6bF1G7V0jSgl_gkM7IukfJ-oiXZ-yo3MeHnwS7PzIARrAh3Gemfpt4VgwXtS1OJRgNJJihEg7cTPGAmEXwsBgZaa59xR-MZcaHqdeZJlGoKhBdrWAy5mytpNpH6Oj9Sb-NXUR3AXq8tg2txCxPClFyfwcFkCUuDkVGXMTZGmR94LESNo_uxO5QjLhAmuf-_6K_wzH2yYR"/><span class="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">SachCheck</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-surface-container text-primary font-bold"><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="check" href="#">Check a forward</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="history" href="#">History</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="whatsapp" href="#">WhatsApp</a><a class="px-space-md py-space-xs rounded text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="methodology" href="#">How we decide</a></nav></div><div class="flex items-center gap-space-md"><div aria-label="Language Selector" class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs border border-outline-variant"><button class="px-space-sm py-space-xs rounded text-on-surface font-label-sm text-label-sm bg-surface-container-lowest shadow-sm" type="button">EN</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">हिं</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" type="button">मरा</button></div><div aria-label="Civic Font Scaler Widget" class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs border border-outline-variant"><button class="px-space-sm py-space-xs rounded text-on-surface font-label-sm text-label-sm bg-surface-container-lowest shadow-sm" title="Standard Font Size" type="button">A</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" title="Medium Font Size" type="button">A+</button><span class="text-outline text-label-sm px-space-xs">|</span><button class="px-space-sm py-space-xs rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" title="Large Font Size" type="button">A++</button></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<div class="w-full max-w-7xl mx-auto px-margin-desktop py-space-xl">
+<!-- Step / Flow Context Indicator -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-md mb-space-xl">
+<div>
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm mb-space-xs">
+<span>CIVIC VERIFICATION SUITE</span>
+<span>/</span>
+<span class="text-primary font-bold">CIRCULAR &amp; GAZETTE INSPECTION</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Official PDF Analysis</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mt-space-xs">
+          Cross-examine government circulars, court verdicts, and department gazettes against authenticated public repositories.
+        </p>
+</div>
+<!-- State Simulator Toggle Bar for Interactive Demo -->
+<div class="bg-surface-container-low p-space-xs rounded-xl flex items-center shadow-sm">
+<span class="font-code-sm text-code-sm text-outline px-space-sm uppercase tracking-wider">Pipeline Stage:</span>
+<button class="stage-toggle-btn px-space-md py-space-xs rounded font-label-sm text-label-sm bg-surface-container-lowest text-primary shadow-sm font-bold transition-all" id="btn-stage-1" onclick="switchStage(1)">
+          1. Upload
+        </button>
+<button class="stage-toggle-btn px-space-md py-space-xs rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" id="btn-stage-2" onclick="switchStage(2)">
+          2. Targeted Scan
+        </button>
+<button class="stage-toggle-btn px-space-md py-space-xs rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" id="btn-stage-3" onclick="switchStage(3)">
+          3. Claims Ready
+        </button>
+</div>
+</div>
+<!-- Citizen Ingestion Composer Tabs -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm mb-space-xl overflow-hidden">
+<div class="flex items-center overflow-x-auto bg-surface-container-low px-space-md pt-space-xs gap-space-xs">
+<a class="flex items-center gap-space-xs px-space-lg py-space-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded-t-lg transition-colors whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+<span>Forwarded Text</span>
+</a>
+<a class="flex items-center gap-space-xs px-space-lg py-space-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded-t-lg transition-colors whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-[18px]">image</span>
+<span>Screenshot</span>
+</a>
+<a class="flex items-center gap-space-xs px-space-lg py-space-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded-t-lg transition-colors whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+<span>Voice Memo</span>
+</a>
+<a class="flex items-center gap-space-xs px-space-lg py-space-md font-label-md text-label-md bg-surface-container-lowest text-primary font-bold rounded-t-lg shadow-sm whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>PDF Circular</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1">ACTIVE</span>
+</a>
+<a class="flex items-center gap-space-xs px-space-lg py-space-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded-t-lg transition-colors whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-[18px]">link</span>
+<span>Web Link</span>
+</a>
+</div>
+<!-- Tab Sub-Descriptor Bar -->
+<div class="px-space-xl py-space-md bg-surface-container-lowest flex flex-col md:flex-row md:items-center justify-between gap-space-sm text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span>Extracts statutory notifications, ministerial press releases, order numbers &amp; financial quotas</span>
+</div>
+<div class="flex items-center gap-space-md font-code-sm text-code-sm text-outline">
+<span>PIPELINE ENGINE: SACH-EXTRACT-v4.2</span>
+<span>•</span>
+<span>DUAL-PASS OCR READY</span>
+</div>
+</div>
+</div>
+<!-- ========================================================================= -->
+<!-- FRAME 1: PDF UPLOAD (Dropzone & Capacity) -->
+<!-- ========================================================================= -->
+<section class="transition-opacity duration-300" id="frame-1">
+<div class="bg-surface-container-lowest rounded-xl p-space-2xl shadow-sm mb-space-lg">
+<!-- Large Dropzone Component -->
+<div class="relative bg-surface-container-low rounded-xl p-space-2xl flex flex-col items-center justify-center text-center cursor-pointer group hover:bg-surface-container-high/50 transition-all">
+<div class="w-20 h-20 rounded-full bg-primary-fixed flex items-center justify-center text-primary mb-space-lg group-hover:scale-105 transition-transform shadow-sm">
+<span class="material-symbols-outlined text-[40px]">upload_file</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-bold mb-space-xs">
+            Drop an official PDF, circular, or gazette here, or choose a file
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl mb-space-xl">
+            Ideal for Central &amp; State Government notifications, UGC scholarship notices, recruitment notifications, and public orders.
+          </p>
+<div class="flex flex-wrap items-center justify-center gap-space-md mb-space-xl">
+<button class="px-space-xl py-space-md bg-primary-container text-on-primary font-label-md text-label-md rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all flex items-center gap-space-xs" onclick="switchStage(2)">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Choose PDF</span>
+</button>
+<button class="px-space-xl py-space-md bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-all flex items-center gap-space-xs" onclick="switchStage(2)">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+<span>Browse files</span>
+</button>
+</div>
+<!-- Specifications Badge -->
+<div class="inline-flex items-center gap-space-sm bg-surface-container px-space-lg py-space-sm rounded-full text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">info</span>
+<span>PDF format • Maximum 20 MB • 20+ pages supported</span>
+</div>
+</div>
+<!-- Privacy & Security Guarantee Banner -->
+<div class="mt-space-xl bg-surface-container-low rounded-xl p-space-lg flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">lock</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-0.5">Statutory Ephemeral Processing</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Uploaded documents are parsed in a secure sandbox and purged immediately after claim extraction. Your files are never cached, stored in training corpora, or shared with third parties.
+            </p>
+</div>
+<div class="hidden sm:flex items-center gap-space-xs font-code-sm text-code-sm text-tertiary bg-surface-container-lowest px-space-md py-space-xs rounded shadow-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span>
+<span>SANDBOX ISOLATED</span>
+</div>
+</div>
+<!-- Sample Citizen PDF Quick Select for Demonstration -->
+<div class="mt-space-2xl pt-space-lg">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">Or try a currently viral gazette test case:</span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">HIGH VIRALITY DETECTED</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl cursor-pointer transition-all flex items-center justify-between group" onclick="switchStage(2)">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-14 bg-surface-container-highest rounded flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[26px]">description</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate group-hover:text-primary transition-colors">MoE_Circular_Scholarship_2026_Notification.pdf</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">14 Pages • 3.8 MB • Viral on Telegram groups</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<div class="bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl cursor-pointer transition-all flex items-center justify-between group" onclick="switchStage(2)">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-14 bg-surface-container-highest rounded flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[26px]">description</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate group-hover:text-primary transition-colors">Railway_Board_Recruitment_Age_Relaxation_Notice.pdf</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">6 Pages • 1.2 MB • Viral on WhatsApp forwards</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- FRAME 2: SCANNING (Smart Targeted Page Analysis) -->
+<!-- ========================================================================= -->
+<section class="hidden transition-opacity duration-300" id="frame-2">
+<div class="bg-surface-container-lowest rounded-xl p-space-xl shadow-sm mb-space-lg">
+<!-- Header & File Card Meta -->
+<div class="bg-surface-container-low rounded-xl p-space-lg flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-xl">
+<div class="flex items-center gap-space-md">
+<div class="relative w-14 h-18 bg-surface-container-lowest rounded-lg shadow-sm flex flex-col items-center justify-center p-2 text-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[28px]">picture_as_pdf</span>
+<span class="font-code-sm text-[10px] text-outline font-bold mt-1">14 PGS</span>
+</div>
+<div>
+<div class="inline-flex items-center gap-space-xs text-primary font-label-sm text-label-sm font-bold bg-primary-fixed px-2 py-0.5 rounded-full mb-1">
+<span class="material-symbols-outlined text-[14px]">sync</span>
+<span>PROCESSING ACTIVE</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">MoE_Circular_Scholarship_2026_Notification.pdf</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Size: 3.8 MB • Scanned Document Format • Dual Language Encoding</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-space-xs bg-surface-container text-on-surface font-label-sm text-label-sm rounded-lg hover:bg-surface-container-high transition-colors" onclick="switchStage(1)">
+              Cancel Analysis
+            </button>
+<button class="px-space-md py-space-xs bg-primary text-on-primary font-label-sm text-label-sm rounded-lg hover:opacity-90 shadow-sm transition-all flex items-center gap-space-xs" onclick="switchStage(3)">
+<span>Skip to Claims</span>
+<span class="material-symbols-outlined text-[16px]">fast_forward</span>
+</button>
+</div>
+</div>
+<!-- Two Column Forensic Layout: Scanning Progress vs Page Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Left Column: Pipeline stages & intelligent rationale -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<div>
+<div class="flex items-center gap-space-sm mb-space-xs">
+<span class="w-3 h-3 rounded-full bg-primary animate-ping"></span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Scanning key pages…</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Rather than blindly reading the entire 14-page document, SachCheck identifies claim-bearing clauses, dates, and financial tables.
+              </p>
+</div>
+<!-- Pipeline Stepper Module -->
+<div class="bg-surface-container-low rounded-xl p-space-lg space-y-space-md">
+<span class="font-code-sm text-code-sm text-outline tracking-wider uppercase block">Pipeline Execution:</span>
+<!-- Stage 1: Done -->
+<div class="flex items-start gap-space-md">
+<div class="w-7 h-7 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0 font-bold">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-bold">1. Reading document structure</p>
+<p class="font-body-sm text-body-sm text-tertiary">Completed ✓ — Gazette headers &amp; seals indexed</p>
+</div>
+</div>
+<!-- Stage 2: In-Progress -->
+<div class="flex items-start gap-space-md">
+<div class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary font-bold">2. Finding claim-bearing pages</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Running ⟳ — Detecting monetary quotas &amp; deadlines</p>
+</div>
+</div>
+<!-- Stage 3: Queued -->
+<div class="flex items-start gap-space-md opacity-60">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-outline flex items-center justify-center shrink-0 font-code-sm text-code-sm">
+                  ○
+                </div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">3. Extracting statutory text</p>
+<p class="font-body-sm text-body-sm text-outline">Queued ○ — Dual-pass OCR verification pending</p>
+</div>
+</div>
+<!-- Stage 4: Queued -->
+<div class="flex items-start gap-space-md opacity-60">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-outline flex items-center justify-center shrink-0 font-code-sm text-code-sm">
+                  ○
+                </div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">4. Preparing claims for evidence match</p>
+<p class="font-body-sm text-body-sm text-outline">Queued ○ — Cross-referencing National Portal archives</p>
+</div>
+</div>
+</div>
+<!-- Contextual Efficiency Badge -->
+<div class="p-space-md bg-surface-container-low rounded-xl flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">bolt</span>
+<span>Scanning targeted pages saves <strong>82% processing latency</strong> while maintaining full evidentiary confidence.</span>
+</div>
+</div>
+<!-- Right Column: Page Grid Visualization -->
+<div class="lg:col-span-7 bg-surface-container-low rounded-xl p-space-lg">
+<div class="flex items-center justify-between mb-space-md">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Page Inspection Matrix (14 Total)</h4>
+<span class="font-code-sm text-code-sm text-primary font-bold">Active: Pages 4–7</span>
+</div>
+<!-- Page Grid Items -->
+<div class="grid grid-cols-4 sm:grid-cols-7 gap-space-sm mb-space-lg">
+<!-- Page 1 (Scanned) -->
+<div class="bg-surface-container-lowest p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-sm relative">
+<span class="font-code-sm text-code-sm font-bold text-tertiary">P. 1</span>
+<div class="w-full h-8 bg-surface-container-high rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+</div>
+<span class="text-[10px] font-label-sm text-outline truncate w-full text-center">Header</span>
+</div>
+<!-- Page 2 (Scanned) -->
+<div class="bg-surface-container-lowest p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-sm relative">
+<span class="font-code-sm text-code-sm font-bold text-tertiary">P. 2</span>
+<div class="w-full h-8 bg-surface-container-high rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+</div>
+<span class="text-[10px] font-label-sm text-outline truncate w-full text-center">Intro</span>
+</div>
+<!-- Page 3 (Scanned, Claim found preview) -->
+<div class="bg-surface-container-lowest p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-sm relative">
+<span class="font-code-sm text-code-sm font-bold text-secondary">P. 3</span>
+<div class="w-full h-8 bg-secondary-fixed rounded flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+</div>
+<span class="text-[10px] font-label-sm text-secondary font-bold truncate w-full text-center">Claim!</span>
+</div>
+<!-- Page 4 (Active Scanning) -->
+<div class="bg-primary text-on-primary p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-md relative animate-pulse">
+<span class="font-code-sm text-code-sm font-bold">P. 4</span>
+<div class="w-full h-8 bg-white/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] animate-spin">radar</span>
+</div>
+<span class="text-[10px] font-label-sm font-bold truncate w-full text-center">Scanning</span>
+</div>
+<!-- Page 5 (Active Scanning) -->
+<div class="bg-primary text-on-primary p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-md relative animate-pulse">
+<span class="font-code-sm text-code-sm font-bold">P. 5</span>
+<div class="w-full h-8 bg-white/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] animate-spin">table_chart</span>
+</div>
+<span class="text-[10px] font-label-sm font-bold truncate w-full text-center">Table</span>
+</div>
+<!-- Page 6 (Active Scanning) -->
+<div class="bg-primary text-on-primary p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-md relative animate-pulse">
+<span class="font-code-sm text-code-sm font-bold">P. 6</span>
+<div class="w-full h-8 bg-white/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] animate-spin">radar</span>
+</div>
+<span class="text-[10px] font-label-sm font-bold truncate w-full text-center">Table</span>
+</div>
+<!-- Page 7 (Active Scanning) -->
+<div class="bg-primary text-on-primary p-2 rounded-lg flex flex-col items-center justify-between h-24 shadow-md relative animate-pulse">
+<span class="font-code-sm text-code-sm font-bold">P. 7</span>
+<div class="w-full h-8 bg-white/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">drive_file_stream</span>
+</div>
+<span class="text-[10px] font-label-sm font-bold truncate w-full text-center">Seal</span>
+</div>
+<!-- Page 8 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 8</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+<!-- Page 9 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 9</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+<!-- Page 10 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 10</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+<!-- Page 11 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 11</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+<!-- Page 12 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 12</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+<!-- Page 13 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 13</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+<!-- Page 14 (Queue) -->
+<div class="bg-surface-container-high/60 p-2 rounded-lg flex flex-col items-center justify-between h-24 relative opacity-70">
+<span class="font-code-sm text-code-sm text-outline">P. 14</span>
+<div class="w-full h-8 bg-surface-container rounded"></div>
+<span class="text-[10px] font-label-sm text-outline">Queue</span>
+</div>
+</div>
+<!-- Page Inspection Status Legend -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md space-y-space-sm">
+<div class="flex items-center justify-between font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span class="font-bold text-on-surface">Pages 1–3:</span>
+<span class="text-on-surface-variant">Scanned (No fiscal claims)</span>
+</div>
+<span class="font-code-sm text-code-sm text-tertiary font-bold">100% Parsed</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-bold text-primary">Pages 4–7:</span>
+<span class="text-on-surface-variant">Currently Scanning (Found 2 financial tables)</span>
+</div>
+<span class="font-code-sm text-code-sm text-primary font-bold">In Flight</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+<span class="font-bold text-outline">Pages 8–14:</span>
+<span class="text-on-surface-variant">In queue</span>
+</div>
+<span class="font-code-sm text-code-sm text-outline">Waiting</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- FRAME 3: READY & CLAIM-BEARING PAGES IDENTIFIED -->
+<!-- ========================================================================= -->
+<section class="hidden transition-opacity duration-300" id="frame-3">
+<div class="bg-surface-container-lowest rounded-xl p-space-xl shadow-sm mb-space-lg">
+<!-- Successful Extraction Status Strip -->
+<div class="bg-tertiary-fixed text-on-tertiary-fixed p-space-md rounded-xl flex items-center justify-between mb-space-xl">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[24px]">task_alt</span>
+<span class="font-headline-sm text-headline-sm font-bold">Document Ingestion Completed: 2 Primary Testable Claims Isolated</span>
+</div>
+<span class="font-code-sm text-code-sm font-bold px-space-sm py-0.5 rounded bg-surface-container-lowest text-tertiary">CONFIDENCE: 99.4%</span>
+</div>
+<!-- Summary Inspection Card -->
+<div class="bg-surface-container-low rounded-xl p-space-xl mb-space-xl">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md mb-space-lg">
+<div class="max-w-3xl">
+<span class="font-code-sm text-code-sm text-primary font-bold uppercase tracking-wider block mb-1">Authentic Meta Tagging</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">
+                Union Ministry of Education — National Scholarship Scheme Guidelines 2026
+              </h2>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[18px]">gavel</span>
+<span class="font-label-sm text-label-sm text-on-surface font-bold">Circular Ref: F.No. 12-44/2026-NSS</span>
+</div>
+</div>
+<!-- Metadata Pill Badges -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md pt-space-md">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-outline block mb-1">TOTAL PAGES</span>
+<p class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">pages</span>
+<span>14 Pages</span>
+</p>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-outline block mb-1">DETECTED LANGUAGE</span>
+<p class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">translate</span>
+<span>Multilingual (English + Hindi)</span>
+</p>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-outline block mb-1">IDENTIFIED CLAIM-BEARING PAGES</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-code-sm text-code-sm font-bold">Page 3</span>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-code-sm text-code-sm font-bold">Page 7</span>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-code-sm text-code-sm font-bold">Page 12</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Scanned PDF Notice -->
+<div class="bg-surface-container rounded-xl p-space-lg flex items-start gap-space-md mb-space-xl">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">scanner</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-0.5">Scanned document notice</h4>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Pages 7 and 12 contain scanned circular stamps. OCR with dual-pass verification was applied to ensure exact figures. Tesseract &amp; AWS Textract confidence parity was matched at 98.2%.
+            </p>
+</div>
+</div>
+<!-- Extracted Key Assertions Section -->
+<div class="mb-space-xl">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Extracted Statutory Assertions Ready for Verification</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The following key factual representations will be tested against ministry gazette archives.</p>
+</div>
+<span class="font-code-sm text-code-sm text-tertiary bg-surface-container-low px-space-md py-space-xs rounded font-bold">2 CLAIMS ISOLATED</span>
+</div>
+<div class="space-y-space-md">
+<!-- Claim Extraction Card 1 -->
+<div class="bg-surface-container-low rounded-xl p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="bg-primary text-on-primary font-code-sm text-code-sm px-2 py-0.5 rounded font-bold">CLAUSE 4.2</span>
+<span class="font-label-sm text-label-sm text-outline">Disbursement &amp; Direct Benefit Transfer Schedule</span>
+</div>
+<div class="flex items-center gap-space-xs font-code-sm text-code-sm text-primary">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Extracted from Page 7 (Table II)</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm">
+<blockquote class="font-quoted-claim-lg text-quoted-claim-lg text-on-surface italic">
+                  “Annual disbursement of ₹12,000 for undergraduate scholars”
+                </blockquote>
+</div>
+<div class="mt-space-sm flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+<span>Dual OCR Figure Match: ₹12,000.00 confirmed</span>
+</span>
+<span class="text-outline font-code-sm text-code-sm">Confidence: 99.8%</span>
+</div>
+</div>
+<!-- Claim Extraction Card 2 -->
+<div class="bg-surface-container-low rounded-xl p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="bg-primary text-on-primary font-code-sm text-code-sm px-2 py-0.5 rounded font-bold">CLAUSE 8.1</span>
+<span class="font-label-sm text-label-sm text-outline">Application Window &amp; Extension Deadlines</span>
+</div>
+<div class="flex items-center gap-space-xs font-code-sm text-code-sm text-primary">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Extracted from Page 12 (Paragraph 3)</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm">
+<blockquote class="font-quoted-claim-lg text-quoted-claim-lg text-on-surface italic">
+                  “Application portal remains active through 31 October 2026”
+                </blockquote>
+</div>
+<div class="mt-space-sm flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+<span>Stamp Date cross-verified against official seal</span>
+</span>
+<span class="text-outline font-code-sm text-code-sm">Confidence: 98.9%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Flow Final Actions -->
+<div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<button class="w-full sm:w-auto px-space-xl py-space-md bg-surface-container-low text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-all flex items-center justify-center gap-space-xs" onclick="switchStage(1)">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+<span>Choose another PDF</span>
+</button>
+<button class="w-full sm:w-auto px-space-2xl py-space-md bg-primary-container text-on-primary font-label-md text-label-md rounded-lg shadow-md hover:bg-primary transition-all flex items-center justify-center gap-space-sm font-bold" onclick="alert('Proceeding to full evidence match against PIB, Gazette of India, and Ministry Archives!')">
+<span class="material-symbols-outlined text-[20px]">shield_with_heart</span>
+<span>Check this PDF</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Contextual Investigative Footnote -->
+<div class="mt-space-xl bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-outline text-[20px]">history_edu</span>
+<span>Looking for previously checked gazettes? Over 14,290 state notifications indexed in our open archive.</span>
+</div>
+<a class="font-label-md text-label-md text-primary font-bold hover:underline flex items-center gap-space-xs" href="#">
+<span>Browse Gazette Library</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Dynamic Client Script for Demo Flow Simulation -->
+<script>
+  function switchStage(stageNumber) {
+    const frame1 = document.getElementById('frame-1');
+    const frame2 = document.getElementById('frame-2');
+    const frame3 = document.getElementById('frame-3');
+
+    const btn1 = document.getElementById('btn-stage-1');
+    const btn2 = document.getElementById('btn-stage-2');
+    const btn3 = document.getElementById('btn-stage-3');
+
+    // Reset visibility
+    frame1.classList.add('hidden');
+    frame2.classList.add('hidden');
+    frame3.classList.add('hidden');
+
+    // Reset button styling
+    [btn1, btn2, btn3].forEach(btn => {
+      btn.className = 'stage-toggle-btn px-space-md py-space-xs rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all';
+    });
+
+    const activeBtnClasses = 'stage-toggle-btn px-space-md py-space-xs rounded font-label-sm text-label-sm bg-surface-container-lowest text-primary shadow-sm font-bold transition-all';
+
+    if (stageNumber === 1) {
+      frame1.classList.remove('hidden');
+      btn1.className = activeBtnClasses;
+    } else if (stageNumber === 2) {
+      frame2.classList.remove('hidden');
+      btn2.className = activeBtnClasses;
+    } else if (stageNumber === 3) {
+      frame3.classList.remove('hidden');
+      btn3.className = activeBtnClasses;
+    }
+  }
+</script></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant py-space-xl"><div class="max-w-7xl mx-auto px-margin-desktop flex flex-col sm:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-tertiary text-[20px]">verified_user</span><p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck explains its evidence. It does not replace official notices.</p></div><div class="flex items-center gap-space-lg text-outline font-label-sm text-label-sm"><span>Civic Accountability Standard</span><span>•</span><span>Open Methodology</span></div></div></footer></body></html>

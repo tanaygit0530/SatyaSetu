@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>SachCheck - Civic Verification System</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=Space+Mono&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary": "#ffffff", "tertiary-fixed": "#90f8ad", "on-primary": "#ffffff", "surface-container-low": "#f1f3ff", "primary-container": "#1d4ed8", "surface-variant": "#d8e2ff", "on-secondary-fixed": "#321200", "tertiary-container": "#006a36", "secondary-fixed": "#ffdbc9", "primary": "#0037b0", "on-secondary-container": "#642b00", "surface": "#faf9ff", "on-primary-fixed": "#001551", "background": "#faf9ff", "on-tertiary-fixed-variant": "#005228", "surface-dim": "#cedafa", "on-surface": "#0f1b33", "tertiary-fixed-dim": "#74db92", "on-tertiary": "#ffffff", "on-error": "#ffffff", "surface-container-highest": "#d8e2ff", "on-secondary-fixed-variant": "#753400", "secondary-fixed-dim": "#ffb68c", "inverse-on-surface": "#edf0ff", "secondary-container": "#fe852f", "primary-fixed": "#dce1ff", "tertiary": "#004f27", "on-tertiary-container": "#82ea9f", "error-container": "#ffdad6", "surface-bright": "#faf9ff", "secondary": "#9a4600", "outline": "#747686", "inverse-primary": "#b7c4ff", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", "on-background": "#0f1b33", "surface-container": "#e9edff", "error": "#ba1a1a", "surface-container-high": "#e1e8ff", "primary-fixed-dim": "#b7c4ff", "on-primary-container": "#cad3ff", "surface-tint": "#2151da", "inverse-surface": "#253049", "on-surface-variant": "#434655", "outline-variant": "#c4c5d7", "on-tertiary-fixed": "#00210d", "on-primary-fixed-variant": "#0039b5" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter": "1rem", "margin-desktop": "2rem", "space-md": "1rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "gutter-desktop": "1.5rem", "margin-tablet": "1.5rem", "margin": "1rem", "space-xs": "0.25rem", "space-2xl": "3rem", "space-xl": "2rem" }, fontFamily: { "headline-sm": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "quoted-claim-lg": ["\"Source Serif 4\""], "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "quoted-claim": ["\"Source Serif 4\""], "headline-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "code-sm": ["Space Mono"], "label-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"] }, fontSize: { "headline-sm": ["16px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "600" }], "headline-xl-mobile": ["28px", { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-xl": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0", fontWeight: "400" }], "quoted-claim-lg": ["19px", { lineHeight: "30px", letterSpacing: "0", fontWeight: "400" }], "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0", fontWeight: "400" }], "body-md": ["15px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "400" }], "quoted-claim": ["16px", { lineHeight: "26px", letterSpacing: "0", fontWeight: "400" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "700" }], "headline-lg-mobile": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "code-sm": ["12px", { lineHeight: "16px", letterSpacing: "0", fontWeight: "400" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(15,27,51,0.06)]"><div class="h-20 max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-xs text-on-surface group focus:outline-none" data-path="check-a-forward" href="#"><span class="material-symbols-outlined text-primary text-[28px]">verified_user</span><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight leading-none text-on-surface">SachCheck</span><span class="font-label-sm text-label-sm text-on-surface-variant font-normal leading-none mt-1">Fact Verification</span></div></a><nav class="hidden lg:flex items-center gap-space-lg" data-active-classes="text-primary font-bold"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="check-a-forward" href="#">Check a forward</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="history" href="#">History</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-xs" data-path="whatsapp" href="#">WhatsApp</a><a aria-current="page" class="transition-colors py-space-xs text-primary font-bold" data-path="how-we-decide" href="#">How we decide</a></nav></div><div class="flex items-center gap-space-sm sm:gap-space-md"><div class="hidden sm:flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface text-primary font-bold shadow-[0_1px_2px_rgba(15,27,51,0.05)]" type="button">EN</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">हिं</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">मरा</button></div><div class="hidden md:flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface text-on-surface font-semibold shadow-[0_1px_2px_rgba(15,27,51,0.05)]" title="Standard Font" type="button">A</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Medium Font" type="button">A+</button><button class="font-label-sm text-label-sm px-2 py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Large Font" type="button">A++</button></div><a class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="settings" href="#" title="Settings"><span class="material-symbols-outlined text-[22px]">settings</span></a><a class="hidden sm:inline-flex items-center justify-center h-11 px-5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2" data-path="check-a-forward" href="#">Check a forward</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Editorial Header & Trust Anchor -->
+<section class="w-full bg-surface-container-low py-space-xl">
+<div class="max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
+<div class="max-w-3xl">
+<div class="inline-flex items-center gap-space-xs px-3 py-1 rounded-full bg-surface text-primary font-label-sm text-label-sm shadow-sm mb-space-sm">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+<span>PUBLIC CIVIC AUDIT PROTOCOL · REV 2025.4</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight mb-space-sm">
+            We show our evidence. We don't ask you to trust us.
+          </h1>
+<p class="font-quoted-claim-lg text-quoted-claim-lg text-on-surface-variant leading-relaxed">
+            SachCheck operates on deterministic statutory rules, immutable public records, and radical transparency. Here is our exact methodology.
+          </p>
+</div>
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm self-start md:self-end">
+<div class="flex items-center gap-space-xs bg-surface px-4 py-2 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[20px]">verified</span>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-on-surface font-bold">100% REPRODUCIBLE</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Statutory Chain Audited</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-center gap-space-xs px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm" href="#accuracy">
+<span>Benchmark Repo</span>
+<span class="material-symbols-outlined text-[18px]">arrow_outward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Editorial Sub-Bar / Status Ribbons -->
+<div class="w-full bg-surface-container py-space-sm">
+<div class="max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop flex flex-wrap items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-space-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-semibold text-on-surface">Institutional Model:</span>
+<span>Deterministic Rule Machine + Zero-Shot Evidence Extractor</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span>Updated: October 2025</span>
+<span>•</span>
+<span>Codified under Civic Transparency Standard CTS-9</span>
+</div>
+</div>
+</div>
+<!-- Primary Working Body: Sticky TOC + Deep Documentation Flow -->
+<div class="w-full py-space-xl">
+<div class="max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Left-Hand Sticky Table of Contents -->
+<aside class="hidden lg:block lg:col-span-3 sticky top-24 self-start">
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm uppercase tracking-wider mb-space-sm">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+<span>Methodology Index</span>
+</div>
+<nav class="flex flex-col space-y-1 font-label-md text-label-md" id="toc-nav">
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface font-semibold bg-surface-container hover:bg-surface-container-high transition-colors" href="#pipeline">1. Who Reads, Who Decides</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#ladder">2. The Source Ladder</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#verdicts">3. Five Standardized Verdicts</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#time-matters">4. Time Matters (Expiry)</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#abstain">5. When We Abstain</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#boundaries">6. What We Cannot Do</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#privacy">7. Zero-Footprint Privacy</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#accuracy">8. Accuracy &amp; Benchmark</a>
+<a class="toc-link block px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" href="#faq">9. Public Auditing FAQ</a>
+</nav>
+<!-- Audit Card Micro-Block -->
+<div class="mt-space-lg pt-space-md bg-surface-container-low rounded-lg p-3">
+<div class="flex items-center gap-space-xs text-on-surface font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-primary text-[16px]">policy</span>
+<span>Open Protocol Code</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2">Every verification payload outputs an immutable JSON cryptographic digest.</p>
+<div class="font-code-sm text-code-sm bg-surface p-1.5 rounded text-primary truncate">
+                sha256:7f01c...c48b0a
+              </div>
+</div>
+</div>
+</aside>
+<!-- Right-Hand Comprehensive Content Column -->
+<main class="col-span-1 lg:col-span-9 flex flex-col space-y-space-2xl">
+<!-- Section 1: Who Reads, Who Decides -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="pipeline">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>
+<span>Section 01 · Architectural Governance</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Who Reads, Who Decides: The Deterministic Triad
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Unlike consumer generative tools that synthesize answers through statistical probability, SachCheck divides ingestion, retrieval, and judgment into three hermetically isolated components.
+              </p>
+</div>
+<!-- Big Architectural Punchline -->
+<div class="p-space-lg rounded-xl bg-primary text-on-primary shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div>
+<span class="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider block mb-1">The Core SachCheck Axiom</span>
+<p class="font-headline-lg text-headline-lg font-bold">
+                  AI reads. Evidence proves. Rules decide.
+                </p>
+</div>
+<span class="material-symbols-outlined text-[48px] text-primary-fixed-dim hidden md:block">balance</span>
+</div>
+<!-- Three-Step Pipeline Visual Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Step 1 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-headline-sm text-headline-sm mb-space-sm font-bold">
+                    01
+                  </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">
+                    AI reads the message and sources
+                  </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Ingests unstructured forwards: audio voicenotes, WhatsApp screenshot OCR, and vernacular Hindi, Marathi, and Tamil dialects. Extracts discrete, testable factual propositions.
+                  </p>
+</div>
+<div class="mt-space-md pt-space-xs font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low p-2 rounded">
+                  Scope: Token Extraction ONLY
+                </div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-headline-sm text-headline-sm mb-space-sm font-bold">
+                    02
+                  </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">
+                    Code checks every single quote
+                  </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Cryptographic string comparison matches claims against primary gazettes, Supreme Court judgments, and RBI repository records. A citation is rejected if its URL hash fails integrity audits.
+                  </p>
+</div>
+<div class="mt-space-md pt-space-xs font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low p-2 rounded">
+                  Scope: Exact Cryptographic Match
+                </div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-headline-sm text-headline-sm mb-space-sm font-bold">
+                    03
+                  </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">
+                    Fixed rules choose the verdict
+                  </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    No machine learning model ever issues a verdict. A deterministic, immutable statutory precedence table maps the gathered citations to one of exactly five verdicts.
+                  </p>
+</div>
+<div class="mt-space-md pt-space-xs font-code-sm text-code-sm text-tertiary bg-surface-container-low p-2 rounded">
+                  Scope: Deterministic Logic Engine
+                </div>
+</div>
+</div>
+<!-- Deep Context Box -->
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[24px] mt-0.5">info</span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Why the Large Language Model is forbidden from making decisions</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    When language models are allowed to "guess" veracity, they suffer from sycophancy, subtle geographic hallucination, and bias toward sensational phrasing. Under SachCheck protocol, if our deterministic lookup finds no matching statutory or archival text, the system defaults to <span class="font-semibold text-on-surface">"Cannot Be Confirmed"</span>. The AI is legally prevented from fabricating connective tissue.
+                  </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Where We Look (The Evidence Source Ladder) -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="ladder">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">reorder</span>
+<span>Section 02 · Evidentiary Hierarchy</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Where We Look: The Evidence Source Ladder
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Search order is entirely distinct from evidential weighting. While search crawlers index web links indiscriminately, our adjudication engine applies strict institutional precedence.
+              </p>
+</div>
+<!-- Visual Hierarchical Ladder -->
+<div class="bg-surface rounded-xl p-space-md sm:p-space-lg shadow-sm space-y-space-md">
+<!-- Tier 1 -->
+<div class="p-space-md rounded-lg bg-surface-container-low transition-all">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-full bg-primary text-on-primary font-code-sm text-code-sm font-bold">TIER 1</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Official &amp; Statutory Public Records</h3>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified</span> 100% Precedence Weight
+                  </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-xs">
+                  The Gazette of India, Supreme Court &amp; High Court signed orders, Reserve Bank of India (RBI) regulatory circulars, and departmental notifications published on official <code class="font-code-sm text-code-sm bg-surface px-1 py-0.5 rounded text-primary">.gov.in</code> domains.
+                </p>
+<div class="font-quoted-claim text-quoted-claim text-on-surface-variant bg-surface p-space-sm rounded">
+                  “A Tier 1 statutory record automatically overrides all secondary press analyses or social assertions.”
+                </div>
+</div>
+<!-- Tier 2 -->
+<div class="p-space-md rounded-lg bg-surface-container-low transition-all">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-full bg-primary-container text-on-primary font-code-sm text-code-sm font-bold">TIER 2</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Certified Independent Fact-Checkers</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">High Corroborative Weight</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-xs">
+                  Signatories of the International Fact-Checking Network (IFCN) operating across India (e.g., BoomLive, AltNews, Factly, Vishvas News) and institutional civic verification desks (PIB Fact Check).
+                </p>
+<div class="font-label-sm text-label-sm text-on-surface-variant bg-surface p-2 rounded">
+                  Requires two mutually independent signatories to achieve statutory consensus if Tier 1 text is pending publication.
+                </div>
+</div>
+<!-- Tier 3 -->
+<div class="p-space-md rounded-lg bg-surface-container-low transition-all">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-code-sm text-code-sm font-bold">TIER 3</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Established News Wire &amp; Primary Reporting</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Secondary Corroborative</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                  Press Trust of India (PTI), United News of India, The Hindu, Indian Express, and accredited parliamentary correspondents. Used exclusively to substantiate ground events, localized incidents, and minister statements.
+                </p>
+</div>
+<!-- Tier 4 -->
+<div class="p-space-md rounded-lg bg-surface-container-low transition-all">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-code-sm text-code-sm font-bold">TIER 4</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Peer-Reviewed &amp; Academic Repositories</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Supplementary Context</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                  ICMR scientific advisories, IIT engineering audits, university journals, and institutional whitepapers. Provides scientific baseline for medical or technical viral claims.
+                </p>
+</div>
+<!-- Tier 5 -->
+<div class="p-space-md rounded-lg bg-surface-container-highest transition-all">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-full bg-error text-on-error font-code-sm text-code-sm font-bold">TIER 5</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Social Feeds, Viral Blogs &amp; WhatsApp Broadcasts</h3>
+</div>
+<span class="font-label-sm text-label-sm text-error font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">block</span> 0% Evidential Weight
+                  </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                  Viral forward chains, anonymous blog pages, YouTube talking heads, and unverified social media handles. Used strictly as ingestion artifacts to define the claim; never accepted as proof.
+                </p>
+</div>
+</div>
+</section>
+<!-- Section 3: Five Standardized Verdicts -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="verdicts">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Section 03 · Standardized Adjudication</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Five Standardized Verdicts
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Every claim submitted to SachCheck terminates in exactly one of these five verdicts. We do not use ambiguous scores, star ratings, or percentage probabilities.
+              </p>
+</div>
+<div class="flex flex-col space-y-space-md">
+<!-- 1. Verified -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-sm">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF6EE] text-[#146336] font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>VERIFIED</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Criterion: Primary Statutory Record Matched</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-space-sm">
+                  The claim is completely substantiated by authentic, unexpired Tier 1 statutory records, official ministry decrees, or certified institutional registries.
+                </p>
+<div class="bg-surface-container-low rounded-lg p-space-sm space-y-1">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Historical Case Example:</span>
+<div class="font-quoted-claim text-quoted-claim text-on-surface">
+                    “Union Cabinet sanctions ₹23,136 crore for Mumbai Metro Line 3 extension under Phase 2.”
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+                    Matched directly with Press Information Bureau (PIB) Cabinet Decision Release &amp; Ministry of Housing and Urban Affairs notification.
+                  </p>
+</div>
+</div>
+<!-- 2. False -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-sm">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F2] text-[#991B1B] font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>FALSE</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Criterion: Directly Contradicts Statutory Record</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-space-sm">
+                  The central assertion has no grounding in fact, relies on doctored materials, or directly contradicts public records and binding laws.
+                </p>
+<div class="bg-surface-container-low rounded-lg p-space-sm space-y-1">
+<span class="font-label-sm text-label-sm text-error font-bold uppercase tracking-wider">Historical Case Example:</span>
+<div class="font-quoted-claim text-quoted-claim text-on-surface">
+                    “RBI declares that ₹500 notes where the green security thread is close to Mahatma Gandhi's photo are fake.”
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+                    Directly refuted by official Reserve Bank of India notification DCM(Plg) No. G-2/2016 clarifying both variations are valid currency prints.
+                  </p>
+</div>
+</div>
+<!-- 3. Outdated -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-sm">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FEF7ED] text-[#A04F05] font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>OUTDATED</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Criterion: Superseded Statutory Order</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-space-sm">
+                  The forwarded text was accurate at a previous moment in history, but has since lapsed, expired, or been superseded by newer legislative or administrative amendments.
+                </p>
+<div class="bg-surface-container-low rounded-lg p-space-sm space-y-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Historical Case Example:</span>
+<div class="font-quoted-claim text-quoted-claim text-on-surface">
+                    “PAN-Aadhaar linking deadline extended without penalty fee to June 30.”
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+                    Legitimate circular from 2021 recirculated in 2025 where statutory penalty rules under Section 234H of the Income Tax Act are now mandatory.
+                  </p>
+</div>
+</div>
+<!-- 4. Partly Supported -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-sm">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FEFCE8] text-[#856807] font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">timelapse</span>
+<span>PARTLY SUPPORTED</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Criterion: Factual Kernel with Distorted Metrics</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-space-sm">
+                  Contains a genuine factual premise, but has been distorted with inflated figures, fabricated qualifying criteria, or misleading conditional constraints.
+                </p>
+<div class="bg-surface-container-low rounded-lg p-space-sm space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface font-bold uppercase tracking-wider">Historical Case Example:</span>
+<div class="font-quoted-claim text-quoted-claim text-on-surface">
+                    “Government to provide ₹50,000 direct benefit transfer scholarship to all Class 10 female students nationwide.”
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+                    The scholarship scheme exists under the Begum Hazrat Mahal program, but pays ₹5,000 for classes 9-10 and requires minority community income criteria.
+                  </p>
+</div>
+</div>
+<!-- 5. Cannot Be Confirmed -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-sm">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F1F5F9] text-[#475569] font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">help_outline</span>
+<span>CANNOT BE CONFIRMED</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Criterion: Insufficient Primary Audit Trail</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-space-sm">
+                  There is currently no official verifiable public documentation, gazette notice, police charge sheet, or institutional record to either confirm or falsify the claim.
+                </p>
+<div class="bg-surface-container-low rounded-lg p-space-sm space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Historical Case Example:</span>
+<div class="font-quoted-claim text-quoted-claim text-on-surface">
+                    “Municipal commissioner in Vidarbha secretly directed water tankers away from agricultural zones last weekend.”
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+                    No official municipal dispatch, logging log, or on-record district collector confirmation exists. We refuse to speculate.
+                  </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Time Matters (Temporal Expiry) -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="time-matters">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">hourglass_empty</span>
+<span>Section 04 · Temporal Verification Dynamics</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Time Matters: How Recycled Circulars Deceive
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Over 34% of misleading civic forwards across Indian WhatsApp networks are not fabrications, but ancient, authentic government notices recycled years after statutory expiration.
+              </p>
+</div>
+<!-- Temporal Timeline Visual Box -->
+<div class="bg-surface rounded-xl p-space-md sm:p-space-lg shadow-sm">
+<div class="relative flex flex-col space-y-space-md">
+<!-- Timeline Step 1 -->
+<div class="flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center font-code-sm text-code-sm font-bold shrink-0">
+                    T0
+                  </div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-tertiary font-bold uppercase">Official Gazette Enacted</span>
+<p class="font-headline-sm text-headline-sm text-on-surface">Ministry issues temporary pandemic waiver</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Valid from April 2020 through December 2021 under Emergency Disaster Act powers.</p>
+</div>
+</div>
+<!-- Timeline Step 2 -->
+<div class="flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface font-code-sm text-code-sm font-bold shrink-0">
+                    T1
+                  </div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase">Statutory Expiration</span>
+<p class="font-headline-sm text-headline-sm text-on-surface">Order ceases to have legal effect</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Regular statutory compliance standards are officially reinstated by notification.</p>
+</div>
+</div>
+<!-- Timeline Step 3 -->
+<div class="flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary font-code-sm text-code-sm font-bold shrink-0">
+                    T2
+                  </div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase">Viral Resurfacing (Today)</span>
+<p class="font-headline-sm text-headline-sm text-on-surface">Notice cropped and forwarded to 400,000 citizens</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The header and signature look completely authentic because they are authentic—the dates have simply been stripped or cropped.</p>
+</div>
+</div>
+</div>
+<!-- Automated Expiry Guardrail Note -->
+<div class="mt-space-md p-space-sm bg-surface-container rounded-lg flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_clock</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+<span class="font-semibold text-primary">SachCheck Temporal Parser:</span> Every statutory lookup performs automated lifespan calculation. If a gazette decree had a sunset clause, any recirculated forward without that clause receives an <span class="font-bold text-secondary">OUTDATED</span> verdict.
+                </p>
+</div>
+</div>
+</section>
+<!-- Section 5: When We Abstain -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="abstain">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">balance</span>
+<span>Section 05 · The Ethics of Restraint</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                When We Abstain: Restraint as Institutional Duty
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Commercial fact-checking often feels pressured to deliver binary answers. We reject that pressure categorically.
+              </p>
+</div>
+<div class="bg-surface rounded-xl p-space-md sm:p-space-lg shadow-sm space-y-space-md">
+<div class="p-space-md rounded-lg bg-surface-container-low">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">
+                  “Cannot Be Confirmed” is an honest result, not a failure.
+                </h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-sm">
+                  When a civic rumor spreads about an unlogged local panchayat meeting, a closed-door bureaucratic transfer, or a private phone conversation between politicians, an automated service that issues a confident “False” is lying to citizens. You cannot prove a negative without complete record access.
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                  By delivering “Cannot Be Confirmed”, SachCheck preserves democratic vigilance. We explicitly state: <span class="italic font-quoted-claim text-on-surface">“No public record exists. Do not act on this forward until official gazettes or institutional dispatches emerge.”</span>
+</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm font-label-md text-label-md">
+<div class="flex items-center gap-2 p-3 bg-surface-container-low rounded-lg text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+<span>We never guess or interpolate</span>
+</div>
+<div class="flex items-center gap-2 p-3 bg-surface-container-low rounded-lg text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+<span>Zero probabilistic “truth meters”</span>
+</div>
+<div class="flex items-center gap-2 p-3 bg-surface-container-low rounded-lg text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+<span>No speculative party rebuttals</span>
+</div>
+<div class="flex items-center gap-2 p-3 bg-surface-container-low rounded-lg text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+<span>Absence of evidence is stated clearly</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 6: What We Cannot Do -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="boundaries">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">security</span>
+<span>Section 06 · Technical &amp; Civic Boundaries</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                What We Cannot Do: Explicit Institutional Boundaries
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                To maintain credibility, a civic institution must state its technical boundaries plainly. SachCheck does not overpromise.
+              </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Boundary 1 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-space-xs text-secondary mb-space-xs">
+<span class="material-symbols-outlined text-[24px]">image_not_supported</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">No Image Tampering Detection</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+                  We check the <span class="font-semibold text-on-surface">claims, statements, and numbers</span> present within an image. We do NOT run pixel-level Error Level Analysis (ELA) or promise forensic proof of digital Photoshop manipulation.
+                </p>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-1 rounded block">
+                  Audits semantic content, not compression artifacts
+                </span>
+</div>
+<!-- Boundary 2 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-space-xs text-secondary mb-space-xs">
+<span class="material-symbols-outlined text-[24px]">smart_toy</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">No Deepfake Forensic Guarantee</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+                  Generative video and synthetic audio evolve daily. We do not certify videos as “real” or “synthetic”; we audit whether the speech transcript matches signed press dispatches or transcripts.
+                </p>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-1 rounded block">
+                  Transcript match only; zero synthetic biometric claims
+                </span>
+</div>
+<!-- Boundary 3 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-space-xs text-secondary mb-space-xs">
+<span class="material-symbols-outlined text-[24px]">translate</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Dialect Beta Operational Tier</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+                  While Standard Hindi, Marathi, Bengali, Tamil, and English are fully supported in production, regional rural idioms and mixed Hinglish voice notes are in continuous monitored beta.
+                </p>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-1 rounded block">
+                  Dialect ingestion reliability tracked openly
+                </span>
+</div>
+<!-- Boundary 4 -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-space-xs text-secondary mb-space-xs">
+<span class="material-symbols-outlined text-[24px]">gavel</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Not a Replacement for Court Orders</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+                  SachCheck is an evidential information service for citizens. It does not constitute legal counsel, judicial decrees, or binding government gazettes.
+                </p>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-1 rounded block">
+                  Civic informational utility only
+                </span>
+</div>
+</div>
+</section>
+<!-- Section 7: Privacy & Citizen Zero-Footprint -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="privacy">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Section 07 · Data Sovereignty</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Privacy &amp; Citizen Zero-Footprint
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Citizens in India frequently hesitate to verify sensitive forwarded messages out of fear of state surveillance or corporate data profiling. Our architecture operates on strict zero-footprint ingestion.
+              </p>
+</div>
+<!-- Two-Column Side-by-Side Comparison -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- What We Keep -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-space-xs text-tertiary mb-space-sm">
+<span class="material-symbols-outlined text-[22px]">database</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">What We Store (Public Index)</h3>
+</div>
+<ul class="space-y-space-sm font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px] shrink-0 mt-0.5">check</span>
+<span><strong class="text-on-surface">SHA-256 Hashes:</strong> Cryptographic fingerprint of the normalized text proposition.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px] shrink-0 mt-0.5">check</span>
+<span><strong class="text-on-surface">Aggregate Viral Counters:</strong> Integer counting how many times a claim hash was evaluated this week.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px] shrink-0 mt-0.5">check</span>
+<span><strong class="text-on-surface">Immutable Evidence URLs:</strong> Exact public gazette and fact-checker references used in the verdict.</span>
+</li>
+</ul>
+</div>
+<div class="mt-space-md p-2 bg-surface-container-low rounded text-on-surface font-label-sm text-label-sm">
+                  Publicly accessible in our daily transparency logs.
+                </div>
+</div>
+<!-- What We Never Keep -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-space-xs text-error mb-space-sm">
+<span class="material-symbols-outlined text-[22px]">no_accounts</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">What We NEVER Store</h3>
+</div>
+<ul class="space-y-space-sm font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">close</span>
+<span><strong class="text-on-surface">Citizen Phone Numbers:</strong> Stripped in memory at the WhatsApp webhook before OCR execution.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">close</span>
+<span><strong class="text-on-surface">Original Media Files:</strong> Raw audio notes and photos are purged from RAM immediately after transcription.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">close</span>
+<span><strong class="text-on-surface">Sender / Group Identity:</strong> Zero metadata tracing who sent the forward to whom.</span>
+</li>
+</ul>
+</div>
+<div class="mt-space-md p-2 bg-surface-container-highest rounded text-on-surface font-label-sm text-label-sm">
+                  Technical audit guarantees verifiable zero-knowledge.
+                </div>
+</div>
+</div>
+</section>
+<!-- Section 8: Accuracy & Benchmark Evaluation -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="accuracy">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+<span>Section 08 · Open Evaluation Metrics</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Accuracy &amp; Benchmark Evaluation
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                We believe algorithmic transparency is useless without public benchmark evaluation against adversarial synthetic datasets.
+              </p>
+</div>
+<!-- Open Metrics Bento Card -->
+<div class="bg-surface rounded-xl p-space-md sm:p-space-lg shadow-sm">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md mb-space-lg">
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Statutory Recall</span>
+<div class="font-headline-xl text-headline-xl text-primary font-bold">99.4%</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+                    Tested across 4,200 indexed parliamentary circulars (2019–2025).
+                  </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Hallucination Rate</span>
+<div class="font-headline-xl text-headline-xl text-tertiary font-bold">0.0%</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+                    Every quotation is mechanically bound to an active, SHA-verified statutory URL.
+                  </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Avg. Verification Latency</span>
+<div class="font-headline-xl text-headline-xl text-on-surface font-bold">4.2s</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+                    Median time from WhatsApp forward receipt to evidence dossier dispatch.
+                  </p>
+</div>
+</div>
+<!-- Public Audit CTA Strip -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md p-space-md bg-surface-container rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[28px]">terminal</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Inspect Public Evaluation Repo &amp; Code</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Clone our test suite, adversarial tests, and run validation benchmarks locally.</div>
+</div>
+</div>
+<button class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-surface text-primary font-label-md text-label-md font-bold hover:bg-surface-container-high transition-colors shadow-sm shrink-0" type="button">
+                  github.com/sachcheck/eval-v2
+                </button>
+</div>
+</div>
+</section>
+<!-- Section 9: Frequently Asked Questions (FAQ) -->
+<section class="scroll-mt-28 flex flex-col space-y-space-lg" id="faq">
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm tracking-wide uppercase">
+<span class="material-symbols-outlined text-[18px]">quiz</span>
+<span>Section 09 · Civic Audit Inquiries</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-2">
+                Frequently Asked Questions
+              </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Direct, transparent answers regarding funding, operational impartiality, and dispute resolution.
+              </p>
+</div>
+<!-- Accordions Stack -->
+<div class="flex flex-col space-y-space-sm" id="faq-accordion-group">
+<!-- FAQ 1 -->
+<div class="bg-surface rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md text-left flex items-center justify-between gap-space-sm focus:outline-none" onclick="toggleFaq(this)" type="button">
+<span class="font-headline-sm text-headline-sm text-on-surface">1. Is SachCheck affiliated with any political party or government department?</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px] transition-transform duration-200">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-0 text-on-surface-variant font-body-md text-body-md">
+<p>
+                    No. SachCheck is an independent public-interest civic software initiative. It receives zero funding from political parties, candidate campaign trusts, or commercial advertisements. All statutory benchmarks, codebases, and evidence databases are licensed under open public civic licenses.
+                  </p>
+</div>
+</div>
+<!-- FAQ 2 -->
+<div class="bg-surface rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md text-left flex items-center justify-between gap-space-sm focus:outline-none" onclick="toggleFaq(this)" type="button">
+<span class="font-headline-sm text-headline-sm text-on-surface">2. How do you prevent AI hallucinations in verification reports?</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px] transition-transform duration-200">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-0 text-on-surface-variant font-body-md text-body-md">
+<p>
+                    We forbid LLMs from writing free-form analysis. The language model is constrained strictly to extracting testable propositions. Our secondary verification engine then conducts verbatim string and semantic lookup against indexed gazettes and verified URLs. If a statutory quote cannot be cryptographically retrieved from the original source server, the verdict is blocked from issuing.
+                  </p>
+</div>
+</div>
+<!-- FAQ 3 -->
+<div class="bg-surface rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md text-left flex items-center justify-between gap-space-sm focus:outline-none" onclick="toggleFaq(this)" type="button">
+<span class="font-headline-sm text-headline-sm text-on-surface">3. What happens if an official government circular itself contains an error?</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px] transition-transform duration-200">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-0 text-on-surface-variant font-body-md text-body-md">
+<p>
+                    When official departmental releases contain internal numerical discrepancies or typo errors (e.g., misprinted scheme deadlines), our system flags them as <span class="font-bold text-secondary">PARTLY SUPPORTED</span> with an explicit “Statutory Anomaly Notice” citing subsequent corrigenda issued by the respective ministry.
+                  </p>
+</div>
+</div>
+<!-- FAQ 4 -->
+<div class="bg-surface rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md text-left flex items-center justify-between gap-space-sm focus:outline-none" onclick="toggleFaq(this)" type="button">
+<span class="font-headline-sm text-headline-sm text-on-surface">4. Can I dispute a verdict if I have counter-evidence?</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px] transition-transform duration-200">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-0 text-on-surface-variant font-body-md text-body-md">
+<p>
+                    Yes. Every issued verdict includes an immutable “Audit Link” where any citizen can submit a Tier 1 or Tier 2 counter-document. Submissions are processed through our re-evaluation pipeline within 12 hours. If revised, the complete version history of the change is recorded permanently on the public ledger.
+                  </p>
+</div>
+</div>
+<!-- FAQ 5 -->
+<div class="bg-surface rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md text-left flex items-center justify-between gap-space-sm focus:outline-none" onclick="toggleFaq(this)" type="button">
+<span class="font-headline-sm text-headline-sm text-on-surface">5. How does the WhatsApp verification number protect my privacy?</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px] transition-transform duration-200">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-0 text-on-surface-variant font-body-md text-body-md">
+<p>
+                    When you forward a message to our WhatsApp service, your phone number and user metadata are stripped immediately in memory at the gateway boundary. We do not maintain user profiles, chat logs, or advertising identifiers. The system processes the forward in isolation and returns the evidential card.
+                  </p>
+</div>
+</div>
+<!-- FAQ 6 -->
+<div class="bg-surface rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md text-left flex items-center justify-between gap-space-sm focus:outline-none" onclick="toggleFaq(this)" type="button">
+<span class="font-headline-sm text-headline-sm text-on-surface">6. Why does SachCheck not use a simple True / False binary?</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px] transition-transform duration-200">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-0 text-on-surface-variant font-body-md text-body-md">
+<p>
+                    Modern civic misinformation relies on partial truths—real notifications with altered amounts, expired policies presented as active, and municipal hearsay without records. Forcing these complex realities into a simplistic “True/False” binary creates cognitive distortion and erodes public trust.
+                  </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Civic Reassurance Banner -->
+<div class="bg-surface-container-high rounded-xl p-space-lg text-on-surface flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div>
+<h3 class="font-headline-md text-headline-md mb-1">Notice an anomaly in our statutory index?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Submit verifiable gazette links or court judgments directly to our open methodology board.</p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<a class="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm" href="#">
+                Submit Record Discrepancy
+              </a>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function toggleFaq(btn) {
+    const content = btn.nextElementSibling;
+    const icon = btn.querySelector('.material-symbols-outlined');
+    const isHidden = content.classList.contains('hidden');
+    
+    // Close other FAQs
+    document.querySelectorAll('#faq-accordion-group .material-symbols-outlined').forEach(i => {
+      i.style.transform = 'rotate(0deg)';
+    });
+    document.querySelectorAll('#faq-accordion-group > div > div').forEach(c => {
+      c.classList.add('hidden');
+    });
+
+    if (isHidden) {
+      content.classList.remove('hidden');
+      icon.style.transform = 'rotate(180deg)';
+    } else {
+      content.classList.add('hidden');
+      icon.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  // Smooth TOC Active State Tracking
+  window.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('section[id]');
+    const tocLinks = document.querySelectorAll('#toc-nav .toc-link');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 160;
+        if (window.scrollY >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      tocLinks.forEach(link => {
+        link.classList.remove('bg-surface-container', 'font-semibold', 'text-on-surface');
+        link.classList.add('text-on-surface-variant');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('bg-surface-container', 'font-semibold', 'text-on-surface');
+          link.classList.remove('text-on-surface-variant');
+        }
+      });
+    });
+  });
+</script></main><footer class="w-full bg-surface-container-lowest mt-space-2xl shadow-[0_-1px_8px_rgba(15,27,51,0.03)]"><div class="max-w-[1200px] mx-auto px-margin md:px-margin-tablet lg:px-margin-desktop py-space-xl"><div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg pb-space-lg"><div class="max-w-xl"><div class="flex items-center gap-space-xs text-on-surface mb-2"><span class="material-symbols-outlined text-primary text-[20px]">gavel</span><span class="font-headline-sm text-headline-sm text-on-surface">Civic Transparency Standard</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">SachCheck explains its evidence. It does not replace official notices.</p></div><nav class="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="civic-accountability-standard" href="#">Civic Accountability Standard</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="open-methodology" href="#">Open Methodology</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="privacy-policy" href="#">Privacy Policy</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" data-path="settings" href="#">Settings</a></nav></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm"><p>© 2025 SachCheck Initiative. Public evidential service across India.</p><div class="flex items-center gap-space-xs text-tertiary"><span class="material-symbols-outlined text-[16px]">verified</span><span class="font-code-sm text-code-sm">VERIFIABLE RECORD PROTOCOL v2.4</span></div></div></div></footer></body></html>
