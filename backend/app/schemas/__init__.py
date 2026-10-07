@@ -34,6 +34,12 @@ from app.schemas.ingestion import (
     URLIngestionResult,
     VoiceIngestionResult,
 )
+from app.schemas.language import (
+    ClaimRepresentation,
+    LanguageDetectionInput,
+    LanguageDetectionResult,
+    LanguageNeutralFacts,
+)
 
 __all__ = [
     "Verdict",
@@ -66,4 +72,8 @@ __all__ = [
     "PDFIngestionResult",
     "URLIngestionInput",
     "URLIngestionResult",
+    "LanguageDetectionInput",
+    "LanguageDetectionResult",
+    "LanguageNeutralFacts",
+    "ClaimRepresentation",
 ]

@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional, Union
 from app.core.config import settings
 from app.core.exceptions import InvalidInputException
 from app.schemas.ingestion import TextInput, TextIngestionResult
+from app.services.language_detection import language_detector_service
 
 
 class TextIngestionService:
@@ -110,14 +111,12 @@ class TextIngestionService:
 
     def detect_language_hint(self, text: str) -> Optional[str]:
         """
-        Detects primary script hint if vernacular or returns None for default/neutral.
+        Detects vernacular language hint using language_detector_service.
+        Returns None for standard English (per spec example) or 'hi' / 'mr' for vernacular.
         """
-        devanagari_count = len(re.findall(r"[\u0900-\u097F]", text))
-        latin_count = len(re.findall(r"[A-Za-z]", text))
-
-        if devanagari_count > 5 and devanagari_count >= latin_count:
-            return "hi"  # Devanagari script (Hindi/Marathi)
-        # Default hint per specification example is null / None
+        res = language_detector_service.detect(text)
+        if res.language != "en":
+            return res.language
         return None
 
 
