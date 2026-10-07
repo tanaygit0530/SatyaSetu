@@ -3,6 +3,7 @@ from fastapi import APIRouter, status
 from app.schemas.claim import (
     AtomicClaimsOutput,
     ClaimExtractionInput,
+    ClaimResult,
 )
 from app.schemas.dependency import (
     ClaimDependencyGraph,
@@ -25,6 +26,7 @@ from app.schemas.temporal import (
     TemporalVerificationInput,
     TemporalVerificationResult,
 )
+from app.schemas.rule_engine import VerdictEngineInput
 from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
@@ -36,6 +38,7 @@ from app.services.retrieval import evidence_retrieval_pipeline
 from app.services.evidence_extractor import evidence_extractor_service
 from app.services.evidence_judge import evidence_judge_service
 from app.services.temporal_verification import temporal_verification_service
+from app.services.rule_engine import DeterministicRuleEngine
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -192,6 +195,33 @@ async def verify_temporality_endpoint(payload: TemporalVerificationInput) -> Tem
         claim_text=payload.claim_text,
         evidence_items=payload.evidence_items,
         current_date_str=payload.current_date,
+    )
+
+
+@router.post(
+    "/compute-verdict",
+    response_model=ClaimResult,
+    status_code=status.HTTP_200_OK,
+    summary="Compute deterministic verdict without LLM calls",
+    description="Deterministic evaluation over 5 canonical verdicts (VERIFIED, FALSE, OUTDATED, PARTLY_SUPPORTED, CANNOT_BE_CONFIRMED) with explicit audit rule trace.",
+)
+async def compute_verdict_endpoint(payload: VerdictEngineInput) -> ClaimResult:
+    """
+    Executes Deterministic Verdict Engine:
+    - Strictly does NOT call an LLM.
+    - Evaluates statutory precedence rules, source tiers, temporal status, contradictions, and agreements.
+    - Produces canonical verdict and explicit rule trace for audit dashboards.
+    """
+    return DeterministicRuleEngine.compute_verdict(
+        claim=payload.claim,
+        validated_evidence=payload.validated_evidence,
+        evidence_judgments=payload.evidence_judgments,
+        temporal_status=payload.temporal_status,
+        source_tiers=payload.source_tiers,
+        contradiction_strength=payload.contradiction_strength,
+        agreement=payload.agreement,
+        recency=payload.recency,
+        retrieval_quality=payload.retrieval_quality,
     )
 
 

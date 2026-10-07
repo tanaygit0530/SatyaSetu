@@ -64,6 +64,10 @@ from app.services.temporal_verification import (
     TemporalVerificationService,
     temporal_verification_service,
 )
+from app.services.rule_engine import (
+    DeterministicRuleEngine,
+    deterministic_rule_engine,
+)
 
 
 __all__ = [
@@ -103,4 +107,6 @@ __all__ = [
     "evidence_judge_service",
     "TemporalVerificationService",
     "temporal_verification_service",
+    "DeterministicRuleEngine",
+    "deterministic_rule_engine",
 ]

@@ -77,5 +77,9 @@ class ClaimResult(BaseModel):
     detailed_analysis: str = Field(..., description="Forensic evidential reasoning and legal citation context")
     temporal_status: TemporalStatus = Field(default=TemporalStatus.CURRENT)
     rule_matched: str = Field(..., description="Deterministic rule name that triggered verdict")
+    rule_trace: List[str] = Field(
+        default_factory=list,
+        description="Explicit deterministic rule trace for frontend/admin dashboard audit display",
+    )
     counter_evidence_summary: Optional[str] = None
     source_citations: List[EvidenceItem] = Field(default_factory=list)

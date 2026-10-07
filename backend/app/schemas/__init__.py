@@ -91,6 +91,7 @@ from app.schemas.temporal import (
     TemporalVerificationInput,
     TemporalVerificationResult,
 )
+from app.schemas.rule_engine import VerdictEngineInput
 
 __all__ = [
     "Verdict",
@@ -162,4 +163,5 @@ __all__ = [
     "TemporalEvidenceItem",
     "TemporalVerificationInput",
     "TemporalVerificationResult",
+    "VerdictEngineInput",
 ]
