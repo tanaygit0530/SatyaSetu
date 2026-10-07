@@ -26,6 +26,10 @@ from app.services.claim_extractor import (
     ClaimExtractorService,
     claim_extractor_service,
 )
+from app.services.claim_dependency import (
+    ClaimDependencyService,
+    claim_dependency_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -42,4 +46,6 @@ __all__ = [
     "language_detector_service",
     "ClaimExtractorService",
     "claim_extractor_service",
+    "ClaimDependencyService",
+    "claim_dependency_service",
 ]

@@ -46,6 +46,12 @@ from app.schemas.language import (
     LanguageDetectionResult,
     LanguageNeutralFacts,
 )
+from app.schemas.dependency import (
+    ClaimDependency,
+    ClaimDependencyGraph,
+    DependencyAnalysisInput,
+    DependencyRelationship,
+)
 
 __all__ = [
     "Verdict",
@@ -86,4 +92,8 @@ __all__ = [
     "AtomicClaimsOutput",
     "ClaimExtractionInput",
     "ExtractedClaim",
+    "DependencyRelationship",
+    "ClaimDependency",
+    "ClaimDependencyGraph",
+    "DependencyAnalysisInput",
 ]

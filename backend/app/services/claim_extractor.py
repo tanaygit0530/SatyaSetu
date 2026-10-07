@@ -220,6 +220,8 @@ class ClaimExtractorService:
         # Coordinate clause split patterns (where second part has an independent predicate / modal)
         # E.g. "UPI has been banned in India from tomorrow and all users will have to pay a 5% fee."
         patterns = [
+            # English: " ... and Scheme X gives ... " / " ... and this scheme provides ... "
+            r"^(.*?)(?:\s+and\s+)((?:(?:the\s+)?scheme\s+[a-z0-9]+|this\s+scheme|[A-Z][a-zA-Z0-9\s]*)\s+(?:gives|offers|provides|grants|requires|mandates|pays).+)$",
             # English: " ... and all users will ... " / " ... and citizens must ... "
             r"^(.*?)(?:\s+and\s+)(all\s+(?:users|citizens|students|people)\s+(?:will|must|have to|should|can).+)$",
             # English: " ... and everyone will have to ... "
