@@ -54,5 +54,11 @@ class Settings(BaseSettings):
     SARVAM_API_KEY: Optional[str] = None
     SARVAM_API_URL: str = "https://api.sarvam.ai/speech-to-text"
 
+    # PDF Ingestion Configuration
+    MAX_PDF_FILE_SIZE_BYTES: int = 25 * 1024 * 1024  # 25 MB
+    MAX_PDF_PAGE_COUNT: int = 100  # Page limit
+    PDF_PAGE_RANKING_LIMIT: int = 10  # Max ranked claim-bearing pages returned
+    PDF_MIN_TEXT_CHARS: int = 40  # Meaningful text threshold per page
+
 
 settings = Settings()

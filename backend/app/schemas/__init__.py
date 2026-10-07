@@ -25,6 +25,8 @@ from app.schemas.core import (
 )
 from app.schemas.health import HealthResponse
 from app.schemas.ingestion import (
+    PDFIngestionResult,
+    PDFPageText,
     ScreenshotIngestionResult,
     TextInput,
     TextIngestionResult,
@@ -58,4 +60,6 @@ __all__ = [
     "TextIngestionResult",
     "ScreenshotIngestionResult",
     "VoiceIngestionResult",
+    "PDFPageText",
+    "PDFIngestionResult",
 ]

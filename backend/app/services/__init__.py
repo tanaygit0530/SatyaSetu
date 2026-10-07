@@ -10,6 +10,10 @@ from app.services.voice_ingestion import (
     VoiceIngestionService,
     voice_ingestion_service,
 )
+from app.services.pdf_ingestion import (
+    PDFIngestionService,
+    pdf_ingestion_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -18,4 +22,6 @@ __all__ = [
     "screenshot_ingestion_service",
     "VoiceIngestionService",
     "voice_ingestion_service",
+    "PDFIngestionService",
+    "pdf_ingestion_service",
 ]

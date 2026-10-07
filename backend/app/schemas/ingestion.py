@@ -33,3 +33,20 @@ class VoiceIngestionResult(BaseModel):
     needs_confirmation: bool = Field(default=False, description="True if transcription is ambiguous or uncertain")
     duration_seconds: Optional[float] = Field(None, ge=0.0, description="Audio duration in seconds")
     provider: Optional[str] = Field(default="sarvam", description="STT engine provider")
+
+
+class PDFPageText(BaseModel):
+    """Extracted text from an individual PDF page."""
+    page: int = Field(..., ge=1, description="1-indexed page number")
+    text: str = Field(..., description="Extracted text from this page")
+    score: Optional[float] = Field(default=None, description="Claim relevance / ranking score")
+
+
+class PDFIngestionResult(BaseModel):
+    """Result of PDF document ingestion and text extraction."""
+    input_type: str = Field(default="PDF", description="Canonical input modality")
+    page_count: int = Field(..., ge=0, description="Total number of pages in the PDF")
+    text_pages: list[PDFPageText] = Field(default_factory=list, description="Pages containing meaningful text")
+    needs_ocr: bool = Field(default=False, description="Flagged true if scanned PDF with missing text layer")
+    total_text_length: int = Field(default=0, ge=0, description="Total characters extracted across all pages")
+    ranked_claim_pages: Optional[list[int]] = Field(default=None, description="Page numbers ranked by claim relevance")

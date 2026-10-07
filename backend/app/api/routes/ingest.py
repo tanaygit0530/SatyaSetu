@@ -1,11 +1,13 @@
 from typing import Optional
 from fastapi import APIRouter, File, Form, UploadFile, status
 from app.schemas.ingestion import (
+    PDFIngestionResult,
     ScreenshotIngestionResult,
     TextInput,
     TextIngestionResult,
     VoiceIngestionResult,
 )
+from app.services.pdf_ingestion import pdf_ingestion_service
 from app.services.screenshot_ingestion import screenshot_ingestion_service
 from app.services.text_ingestion import text_ingestion_service
 from app.services.voice_ingestion import voice_ingestion_service
@@ -67,3 +69,21 @@ async def ingest_voice_endpoint(
         language_hint=language_hint,
         filename=file.filename,
     )
+
+
+@router.post(
+    "/pdf",
+    response_model=PDFIngestionResult,
+    status_code=status.HTTP_200_OK,
+    summary="Ingest official circular or citizen PDF",
+    description="Validates PDF magic bytes, extracts text via PyMuPDF, identifies meaningful text pages, detects scanned documents, and ranks claim pages.",
+)
+async def ingest_pdf_endpoint(
+    file: UploadFile = File(..., description="Uploaded PDF document"),
+) -> PDFIngestionResult:
+    """
+    Ingests PDF upload, extracts text per page, identifies meaningful pages,
+    and prioritizes claim-bearing content.
+    """
+    contents = await file.read()
+    return pdf_ingestion_service.ingest_pdf(contents, filename=file.filename)
