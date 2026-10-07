@@ -60,5 +60,10 @@ class Settings(BaseSettings):
     PDF_PAGE_RANKING_LIMIT: int = 10  # Max ranked claim-bearing pages returned
     PDF_MIN_TEXT_CHARS: int = 40  # Meaningful text threshold per page
 
+    # URL Ingestion & SSRF Protection
+    URL_FETCH_TIMEOUT_SECONDS: float = 10.0
+    URL_MAX_RESPONSE_BYTES: int = 5 * 1024 * 1024  # 5 MB
+    URL_MAX_REDIRECTS: int = 5
+
 
 settings = Settings()

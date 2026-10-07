@@ -5,11 +5,14 @@ from app.schemas.ingestion import (
     ScreenshotIngestionResult,
     TextInput,
     TextIngestionResult,
+    URLIngestionInput,
+    URLIngestionResult,
     VoiceIngestionResult,
 )
 from app.services.pdf_ingestion import pdf_ingestion_service
 from app.services.screenshot_ingestion import screenshot_ingestion_service
 from app.services.text_ingestion import text_ingestion_service
+from app.services.url_ingestion import url_ingestion_service
 from app.services.voice_ingestion import voice_ingestion_service
 
 router = APIRouter(prefix="/ingest", tags=["Ingestion"])
@@ -87,3 +90,18 @@ async def ingest_pdf_endpoint(
     """
     contents = await file.read()
     return pdf_ingestion_service.ingest_pdf(contents, filename=file.filename)
+
+
+@router.post(
+    "/url",
+    response_model=URLIngestionResult,
+    status_code=status.HTTP_200_OK,
+    summary="Ingest web article or shortened URL",
+    description="Performs SSRF validation, DNS IP filtering, follows redirects safely, and extracts article text and metadata.",
+)
+async def ingest_url_endpoint(payload: URLIngestionInput) -> URLIngestionResult:
+    """
+    Ingests public web URL, expands shortened links, enforces SSRF protections,
+    and returns extracted article text, publisher, and publication date.
+    """
+    return url_ingestion_service.ingest_url(payload.url)

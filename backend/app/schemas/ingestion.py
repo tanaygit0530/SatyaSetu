@@ -50,3 +50,18 @@ class PDFIngestionResult(BaseModel):
     needs_ocr: bool = Field(default=False, description="Flagged true if scanned PDF with missing text layer")
     total_text_length: int = Field(default=0, ge=0, description="Total characters extracted across all pages")
     ranked_claim_pages: Optional[list[int]] = Field(default=None, description="Page numbers ranked by claim relevance")
+
+
+class URLIngestionInput(BaseModel):
+    """Citizen URL submission payload."""
+    url: str = Field(..., description="Web link or shortened URL to verify")
+
+
+class URLIngestionResult(BaseModel):
+    """Result of secure URL retrieval, redirect expansion, and article extraction."""
+    final_url: str = Field(..., description="Fully resolved destination URL")
+    title: str = Field(default="", description="Extracted article or page title")
+    publisher: str = Field(default="", description="Publishing entity or domain")
+    published_date: Optional[str] = Field(default=None, description="Document issuance date if available")
+    text: str = Field(default="", description="Cleaned, readable article body text")
+    status: str = Field(default="SUCCESS", description="Ingestion status (SUCCESS, DEAD_PAGE, ERROR)")

@@ -14,6 +14,10 @@ from app.services.pdf_ingestion import (
     PDFIngestionService,
     pdf_ingestion_service,
 )
+from app.services.url_ingestion import (
+    URLIngestionService,
+    url_ingestion_service,
+)
 
 __all__ = [
     "TextIngestionService",
@@ -24,4 +28,6 @@ __all__ = [
     "voice_ingestion_service",
     "PDFIngestionService",
     "pdf_ingestion_service",
+    "URLIngestionService",
+    "url_ingestion_service",
 ]

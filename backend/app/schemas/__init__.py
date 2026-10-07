@@ -30,6 +30,8 @@ from app.schemas.ingestion import (
     ScreenshotIngestionResult,
     TextInput,
     TextIngestionResult,
+    URLIngestionInput,
+    URLIngestionResult,
     VoiceIngestionResult,
 )
 
@@ -62,4 +64,6 @@ __all__ = [
     "VoiceIngestionResult",
     "PDFPageText",
     "PDFIngestionResult",
+    "URLIngestionInput",
+    "URLIngestionResult",
 ]
