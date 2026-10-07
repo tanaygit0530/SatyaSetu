@@ -35,5 +35,8 @@ class Settings(BaseSettings):
     FIRESTORE_DATABASE_ID: Optional[str] = "(default)"
     FIRESTORE_EMULATOR_HOST: Optional[str] = None
 
+    # Ingestion Constraints
+    MAX_TEXT_INPUT_LENGTH: int = 15000
+
 
 settings = Settings()
