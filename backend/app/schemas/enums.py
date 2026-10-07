@@ -69,8 +69,21 @@ class Language(str, Enum):
 
 
 class TemporalStatus(str, Enum):
-    """Chronological alignment flag."""
+    """
+    Chronological alignment status distinguishing TRUE THEN from TRUE NOW:
+    - CURRENT: Policy/fact is actively in effect and supported by latest evidence.
+    - HISTORICAL_TRUE: Historical claim (e.g. 'Announced in 2024') accurately describing a past event.
+    - EXPIRED: Order, scheme, or decree reached its end date / validity expired.
+    - CONTRADICTED_BY_NEWER_EVIDENCE: Was true then, but superseded/discontinued by newer evidence.
+    - DATE_UNKNOWN: No reliable temporal anchors found in claim or evidence.
+    """
     CURRENT = "CURRENT"
+    HISTORICAL_TRUE = "HISTORICAL_TRUE"
+    EXPIRED = "EXPIRED"
+    CONTRADICTED_BY_NEWER_EVIDENCE = "CONTRADICTED_BY_NEWER_EVIDENCE"
+    DATE_UNKNOWN = "DATE_UNKNOWN"
+
+    # Backwards compatibility aliases
     OUTDATED = "OUTDATED"
     HISTORICAL_MISMATCH = "HISTORICAL_MISMATCH"
     UNDATED = "UNDATED"

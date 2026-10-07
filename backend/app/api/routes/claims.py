@@ -21,6 +21,10 @@ from app.schemas.judge import (
     JudgeEvaluationInput,
     JudgeEvaluationOutput,
 )
+from app.schemas.temporal import (
+    TemporalVerificationInput,
+    TemporalVerificationResult,
+)
 from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
@@ -31,6 +35,7 @@ from app.services.query_generator import evidence_query_generator_service
 from app.services.retrieval import evidence_retrieval_pipeline
 from app.services.evidence_extractor import evidence_extractor_service
 from app.services.evidence_judge import evidence_judge_service
+from app.services.temporal_verification import temporal_verification_service
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -165,6 +170,28 @@ async def judge_evidence_endpoint(payload: JudgeEvaluationInput) -> JudgeEvaluat
     return JudgeEvaluationOutput(
         claim_text=payload.claim_text,
         assessments=assessments,
+    )
+
+
+@router.post(
+    "/verify-temporality",
+    response_model=TemporalVerificationResult,
+    status_code=status.HTTP_200_OK,
+    summary="Distinguish TRUE THEN from TRUE NOW with temporal verification",
+    description="Extracts claim date, evidence date, effective date, expiry date, current date, and determines temporal status.",
+)
+async def verify_temporality_endpoint(payload: TemporalVerificationInput) -> TemporalVerificationResult:
+    """
+    Executes Temporal Verification:
+    - Distinguishes TRUE THEN from TRUE NOW
+    - Detects historical claims vs ongoing present claims
+    - Identifies supersession by newer contradictory evidence
+    - Extracts claim date, evidence date, effective date, expiry date, current date
+    """
+    return temporal_verification_service.verify_temporality(
+        claim_text=payload.claim_text,
+        evidence_items=payload.evidence_items,
+        current_date_str=payload.current_date,
     )
 
 

@@ -60,6 +60,10 @@ from app.services.evidence_judge import (
     EvidenceJudgeService,
     evidence_judge_service,
 )
+from app.services.temporal_verification import (
+    TemporalVerificationService,
+    temporal_verification_service,
+)
 
 
 __all__ = [
@@ -97,4 +101,6 @@ __all__ = [
     "evidence_locking_service",
     "EvidenceJudgeService",
     "evidence_judge_service",
+    "TemporalVerificationService",
+    "temporal_verification_service",
 ]

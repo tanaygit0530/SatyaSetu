@@ -85,6 +85,12 @@ from app.schemas.judge import (
     JudgeEvaluationInput,
     JudgeEvaluationOutput,
 )
+from app.schemas.temporal import (
+    ExtractedTemporalDates,
+    TemporalEvidenceItem,
+    TemporalVerificationInput,
+    TemporalVerificationResult,
+)
 
 __all__ = [
     "Verdict",
@@ -152,4 +158,8 @@ __all__ = [
     "JudgeEvidenceInputItem",
     "JudgeEvaluationInput",
     "JudgeEvaluationOutput",
+    "ExtractedTemporalDates",
+    "TemporalEvidenceItem",
+    "TemporalVerificationInput",
+    "TemporalVerificationResult",
 ]
