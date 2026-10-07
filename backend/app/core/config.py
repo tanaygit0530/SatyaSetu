@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "sachcheck-foundation-secret-key-change-in-production"
     API_KEY_HEADER_NAME: str = "X-API-Key"
+
+    # Firebase & Cloud Firestore Persistence
+    FIREBASE_PROJECT_ID: Optional[str] = None
+    FIREBASE_CREDENTIALS_PATH: Optional[str] = None
+    FIREBASE_CREDENTIALS_JSON: Optional[str] = None
+    FIRESTORE_DATABASE_ID: Optional[str] = "(default)"
+    FIRESTORE_EMULATOR_HOST: Optional[str] = None
 
 
 settings = Settings()

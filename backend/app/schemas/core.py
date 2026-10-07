@@ -224,3 +224,37 @@ class CacheRecord(BaseModel):
     first_cached_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_accessed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     ttl_seconds: Optional[int] = Field(default=604800, ge=0)  # Default 7 days
+
+
+class ReviewQueueItem(BaseModel):
+    """Auditor queue entry for claims needing human verification or dispute resolution."""
+    review_id: str = Field(..., min_length=2, description="Unique review task identifier")
+    check_id: str = Field(..., min_length=2, description="Associated check ID")
+    claim_id: Optional[str] = Field(None, description="Associated claim ID if atomic")
+    status: str = Field(default="PENDING", description="Review status: PENDING, IN_PROGRESS, RESOLVED, REJECTED")
+    priority: str = Field(default="NORMAL", description="Priority: LOW, NORMAL, HIGH, URGENT")
+    assigned_to: Optional[str] = Field(None, description="Auditor user ID")
+    reason: Optional[str] = Field(None, description="Reason queued (DISPUTE, LOW_CONFIDENCE, AMBIGUOUS)")
+    auditor_notes: Optional[str] = Field(None, description="Audit resolution notes")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class MetricRecord(BaseModel):
+    """Operational and verification pipeline telemetry metric."""
+    metric_id: str = Field(..., min_length=2, description="Unique metric record ID")
+    metric_name: str = Field(..., min_length=1, description="Metric name (e.g. latency_ms, verification_count)")
+    value: float = Field(..., description="Numeric metric measurement")
+    dimensions: Dict[str, str] = Field(default_factory=dict, description="Metadata dimensions (e.g. input_type, verdict)")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class EvaluationRun(BaseModel):
+    """Benchmark test run assessing algorithmic accuracy on verified datasets."""
+    run_id: str = Field(..., min_length=2, description="Unique evaluation experiment ID")
+    benchmark_name: str = Field(..., min_length=2, description="Dataset name (e.g. pib_benchmark_v1)")
+    accuracy: float = Field(..., ge=0.0, le=1.0, description="Overall accuracy ratio [0-1]")
+    sample_count: int = Field(..., ge=1, description="Number of claims evaluated")
+    status: str = Field(default="COMPLETED", description="Run status: RUNNING, COMPLETED, FAILED")
+    details: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Precision, recall, confusion matrix")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

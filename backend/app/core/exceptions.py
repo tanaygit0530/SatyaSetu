@@ -37,3 +37,29 @@ class ResourceNotFoundException(SachCheckException):
             status_code=404,
             details={"resource": resource_name, "id": resource_id},
         )
+
+
+class FirebaseConfigurationError(SachCheckException):
+    """Raised when Firebase credentials or project settings are missing or invalid."""
+    def __init__(
+        self,
+        message: str = "Firebase is unavailable: Missing credentials or project ID. Set FIREBASE_PROJECT_ID, FIREBASE_CREDENTIALS_PATH, or FIREBASE_CREDENTIALS_JSON.",
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            message=message,
+            code="FIREBASE_UNAVAILABLE",
+            status_code=503,
+            details=details,
+        )
+
+
+class DatabaseOperationError(SachCheckException):
+    """Raised when a Firestore read or write operation fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            code="DATABASE_ERROR",
+            status_code=500,
+            details=details,
+        )
