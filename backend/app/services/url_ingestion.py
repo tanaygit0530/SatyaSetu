@@ -5,13 +5,13 @@ import socket
 import urllib.parse
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from dateutil.parser import parse as parse_date
 import httpx
-
 from app.core.config import settings
 from app.core.exceptions import InvalidInputException
 from app.core.logging import logger
+from app.core.security.prompt_injection import prompt_injection_defense_service
 from app.schemas.ingestion import URLIngestionInput, URLIngestionResult
 
 
@@ -251,10 +251,33 @@ class URLIngestionService:
             except Exception:
                 continue
 
-        # 4. Extract Readable Article Text
-        # Decompose non-content tags
+        # 4. Prompt Injection Defense Pre-scan (HTML comments, hidden CSS, white-on-white text)
+        hidden_scan = prompt_injection_defense_service.scan_html_for_hidden_content(html)
+        if hidden_scan["flags"]:
+            logger.warning(
+                "Prompt injection / hidden content detected in HTML for %s: flags=%s",
+                final_url,
+                hidden_scan["flags"],
+            )
+
+        # Decompose non-content and hidden tags
         for unwanted in soup.find_all(["script", "style", "nav", "footer", "header", "aside", "form", "noscript", "svg"]):
             unwanted.decompose()
+
+        # Decompose HTML comments to prevent hidden instruction leakage
+        for comment in soup.find_all(string=lambda t: isinstance(t, Comment)):
+            comment.extract()
+
+        # Decompose CSS-hidden and white-on-white elements
+        for tag in soup.find_all(style=True):
+            style_str = tag.get("style", "").lower()
+            is_hidden = any(h in style_str for h in ["display:none", "display: none", "visibility:hidden", "visibility: hidden", "opacity:0", "font-size:0", "text-indent:-"])
+            is_white_on_white = ("color:white" in style_str and "background" in style_str) or ("#fff" in style_str and "background" in style_str)
+            if is_hidden or is_white_on_white:
+                tag.decompose()
+
+        for tag in soup.find_all(attrs={"aria-hidden": "true"}):
+            tag.decompose()
 
         # Prioritize main article container
         article_container = (
@@ -273,8 +296,9 @@ class URLIngestionService:
             else:
                 text = article_container.get_text()
 
-        # Clean whitespace
+        # Clean whitespace and disarm any remaining prompt injection tokens or zero-width chars
         text = re.sub(r"\s+", " ", text).strip()
+        text = prompt_injection_defense_service.disarm_text(text)
 
         return {
             "title": title,
@@ -282,6 +306,7 @@ class URLIngestionService:
             "published_date": published_date,
             "text": text,
         }
+
 
     def ingest_url(self, url: str) -> URLIngestionResult:
         """

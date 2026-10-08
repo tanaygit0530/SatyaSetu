@@ -139,7 +139,8 @@ class ScreenshotIngestionService:
             # 5. Multi-engine OCR execution with fallback
             ocr_result = self._execute_ocr_with_fallback(temp_path)
 
-            extracted_text = ocr_result.text.strip()
+            from app.core.security.prompt_injection import prompt_injection_defense_service
+            extracted_text = prompt_injection_defense_service.disarm_text(ocr_result.text)
             confidence = round(ocr_result.confidence, 2)
             provider = ocr_result.provider
 

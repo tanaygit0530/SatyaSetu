@@ -21,6 +21,8 @@ class RetrievedSource(BaseModel):
     )
     text: str = Field(..., description="Full text or extracted article body")
     tier: Optional[int] = Field(None, description="Optional precedence tier (1, 2, or 3)")
+    is_suspicious: bool = Field(default=False, description="Whether prompt injection or hidden text was detected")
+    suspicious_flags: List[str] = Field(default_factory=list, description="Security flags detected in source text/HTML")
 
     @field_validator("url")
     @classmethod
@@ -69,6 +71,8 @@ class EvidenceCandidate(BaseModel):
         default="Candidate evidence pending statutory and temporal rule engine validation.",
         description="Status notes regarding validation stage",
     )
+    is_suspicious: bool = Field(default=False, description="Whether prompt injection or hidden text was detected")
+    suspicious_flags: List[str] = Field(default_factory=list, description="Security flags detected in candidate text/HTML")
 
 
 class EvidenceExtractionInput(BaseModel):
@@ -107,6 +111,8 @@ class EvidenceItem(BaseModel):
     exact_quote: str = Field(..., description="Verbatim extracted quotation from official record")
     confidence_score: float = Field(default=1.0, ge=0.0, le=1.0, description="Semantic / lexical match score")
     is_authoritative: bool = Field(default=True, description="Whether domain is verified in Government registry")
+    is_suspicious: bool = Field(default=False, description="Whether prompt injection or hidden text was detected")
+    suspicious_flags: List[str] = Field(default_factory=list, description="Security flags detected in evidence citation")
 
 
 class EvidenceInterpretation(BaseModel):

@@ -67,11 +67,14 @@ class PDFIngestionService:
 
     def clean_page_text(self, text: str) -> str:
         """
-        Normalizes Unicode and collapses redundant whitespace while preserving layout.
+        Normalizes Unicode, collapses redundant whitespace, strips zero-width characters,
+        and disarms delimiter breakout attempts.
         """
         text = text.replace("\x00", "")
         text = unicodedata.normalize("NFKC", text)
-        return re.sub(r"\s+", " ", text).strip()
+        clean = re.sub(r"\s+", " ", text).strip()
+        from app.core.security.prompt_injection import prompt_injection_defense_service
+        return prompt_injection_defense_service.disarm_text(clean)
 
     def ingest_pdf(
         self,

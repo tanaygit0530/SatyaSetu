@@ -203,7 +203,8 @@ class VoiceIngestionService:
                         logger.warning("Failed to remove temp audio file: %s", clean_err)
 
         # 6. Merge transcript
-        merged_transcript = " ".join(transcripts).strip()
+        from app.core.security.prompt_injection import prompt_injection_defense_service
+        merged_transcript = prompt_injection_defense_service.disarm_text(" ".join(transcripts))
         detected_language = languages[0] if languages else (language_hint or "en")
 
         if confidences:

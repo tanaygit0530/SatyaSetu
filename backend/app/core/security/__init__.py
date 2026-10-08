@@ -26,6 +26,11 @@ from app.core.security.prompt_security import (
     PromptSecurityService,
     prompt_security_service,
 )
+from app.core.security.prompt_injection import (
+    PromptInjectionDefenseService,
+    PromptInjectionScanResult,
+    prompt_injection_defense_service,
+)
 from app.core.security.pii_redactor import (
     PIIRedactorService,
     pii_redactor_service,
@@ -94,6 +99,9 @@ __all__ = [
     "URLSecurityValidator",
     "prompt_security_service",
     "PromptSecurityService",
+    "prompt_injection_defense_service",
+    "PromptInjectionDefenseService",
+    "PromptInjectionScanResult",
     "pii_redactor_service",
     "PIIRedactorService",
     "phone_hasher",

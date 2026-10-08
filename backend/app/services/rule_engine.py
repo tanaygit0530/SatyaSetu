@@ -309,16 +309,20 @@ class DeterministicRuleEngine:
             )
 
         # 9. Check for Official Corroboration (Tier 1 or Tier 2) -> VERIFIED
+        has_suspicious_evidence = any(getattr(e, "is_suspicious", False) for e in evidence_items)
+
         tier1_sources = [
             e for e in evidence_items
             if source_registry_service.is_allowed(e.domain or e.url)
             and (source_registry_service.get_tier(e.domain or e.url) == 1 or e.tier == SourceTier.TIER_1_PRIMARY)
             and source_registry_service.rank_source(e.domain or e.url).is_authoritative
+            and not getattr(e, "is_suspicious", False)
         ]
         tier2_sources = [
             e for e in evidence_items
             if source_registry_service.is_allowed(e.domain or e.url)
             and (source_registry_service.get_tier(e.domain or e.url) == 2 or e.tier == SourceTier.TIER_2_SECONDARY)
+            and not getattr(e, "is_suspicious", False)
         ]
 
         has_support = (
@@ -336,6 +340,9 @@ class DeterministicRuleEngine:
         if has_support and (len(tier1_sources) >= 1 or len(tier2_sources) >= 1 or (source_tiers and (1 in source_tiers or 2 in source_tiers))) and not has_partial_details:
             temporal_token = "HISTORICAL_TRUE_EVIDENCE" if temporal_status == TemporalStatus.HISTORICAL_TRUE else "CURRENT_EVIDENCE"
             rule_trace = [tier_token, "CREDIBLE_CORROBORATION", "QUOTE_VALIDATED", temporal_token]
+            if has_suspicious_evidence:
+                rule_trace.append("SUSPICIOUS_EVIDENCE_FLAGGED")
+
 
             pub = tier1_sources[0].publisher if tier1_sources else (tier2_sources[0].publisher if tier2_sources else "Official Record")
             dom = tier1_sources[0].domain if tier1_sources else (tier2_sources[0].domain if tier2_sources else "gov.in")
