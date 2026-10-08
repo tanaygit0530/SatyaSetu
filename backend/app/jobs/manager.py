@@ -140,25 +140,64 @@ class VerificationJobManager:
 
     def get_status(self, check_id: str) -> Optional[Dict[str, Any]]:
         """
-        Returns status progression summary for polling client.
+        Returns status progression summary for polling client conforming to:
+        {
+          "stage": "RETRIEVING",
+          "status": "RUNNING",
+          "started_at": "...",
+          "completed_at": null,
+          "duration_ms": 120,
+          "error_code": null,
+          "stages": [...]
+        }
         """
         check = self.get_check(check_id)
         if not check:
             return None
 
         job = self._jobs.get(check_id)
-        stage_str = job.current_stage if job else (check.stages[-1].stage.value if check.stages else check.status.value)
-        completed_at = job.completed_at if job else (check.result.completed_at if check.result else None)
-        error = job.error if job else None
+        stages_source = (job.stages if (job and job.stages) else check.stages) or []
+        last_stage = stages_source[-1] if stages_source else None
+
+        now = datetime.now(timezone.utc)
+        if last_stage:
+            stage_val = last_stage.stage.value if hasattr(last_stage.stage, "value") else str(last_stage.stage)
+            status_val = last_stage.status
+            started_at = last_stage.started_at or check.created_at
+            completed_at = last_stage.completed_at
+            if completed_at:
+                duration_ms = last_stage.duration_ms or int((completed_at - started_at).total_seconds() * 1000)
+            else:
+                duration_ms = int((now - started_at).total_seconds() * 1000) if started_at else 0
+            error_code = last_stage.error_code or (job.error_code if job else None)
+        else:
+            stage_val = check.status.value
+            status_val = "COMPLETED" if check.status == ProcessingStatus.COMPLETED else ("FAILED" if check.status == ProcessingStatus.FAILED else "RUNNING")
+            started_at = check.created_at
+            completed_at = check.result.completed_at if check.result else None
+            duration_ms = check.result.processing_time_ms if check.result else int((now - started_at).total_seconds() * 1000)
+            error_code = job.error_code if job else None
+
+        serialized_stages = []
+        for s in stages_source:
+            if hasattr(s, "model_dump"):
+                serialized_stages.append(s.model_dump(mode="json"))
+            elif isinstance(s, dict):
+                serialized_stages.append(s)
 
         return {
             "check_id": check_id,
-            "status": check.status.value,
-            "processing_stage": stage_str,
+            "stage": stage_val,
+            "status": status_val,
+            "started_at": started_at,
+            "completed_at": completed_at,
+            "duration_ms": max(0, duration_ms) if duration_ms is not None else 0,
+            "error_code": error_code,
+            "processing_stage": stage_val,
+            "stages": serialized_stages,
             "created_at": check.created_at,
             "updated_at": check.updated_at,
-            "completed_at": completed_at,
-            "error": error,
+            "error": error_code,
         }
 
     def get_claims(self, check_id: str) -> Optional[List[ClaimVerificationResult]]:

@@ -17,6 +17,7 @@ from app.schemas.dependency import ClaimDependencyGraph
 from app.schemas.enums import (
     ConfidenceLevel,
     InputType,
+    ProcessingStatus,
     SourceTier,
     TemporalStatus,
     Verdict,
@@ -718,11 +719,12 @@ class VerificationOrchestrator:
         is_demo: bool = False,
         check_id: Optional[str] = None,
         current_time: Optional[datetime] = None,
+        progress_callback: Optional[Any] = None,
     ) -> VerificationResult:
         """
         Executes end-to-end fact verification coordinating all 21 modular stages.
 
-        Returns VerificationResult:
+        Returns VerificationResult conforming to:
         {
           "check_id": "chk_001",
           "claims": [
@@ -742,160 +744,196 @@ class VerificationOrchestrator:
         start_time = time.time()
         c_id = check_id or f"chk_{uuid.uuid4().hex[:6]}"
 
-        # Stage 1: Input
-        inp = self.stage_input(content, input_type)
+        def report_progress(stage: Union[ProcessingStatus, str], status_val: str = "RUNNING", err_val: Optional[str] = None):
+            if progress_callback:
+                try:
+                    progress_callback(stage, status_val, err_val)
+                except Exception as pe:
+                    logger.debug("Progress callback exception for '%s': %s", c_id, pe)
 
-        # Stage 2: Ingestion
-        ingested_text = self.stage_ingestion(inp["content"], inp["input_type"])
+        try:
+            # Stage: EXTRACTING
+            report_progress(ProcessingStatus.EXTRACTING, "RUNNING")
 
-        # Stage 3: Language Detection
-        lang_res = self.stage_language_detection(ingested_text)
+            # Stage 1: Input
+            inp = self.stage_input(content, input_type)
 
-        # Stage 4: Claim Extraction
-        extracted_claims = self.stage_claim_extraction(ingested_text, is_demo=is_demo)
+            # Stage 2: Ingestion
+            ingested_text = self.stage_ingestion(inp["content"], inp["input_type"])
 
-        # Stage 5: Normalization
-        for c in extracted_claims:
-            c.normalized_claim = self.stage_claim_normalization(c)
+            # Stage 3: Language Detection
+            lang_res = self.stage_language_detection(ingested_text)
 
-        # Stage 6: Dependency Analysis
-        dep_graph = self.stage_dependency_analysis(extracted_claims)
-        execution_order = dep_graph.execution_order or [c.claim_id for c in extracted_claims]
-        claim_map = {c.claim_id: c for c in extracted_claims}
+            # Stage 4: Claim Extraction
+            extracted_claims = self.stage_claim_extraction(ingested_text, is_demo=is_demo)
+            report_progress(ProcessingStatus.EXTRACTING, "COMPLETED")
 
-        verified_claim_results: List[ClaimVerificationResult] = []
-        all_claims_cached = True
+            # Stage: CLAIMING
+            report_progress(ProcessingStatus.CLAIMING, "RUNNING")
 
-        # Process claims in topological order
-        for cid in execution_order:
-            claim_item = claim_map.get(cid)
-            if not claim_item:
-                continue
+            # Stage 5: Normalization
+            for c in extracted_claims:
+                c.normalized_claim = self.stage_claim_normalization(c)
 
-            claim_text = claim_item.normalized_claim or claim_item.original_text
+            # Stage 6: Dependency Analysis
+            dep_graph = self.stage_dependency_analysis(extracted_claims)
+            execution_order = dep_graph.execution_order or [c.claim_id for c in extracted_claims]
+            claim_map = {c.claim_id: c for c in extracted_claims}
 
-            # Stage 7: Shared Claim Memory Lookup
-            mem_lookup = self.stage_shared_claim_memory_lookup(claim_item, current_time=current_time)
+            verified_claim_results: List[ClaimVerificationResult] = []
+            all_claims_cached = True
 
-            if mem_lookup.hit and mem_lookup.record is not None:
-                # Cache hit! Reuse safely
-                rec = mem_lookup.record
-                conf_val = rec.confidence or "HIGH"
-                conf_enum = ConfidenceLevel(conf_val) if conf_val in ["HIGH", "MEDIUM", "LOW"] else ConfidenceLevel.HIGH
+            # Process claims in topological order
+            for cid in execution_order:
+                claim_item = claim_map.get(cid)
+                if not claim_item:
+                    continue
 
+                claim_text = claim_item.normalized_claim or claim_item.original_text
+
+                # Stage 7: Shared Claim Memory Lookup
+                mem_lookup = self.stage_shared_claim_memory_lookup(claim_item, current_time=current_time)
+
+                if mem_lookup.hit and mem_lookup.record is not None:
+                    # Cache hit! Reuse safely
+                    rec = mem_lookup.record
+                    conf_val = rec.confidence or "HIGH"
+                    conf_enum = ConfidenceLevel(conf_val) if conf_val in ["HIGH", "MEDIUM", "LOW"] else ConfidenceLevel.HIGH
+
+                    verified_claim_results.append(
+                        ClaimVerificationResult(
+                            claim_id=claim_item.claim_id,
+                            verdict=rec.verdict,
+                            confidence=conf_enum,
+                            explanation=rec.explanation or "Claim verified from shared claim memory.",
+                            evidence=[],
+                            rule_trace=rec.rule_trace or ["SHARED_CLAIM_MEMORY_HIT", f"{mem_lookup.level}_MATCH"],
+                            evidence_ids=rec.evidence_ids or [],
+                            claim_text=claim_item.original_text,
+                            normalized_claim=claim_item.normalized_claim,
+                            temporal_status=TemporalStatus.CURRENT,
+                            cache_hit=True,
+                        )
+                    )
+                    continue
+
+                # Cache miss or stale -> run full verification
+                all_claims_cached = False
+                report_progress(ProcessingStatus.CLAIMING, "COMPLETED")
+
+                # Stage: RETRIEVING
+                report_progress(ProcessingStatus.RETRIEVING, "RUNNING")
+
+                # Stage 8: Query Generation
+                queries = self.stage_query_generation(claim_item)
+
+                # Stage 9: Fact Check Retrieval
+                fc_candidates = self.stage_fact_check_retrieval(queries, language=lang_res.language)
+
+                # Stage 10: Web Retrieval
+                web_candidates = self.stage_web_retrieval(queries)
+                raw_candidates = fc_candidates + web_candidates
+
+                # Stage 11: Source Ranking
+                ranked_candidates = self.stage_source_ranking(raw_candidates)
+                report_progress(ProcessingStatus.RETRIEVING, "COMPLETED")
+
+                # Stage: VALIDATING
+                report_progress(ProcessingStatus.VALIDATING, "RUNNING")
+
+                # Stage 12: Page Fetch
+                fetched_sources = self.stage_page_fetch(ranked_candidates)
+
+                # Stage 13: Evidence Extraction
+                cand_evidence = self.stage_evidence_extraction(claim_text, fetched_sources)
+
+                # Stage 14: Grounding Validation (Evidence Locking)
+                validated_locked = self.stage_grounding_validation(cand_evidence, fetched_sources)
+                report_progress(ProcessingStatus.VALIDATING, "COMPLETED")
+
+                # Stage: VERIFYING
+                report_progress(ProcessingStatus.VERIFYING, "RUNNING")
+
+                # Stage 15: Evidence Judge
+                judgments = self.stage_evidence_judge(claim_text, validated_locked)
+
+                # Stage 16: Temporal Analysis
+                temporal_res = self.stage_temporal_analysis(claim_text, validated_locked)
+
+                # Stage 17: Deterministic Verdict
+                verdict, rule_trace = self.stage_deterministic_verdict(
+                    claim=claim_item,
+                    validated_evidence=validated_locked,
+                    judgments=judgments,
+                    temporal_result=temporal_res,
+                )
+
+                # Stage 18: Confidence
+                confidence = self.stage_confidence(
+                    validated_evidence=validated_locked,
+                    judgments=judgments,
+                    temporal_result=temporal_res,
+                    verdict=verdict,
+                )
+
+                # Stage 19: Explanation
+                explanation = self.stage_explanation(
+                    claim_text=claim_text,
+                    verdict=verdict,
+                    validated_evidence=validated_locked,
+                    rule_trace=rule_trace,
+                    temporal_status=temporal_res.temporal_status,
+                )
+                report_progress(ProcessingStatus.VERIFYING, "COMPLETED")
+
+                # Collect finding
+                evidence_ids = [e.evidence_id for e in validated_locked]
                 verified_claim_results.append(
                     ClaimVerificationResult(
                         claim_id=claim_item.claim_id,
-                        verdict=rec.verdict,
-                        confidence=conf_enum,
-                        explanation=rec.explanation or "Claim verified from shared claim memory.",
-                        evidence=[],
-                        rule_trace=rec.rule_trace or ["SHARED_CLAIM_MEMORY_HIT", f"{mem_lookup.level}_MATCH"],
-                        evidence_ids=rec.evidence_ids or [],
+                        verdict=verdict,
+                        confidence=confidence,
+                        explanation=explanation,
+                        evidence=validated_locked,
+                        rule_trace=rule_trace,
+                        evidence_ids=evidence_ids,
                         claim_text=claim_item.original_text,
                         normalized_claim=claim_item.normalized_claim,
-                        temporal_status=TemporalStatus.CURRENT,
-                        cache_hit=True,
+                        temporal_status=temporal_res.temporal_status,
+                        cache_hit=False,
                     )
                 )
-                continue
 
-            # Cache miss or stale -> run full verification
-            all_claims_cached = False
+            if all_claims_cached:
+                report_progress(ProcessingStatus.CLAIMING, "COMPLETED")
 
-            # Stage 8: Query Generation
-            queries = self.stage_query_generation(claim_item)
+            duration_ms = max(int((time.time() - start_time) * 1000), 1)
+            final_cache_hit = all_claims_cached if verified_claim_results else False
 
-            # Stage 9: Fact Check Retrieval
-            fc_candidates = self.stage_fact_check_retrieval(queries, language=lang_res.language)
-
-            # Stage 10: Web Retrieval
-            web_candidates = self.stage_web_retrieval(queries)
-            raw_candidates = fc_candidates + web_candidates
-
-            # Stage 11: Source Ranking
-            ranked_candidates = self.stage_source_ranking(raw_candidates)
-
-            # Stage 12: Page Fetch
-            fetched_sources = self.stage_page_fetch(ranked_candidates)
-
-            # Stage 13: Evidence Extraction
-            cand_evidence = self.stage_evidence_extraction(claim_text, fetched_sources)
-
-            # Stage 14: Grounding Validation (Evidence Locking)
-            validated_locked = self.stage_grounding_validation(cand_evidence, fetched_sources)
-
-            # Stage 15: Evidence Judge
-            judgments = self.stage_evidence_judge(claim_text, validated_locked)
-
-            # Stage 16: Temporal Analysis
-            temporal_res = self.stage_temporal_analysis(claim_text, validated_locked)
-
-            # Stage 17: Deterministic Verdict
-            verdict, rule_trace = self.stage_deterministic_verdict(
-                claim=claim_item,
-                validated_evidence=validated_locked,
-                judgments=judgments,
-                temporal_result=temporal_res,
+            # Stage 20: Store Result
+            result = self.stage_store_result(
+                check_id=c_id,
+                claim_results=verified_claim_results,
+                original_content=content,
+                input_type=inp["input_type"],
+                duration_ms=duration_ms,
+                cache_hit=final_cache_hit,
             )
 
-            # Stage 18: Confidence
-            confidence = self.stage_confidence(
-                validated_evidence=validated_locked,
-                judgments=judgments,
-                temporal_result=temporal_res,
-                verdict=verdict,
+            # Stage 21: Metrics
+            self.stage_metrics(
+                check_id=c_id,
+                cache_hit=final_cache_hit,
+                duration_ms=duration_ms,
+                claim_results=verified_claim_results,
             )
 
-            # Stage 19: Explanation
-            explanation = self.stage_explanation(
-                claim_text=claim_text,
-                verdict=verdict,
-                validated_evidence=validated_locked,
-                rule_trace=rule_trace,
-                temporal_status=temporal_res.temporal_status,
-            )
+            report_progress(ProcessingStatus.COMPLETED, "COMPLETED")
+            return result
 
-            # Collect finding
-            evidence_ids = [e.evidence_id for e in validated_locked]
-            verified_claim_results.append(
-                ClaimVerificationResult(
-                    claim_id=claim_item.claim_id,
-                    verdict=verdict,
-                    confidence=confidence,
-                    explanation=explanation,
-                    evidence=validated_locked,
-                    rule_trace=rule_trace,
-                    evidence_ids=evidence_ids,
-                    claim_text=claim_item.original_text,
-                    normalized_claim=claim_item.normalized_claim,
-                    temporal_status=temporal_res.temporal_status,
-                    cache_hit=False,
-                )
-            )
-
-        duration_ms = max(int((time.time() - start_time) * 1000), 1)
-        final_cache_hit = all_claims_cached if verified_claim_results else False
-
-        # Stage 20: Store Result
-        result = self.stage_store_result(
-            check_id=c_id,
-            claim_results=verified_claim_results,
-            original_content=content,
-            input_type=inp["input_type"],
-            duration_ms=duration_ms,
-            cache_hit=final_cache_hit,
-        )
-
-        # Stage 21: Metrics
-        self.stage_metrics(
-            check_id=c_id,
-            cache_hit=final_cache_hit,
-            duration_ms=duration_ms,
-            claim_results=verified_claim_results,
-        )
-
-        return result
+        except Exception as e:
+            report_progress(ProcessingStatus.FAILED, "FAILED", err_val=str(e))
+            raise
 
     def verify(
         self,
@@ -904,6 +942,7 @@ class VerificationOrchestrator:
         is_demo: bool = False,
         check_id: Optional[str] = None,
         current_time: Optional[datetime] = None,
+        progress_callback: Optional[Any] = None,
     ) -> VerificationResult:
         """Alias for orchestrate()."""
         return self.orchestrate(
@@ -912,6 +951,7 @@ class VerificationOrchestrator:
             is_demo=is_demo,
             check_id=check_id,
             current_time=current_time,
+            progress_callback=progress_callback,
         )
 
 

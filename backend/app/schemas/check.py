@@ -54,14 +54,27 @@ class CheckCreateResponse(BaseModel):
 
 
 class CheckStatusResponse(BaseModel):
-    """Status details for an asynchronous verification check."""
+    """Status and progress tracking details for an asynchronous verification check."""
     check_id: str = Field(..., description="Unique check identifier")
-    status: str = Field(..., description="Current processing status")
-    processing_stage: Optional[str] = Field(default=None, description="Current or last completed stage")
+    stage: str = Field(default="RECEIVED", description="Current active stage: RECEIVED, EXTRACTING, CLAIMING, RETRIEVING, VALIDATING, VERIFYING, COMPLETED, FAILED")
+    status: str = Field(default="RUNNING", description="Stage execution status: RUNNING, COMPLETED, FAILED")
+    started_at: Optional[datetime] = Field(None, description="Timestamp when stage began")
+    completed_at: Optional[datetime] = Field(None, description="Timestamp when stage/check completed")
+    duration_ms: Optional[int] = Field(None, ge=0, description="Duration in milliseconds")
+    error_code: Optional[str] = Field(None, description="Sanitized client-safe error classification code")
+    processing_stage: Optional[str] = Field(default=None, description="Alias for stage")
+    stages: List[Any] = Field(default_factory=list, description="Historical timeline of stages")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
     error: Optional[str] = None
+
+    @model_validator(mode="after")
+    def sync_stage_and_processing_stage(self) -> "CheckStatusResponse":
+        if not self.processing_stage and self.stage:
+            self.processing_stage = self.stage
+        elif not self.stage and self.processing_stage:
+            self.stage = self.processing_stage
+        return self
 
 
 class CheckClaimsResponse(BaseModel):

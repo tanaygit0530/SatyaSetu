@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional, Union
 from fastapi import BackgroundTasks
 
 from app.core.logging import logger
@@ -11,6 +11,9 @@ from app.services.verification_orchestrator import (
     VerificationOrchestrator,
     verification_orchestrator,
 )
+
+
+from app.jobs.tracker import ProcessingProgressTracker, sanitize_error
 
 
 class FastAPIBackgroundJobWorker(AbstractJobWorker):
@@ -47,37 +50,36 @@ class FastAPIBackgroundJobWorker(AbstractJobWorker):
         Executes complete verification pipeline via VerificationOrchestrator,
         updating lifecycle stages and persisting outcome to CheckRepository.
         """
-        job.status = JobStatus.PROCESSING
-        job.started_at = datetime.now(timezone.utc)
-        job.current_stage = "VERIFYING"
+        tracker = ProcessingProgressTracker(
+            check_id=job.check_id,
+            check_repo=self.check_repo,
+            job=job,
+        )
 
-        # Update check status to active
-        try:
-            self.check_repo.update_check_status(
-                check_id=job.check_id,
-                status=ProcessingStatus.VERIFYING,
-                stage=ProcessingStage(
-                    stage=ProcessingStatus.VERIFYING,
-                    status="IN_PROGRESS",
-                    started_at=job.started_at,
-                ),
-            )
-        except Exception as e:
-            logger.warning("Failed to record stage progression for check '%s': %s", job.check_id, e)
+        def on_progress(stage: Union[ProcessingStatus, str], status_val: str, err_val: Optional[str] = None):
+            if status_val == "RUNNING":
+                tracker.start_stage(stage)
+            elif status_val == "COMPLETED":
+                tracker.complete_stage(stage)
+            elif status_val == "FAILED":
+                tracker.fail_stage(stage, err_val or "Processing failed")
 
         try:
-            # Execute verification pipeline
+            # Execute verification pipeline coordinating stages
             result = self.orchestrator.verify(
                 content=job.text,
                 input_type=job.input_type,
                 check_id=job.check_id,
                 is_demo=job.is_demo,
+                progress_callback=on_progress,
             )
 
             job.status = JobStatus.COMPLETED
             job.completed_at = datetime.now(timezone.utc)
             job.current_stage = "COMPLETED"
+            job.stage_status = "COMPLETED"
             job.result = result
+            job.stages = tracker.stages
 
             # Persist result to check repository
             try:
@@ -94,24 +96,15 @@ class FastAPIBackgroundJobWorker(AbstractJobWorker):
             return result
 
         except Exception as e:
+            tracker.fail_stage(job.current_stage or ProcessingStatus.FAILED, e)
             job.status = JobStatus.FAILED
             job.completed_at = datetime.now(timezone.utc)
-            job.error = str(e)
             job.current_stage = "FAILED"
-            logger.error("Verification job '%s' failed: %s", job.job_id, str(e), exc_info=True)
+            job.stage_status = "FAILED"
+            err_code, _ = sanitize_error(e)
+            job.error_code = err_code
+            job.error = err_code
+            job.stages = tracker.stages
 
-            try:
-                self.check_repo.update_check_status(
-                    check_id=job.check_id,
-                    status=ProcessingStatus.FAILED,
-                    stage=ProcessingStage(
-                        stage=ProcessingStatus.FAILED,
-                        status="ERROR",
-                        completed_at=job.completed_at,
-                        details=str(e),
-                    ),
-                )
-            except Exception as repo_err:
-                logger.warning("Could not record failure status for '%s': %s", job.check_id, repo_err)
-
+            logger.error("Verification job '%s' failed [code=%s]: %s", job.job_id, err_code, str(e), exc_info=True)
             raise

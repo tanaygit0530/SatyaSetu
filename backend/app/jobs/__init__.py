@@ -5,6 +5,7 @@ from app.jobs.base import (
 )
 from app.jobs.worker import FastAPIBackgroundJobWorker
 from app.jobs.manager import VerificationJobManager
+from app.jobs.tracker import ProcessingProgressTracker, sanitize_error
 
 # Default global instance
 job_manager = VerificationJobManager()
@@ -15,5 +16,7 @@ __all__ = [
     "VerificationJob",
     "FastAPIBackgroundJobWorker",
     "VerificationJobManager",
+    "ProcessingProgressTracker",
+    "sanitize_error",
     "job_manager",
 ]

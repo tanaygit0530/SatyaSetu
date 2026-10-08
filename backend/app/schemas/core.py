@@ -153,11 +153,12 @@ class ClaimResult(BaseModel):
 
 class ProcessingStage(BaseModel):
     """Progress tracker step for the verification pipeline."""
-    stage: ProcessingStatus = Field(..., description="Current processing stage")
-    status: str = Field(default="COMPLETED", description="Stage execution status")
+    stage: Union[ProcessingStatus, str] = Field(..., description="Current processing stage")
+    status: str = Field(default="RUNNING", description="Stage execution status: RUNNING, COMPLETED, FAILED, PENDING")
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     duration_ms: Optional[int] = Field(None, ge=0)
+    error_code: Optional[str] = Field(None, description="Sanitized error classification code")
     details: Optional[str] = None
 
 

@@ -29,6 +29,10 @@ class VerificationJob(BaseModel):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     current_stage: Optional[str] = Field(default="RECEIVED", description="Active pipeline stage")
+    stage_status: str = Field(default="RUNNING", description="Active stage status: RUNNING, COMPLETED, FAILED")
+    duration_ms: Optional[int] = Field(default=None, ge=0)
+    error_code: Optional[str] = None
+    stages: List[Any] = Field(default_factory=list, description="Historical timeline of stages")
     error: Optional[str] = None
     result: Optional[VerificationResult] = None
 
