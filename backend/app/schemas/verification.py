@@ -1,8 +1,22 @@
-from typing import List, Optional
+from typing import Any, List, Optional, Union
 from datetime import datetime
 from pydantic import BaseModel, Field
-from app.schemas.enums import ConfidenceLevel, InputType, Language, Verdict
+from app.schemas.enums import ConfidenceLevel, InputType, Language, TemporalStatus, Verdict
 from app.schemas.claim import ClaimResult
+from app.schemas.core import (
+    ClaimVerificationResult,
+    VerificationResult,
+)
+
+
+class VerificationInput(BaseModel):
+    """Citizen input for full pipeline verification."""
+    content: str = Field(..., min_length=1, max_length=10000, description="Submitted text, transcript, or link URL")
+    input_type: str = Field(default="TEXT", description="Submission channel: TEXT, URL, PDF, SCREENSHOT, VOICE")
+    language: Optional[str] = Field(default=None, description="Preferred language code")
+    client_id: Optional[str] = Field(default="web-portal", description="Originating client interface")
+    check_id: Optional[str] = Field(default=None, description="Optional custom check ID")
+    is_demo: bool = Field(default=False, description="Whether requesting explicitly labeled cached demo data")
 
 
 class VerificationRequest(BaseModel):

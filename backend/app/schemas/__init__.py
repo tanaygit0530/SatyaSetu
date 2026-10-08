@@ -23,6 +23,12 @@ from app.schemas.core import (
     Source,
     User,
     VerificationResult,
+    ClaimVerificationResult,
+)
+from app.schemas.verification import (
+    VerificationInput,
+    VerificationRequest,
+    VerificationResponse,
 )
 from app.schemas.health import HealthResponse
 from app.schemas.ingestion import (
@@ -126,8 +132,12 @@ __all__ = [
     "Evidence",
     "RuleTrace",
     "ClaimResult",
+    "ClaimVerificationResult",
     "ProcessingStage",
     "VerificationResult",
+    "VerificationInput",
+    "VerificationRequest",
+    "VerificationResponse",
     "Check",
     "Feedback",
     "Source",

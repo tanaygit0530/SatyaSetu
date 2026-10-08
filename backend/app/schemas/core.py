@@ -2,13 +2,14 @@ import re
 from datetime import date, datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from dateutil.parser import parse as parse_date
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.schemas.enums import (
     ConfidenceLevel,
     FeedbackType,
     InputType,
     ProcessingStatus,
+    TemporalStatus,
     UserRole,
     Verdict,
 )
@@ -125,6 +126,21 @@ class RuleTrace(BaseModel):
     evaluated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class ClaimVerificationResult(BaseModel):
+    """Verified claim finding conforming to VerificationOrchestrator specification."""
+    claim_id: str = Field(..., min_length=1, description="Unique claim identifier, e.g. 'clm_001'")
+    verdict: Verdict = Field(..., description="Canonical verdict from the 5 standard states")
+    confidence: Union[ConfidenceLevel, str] = Field(..., description="Confidence rating: HIGH, MEDIUM, LOW")
+    explanation: str = Field(..., min_length=1, description="Evidentiary explanation for verdict under 80 words")
+    evidence: List[Any] = Field(default_factory=list, description="Validated grounding evidence")
+    rule_trace: List[Any] = Field(default_factory=list, description="Deterministic rule audit logs")
+    evidence_ids: List[str] = Field(default_factory=list, description="Associated evidence IDs")
+    claim_text: Optional[str] = None
+    normalized_claim: Optional[str] = None
+    temporal_status: Optional[TemporalStatus] = None
+    cache_hit: bool = Field(default=False)
+
+
 class ClaimResult(BaseModel):
     """Audit outcome for an individual atomic claim."""
     claim_id: str = Field(..., min_length=2, description="Claim identifier")
@@ -147,15 +163,71 @@ class ProcessingStage(BaseModel):
 
 class VerificationResult(BaseModel):
     """Overall verification outcome combining claim results."""
-    result_id: str = Field(..., min_length=2, description="Unique verification result dossier ID")
-    check_id: str = Field(..., min_length=2, description="Parent check ID")
-    overall_verdict: Verdict = Field(..., description="Aggregate verdict computed across all claims")
-    summary: str = Field(..., description="Citizen-facing summary statement")
-    claim_results: List[ClaimResult] = Field(..., min_length=1, description="Atomic claim findings")
+    check_id: str = Field(..., min_length=1, description="Parent check ID")
+    claims: List[ClaimVerificationResult] = Field(default_factory=list, description="Verified claims in topological order")
+    cache_hit: bool = Field(default=False, description="Whether resolved via Shared Claim Memory")
+    processing_time_ms: int = Field(default=0, ge=0, description="Processing duration in milliseconds")
+    result_id: Optional[str] = Field(default=None, description="Unique verification result dossier ID")
+    overall_verdict: Optional[Verdict] = Field(default=None, description="Aggregate verdict computed across all claims")
+    summary: Optional[str] = Field(default=None, description="Citizen-facing summary statement")
+    claim_results: Optional[List[ClaimResult]] = Field(default=None, description="Atomic claim findings")
     confidence: Union[ConfidenceLevel, str] = Field(default=ConfidenceLevel.HIGH)
     completed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     processing_duration_ms: int = Field(default=0, ge=0)
     is_cached: bool = Field(default=False, description="Whether resolved via rumour memory cache")
+    input_type: str = Field(default="TEXT")
+    original_content: Optional[str] = None
+    language: Optional[str] = None
+
+    @model_validator(mode="after")
+    def sync_claims_and_results(self) -> "VerificationResult":
+        if not self.result_id:
+            self.result_id = f"res_{self.check_id}"
+        if not self.claims and self.claim_results:
+            converted: List[ClaimVerificationResult] = []
+            for cr in self.claim_results:
+                if isinstance(cr, ClaimVerificationResult):
+                    converted.append(cr)
+                elif hasattr(cr, "claim_id"):
+                    converted.append(
+                        ClaimVerificationResult(
+                            claim_id=cr.claim_id,
+                            verdict=cr.verdict,
+                            confidence=cr.confidence,
+                            explanation=getattr(cr, "explanation", getattr(cr, "summary", "")),
+                            evidence=getattr(cr, "evidence", getattr(cr, "source_citations", [])),
+                            rule_trace=getattr(cr, "rule_trace", []),
+                            evidence_ids=getattr(cr, "evidence_ids", []),
+                        )
+                    )
+                elif isinstance(cr, dict):
+                    converted.append(ClaimVerificationResult.model_validate(cr))
+            self.claims = converted
+        elif self.claims and not self.claim_results:
+            self.claim_results = [
+                ClaimResult(
+                    claim_id=c.claim_id,
+                    verdict=c.verdict,
+                    confidence=c.confidence,
+                    explanation=c.explanation,
+                    evidence_ids=c.evidence_ids or [getattr(e, "id", f"ev_{i}") for i, e in enumerate(c.evidence)],
+                    rule_trace=[
+                        RuleTrace(rule_name=r if isinstance(r, str) else str(r), rule_id=f"rule_{i}", passed=True)
+                        for i, r in enumerate(c.rule_trace)
+                    ] if c.rule_trace and isinstance(c.rule_trace[0], str) else (c.rule_trace or []),
+                )
+                for c in self.claims
+            ]
+        if self.overall_verdict is None and self.claims:
+            self.overall_verdict = self.claims[0].verdict
+        if self.summary is None and self.claims:
+            self.summary = self.claims[0].explanation
+        self.is_cached = self.cache_hit or self.is_cached
+        if not self.processing_duration_ms and self.processing_time_ms:
+            self.processing_duration_ms = self.processing_time_ms
+        elif not self.processing_time_ms and self.processing_duration_ms:
+            self.processing_time_ms = self.processing_duration_ms
+        return self
 
 
 class Check(BaseModel):

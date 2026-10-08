@@ -6,7 +6,7 @@ import httpx
 
 from app.core.config import settings
 from app.core.logging import logger
-from app.schemas.enums import TemporalStatus, Verdict
+from app.schemas.enums import SourceTier, TemporalStatus, Verdict
 from app.schemas.evidence import EvidenceItem, LockedEvidenceItem
 from app.schemas.explanation import ExplanationInput, ExplanationOutput
 
@@ -474,18 +474,30 @@ class ExplanationGeneratorService:
             if isinstance(ev, EvidenceItem):
                 res.append(ev)
             elif isinstance(ev, LockedEvidenceItem):
+                tier_val = (
+                    SourceTier.TIER_1_PRIMARY if ev.source_tier == 1 else (
+                        SourceTier.TIER_2_SECONDARY if ev.source_tier == 2 else SourceTier.TIER_3_REPUTABLE
+                    )
+                )
                 res.append(
                     EvidenceItem(
-                        id="ev_001",
+                        id=ev.evidence_id or "ev_001",
                         publisher=ev.publisher,
                         domain="gov.in",
                         title=ev.source_title,
                         publish_date=ev.published_date,
+                        tier=tier_val,
                         url=ev.source_url,
                         exact_quote=ev.exact_quote,
                     )
                 )
             elif isinstance(ev, dict):
+                raw_tier = ev.get("tier") or ev.get("source_tier") or 1
+                tier_val = (
+                    SourceTier.TIER_1_PRIMARY if raw_tier in (1, SourceTier.TIER_1_PRIMARY) else (
+                        SourceTier.TIER_2_SECONDARY if raw_tier in (2, SourceTier.TIER_2_SECONDARY) else SourceTier.TIER_3_REPUTABLE
+                    )
+                )
                 res.append(
                     EvidenceItem(
                         id=str(ev.get("id") or "ev_001"),
@@ -493,6 +505,7 @@ class ExplanationGeneratorService:
                         domain=str(ev.get("domain") or ""),
                         title=str(ev.get("title") or ""),
                         publish_date=ev.get("published_date") or ev.get("publish_date"),
+                        tier=tier_val,
                         url=str(ev.get("url") or ""),
                         exact_quote=str(ev.get("exact_quote") or ""),
                     )

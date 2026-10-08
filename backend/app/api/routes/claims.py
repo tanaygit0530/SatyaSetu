@@ -47,6 +47,10 @@ from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
 )
+from app.schemas.verification import (
+    VerificationInput,
+    VerificationResult,
+)
 from app.services.claim_extractor import claim_extractor_service
 from app.services.claim_dependency import claim_dependency_service
 from app.services.query_generator import evidence_query_generator_service
@@ -58,6 +62,7 @@ from app.services.rule_engine import DeterministicRuleEngine
 from app.services.confidence_engine import confidence_engine
 from app.services.explanation_generator import explanation_generator_service
 from app.services.claim_memory import claim_memory_service
+from app.services.verification_orchestrator import verification_orchestrator
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -343,6 +348,26 @@ async def memory_store_endpoint(payload: ClaimMemoryStoreInput) -> ClaimMemoryRe
         verified_at=payload.verified_at,
         expires_at=payload.expires_at,
     )
+
+
+@router.post(
+    "/verify",
+    response_model=VerificationResult,
+    status_code=status.HTTP_200_OK,
+    summary="End-to-End Forensic Verification Pipeline",
+    description="Coordinates all 21 modular stages from input ingestion through shared claim memory, retrieval, locking, deterministic verdict, confidence, explanation, and telemetry.",
+)
+async def verify_endpoint(payload: VerificationInput) -> VerificationResult:
+    """
+    Executes the end-to-end verification pipeline via VerificationOrchestrator.
+    """
+    return verification_orchestrator.verify(
+        content=payload.content,
+        input_type=payload.input_type,
+        is_demo=payload.is_demo,
+        check_id=payload.check_id,
+    )
+
 
 
 

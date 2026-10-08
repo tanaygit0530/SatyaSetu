@@ -126,6 +126,7 @@ class LockedEvidenceItem(BaseModel):
     Guarantees that exact_quote is verbatim grounded in the stored source text.
     """
     source_url: str = Field(..., description="Canonical source URL")
+    evidence_id: Optional[str] = Field(default=None, description="Optional evidence item identifier")
     source_title: str = Field(..., description="Document or article headline")
     publisher: str = Field(..., description="Issuing authority or publisher")
     published_date: Optional[str] = Field(None, description="Publication date string")

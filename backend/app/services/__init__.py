@@ -80,6 +80,10 @@ from app.services.claim_memory import (
     SharedClaimMemoryService,
     claim_memory_service,
 )
+from app.services.verification_orchestrator import (
+    VerificationOrchestrator,
+    verification_orchestrator,
+)
 
 
 __all__ = [
@@ -127,4 +131,6 @@ __all__ = [
     "explanation_generator_service",
     "SharedClaimMemoryService",
     "claim_memory_service",
+    "VerificationOrchestrator",
+    "verification_orchestrator",
 ]
