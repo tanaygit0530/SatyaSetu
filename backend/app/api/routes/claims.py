@@ -37,6 +37,12 @@ from app.schemas.explanation import (
     ExplanationInput,
     ExplanationOutput,
 )
+from app.schemas.claim_memory import (
+    ClaimMemoryLookupInput,
+    ClaimMemoryLookupResult,
+    ClaimMemoryRecord,
+    ClaimMemoryStoreInput,
+)
 from app.schemas.retrieval import (
     RetrievalInput,
     RetrievalPipelineOutput,
@@ -51,6 +57,7 @@ from app.services.temporal_verification import temporal_verification_service
 from app.services.rule_engine import DeterministicRuleEngine
 from app.services.confidence_engine import confidence_engine
 from app.services.explanation_generator import explanation_generator_service
+from app.services.claim_memory import claim_memory_service
 
 router = APIRouter(prefix="/claims", tags=["Claim Extraction, Dependencies & Evidence Queries"])
 
@@ -291,6 +298,52 @@ async def generate_explanation_endpoint(payload: ExplanationInput) -> Explanatio
         rule_trace=payload.rule_trace,
         temporal_status=payload.temporal_status,
     )
+
+
+@router.post(
+    "/memory/lookup",
+    response_model=ClaimMemoryLookupResult,
+    status_code=status.HTTP_200_OK,
+    summary="Query Shared Claim Memory (L0 Hash & L1 Semantic Similarity)",
+    description="Queries L0 exact normalized hash or L1 semantic similarity. Verifies temporal freshness and ensures critical facts (numbers/dates) are not changed.",
+)
+async def memory_lookup_endpoint(payload: ClaimMemoryLookupInput) -> ClaimMemoryLookupResult:
+    """
+    Two-Level Shared Claim Memory Lookup:
+    - L0: Exact normalized claim hash
+    - L1: Semantic similarity with temporal & factual safety checks
+    """
+    return claim_memory_service.lookup_claim(
+        claim_text=payload.claim_text,
+        current_time=payload.current_time,
+        similarity_threshold=payload.similarity_threshold,
+    )
+
+
+@router.post(
+    "/memory/store",
+    response_model=ClaimMemoryRecord,
+    status_code=status.HTTP_201_CREATED,
+    summary="Store verified claim into Shared Claim Memory",
+    description="Stores normalized claim, hash, embedding, verdict, evidence IDs, timestamps, and source versions.",
+)
+async def memory_store_endpoint(payload: ClaimMemoryStoreInput) -> ClaimMemoryRecord:
+    """
+    Stores verified claim in Shared Claim Memory.
+    """
+    return claim_memory_service.store_claim(
+        claim_text=payload.claim_text,
+        verdict=payload.verdict,
+        evidence_ids=payload.evidence_ids,
+        ttl_hours=payload.ttl_hours,
+        source_versions=payload.source_versions,
+        rule_trace=payload.rule_trace,
+        explanation=payload.explanation,
+        confidence=payload.confidence,
+        verified_at=payload.verified_at,
+        expires_at=payload.expires_at,
+    )
+
 
 
 

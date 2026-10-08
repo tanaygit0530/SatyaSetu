@@ -105,6 +105,12 @@ from app.schemas.explanation import (
     ExplanationInput,
     ExplanationOutput,
 )
+from app.schemas.claim_memory import (
+    ClaimMemoryLookupInput,
+    ClaimMemoryLookupResult,
+    ClaimMemoryRecord,
+    ClaimMemoryStoreInput,
+)
 
 __all__ = [
     "Verdict",
@@ -186,4 +192,8 @@ __all__ = [
     "MessageConfidenceOutput",
     "ExplanationInput",
     "ExplanationOutput",
+    "ClaimMemoryRecord",
+    "ClaimMemoryLookupInput",
+    "ClaimMemoryLookupResult",
+    "ClaimMemoryStoreInput",
 ]

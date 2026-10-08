@@ -76,6 +76,10 @@ from app.services.explanation_generator import (
     ExplanationGeneratorService,
     explanation_generator_service,
 )
+from app.services.claim_memory import (
+    SharedClaimMemoryService,
+    claim_memory_service,
+)
 
 
 __all__ = [
@@ -121,4 +125,6 @@ __all__ = [
     "confidence_engine",
     "ExplanationGeneratorService",
     "explanation_generator_service",
+    "SharedClaimMemoryService",
+    "claim_memory_service",
 ]
