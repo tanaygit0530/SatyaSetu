@@ -66,9 +66,11 @@ def create_application() -> FastAPI:
     # Mount API version prefix: /api/v1
     app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
-    # Also mount /checks at root to support /checks alongside /api/v1/checks
+    # Also mount /checks and /whatsapp at root to support friendly aliases alongside /api/v1
     from app.api.routes.checks import router as checks_router
+    from app.api.routes.whatsapp import router as whatsapp_router
     app.include_router(checks_router, include_in_schema=False)
+    app.include_router(whatsapp_router, include_in_schema=False)
 
     return app
 

@@ -81,5 +81,13 @@ class Settings(BaseSettings):
     MAX_RETRIEVAL_CANDIDATES: int = 10
     MAX_EVIDENCE_ITEMS: int = 5
 
+    # Twilio & WhatsApp Integration Configuration
+    TWILIO_ACCOUNT_SID: Optional[str] = None
+    TWILIO_AUTH_TOKEN: Optional[str] = None
+    TWILIO_WHATSAPP_NUMBER: Optional[str] = "whatsapp:+14155238886"
+    TWILIO_VALIDATE_SIGNATURE: bool = True
+    TWILIO_MEDIA_DOWNLOAD_TIMEOUT_SECONDS: float = 15.0
+    BASE_PUBLIC_URL: str = "https://sachcheck.in"
+
 
 settings = Settings()

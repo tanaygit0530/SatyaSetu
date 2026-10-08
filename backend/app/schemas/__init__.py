@@ -214,11 +214,12 @@ __all__ = [
     "CheckDetailResponse",
 ]
 
-from app.schemas.check import (
-    CheckCreateRequest,
-    CheckCreateResponse,
-    CheckStatusResponse,
-    CheckClaimsResponse,
-    CheckEvidenceResponse,
-    CheckDetailResponse,
+from app.schemas.whatsapp import (
+    TwilioWebhookData,
+    WhatsAppFormattedResponse,
 )
+
+__all__.extend([
+    "TwilioWebhookData",
+    "WhatsAppFormattedResponse",
+])
