@@ -140,6 +140,7 @@ class ClaimVerificationResult(BaseModel):
     temporal_status: Optional[TemporalStatus] = None
     language: Optional[str] = "en"
     cache_hit: bool = Field(default=False)
+    audio_file: Optional[str] = Field(default=None, description="Optional local file path to synthesized voice explanation")
 
 
 class ClaimResult(BaseModel):
@@ -180,6 +181,9 @@ class VerificationResult(BaseModel):
     input_type: str = Field(default="TEXT")
     original_content: Optional[str] = None
     language: Optional[str] = None
+    audio_file: Optional[str] = Field(default=None, description="Optional local file path to synthesized voice audio file")
+    audio_url: Optional[str] = Field(default=None, description="Optional public URL to synthesized voice audio")
+    tts_success: Optional[bool] = Field(default=None, description="Whether TTS audio synthesis succeeded")
 
     @model_validator(mode="after")
     def sync_claims_and_results(self) -> "VerificationResult":

@@ -51,6 +51,7 @@ from app.services.screenshot_ingestion import ScreenshotIngestionService, screen
 from app.services.source_registry import SourceRegistryService, source_registry_service
 from app.services.temporal_verification import TemporalVerificationService, temporal_verification_service
 from app.services.text_ingestion import TextIngestionService
+from app.services.tts import TTSService, tts_service
 from app.services.url_ingestion import URLIngestionService, url_ingestion_service
 from app.services.voice_ingestion import VoiceIngestionService, voice_ingestion_service
 
@@ -133,6 +134,7 @@ class VerificationOrchestrator:
         explanation_generator: Optional[ExplanationGeneratorService] = None,
         verification_repository: Optional[VerificationRepository] = None,
         metrics_repository: Optional[MetricsRepository] = None,
+        tts_service_instance: Optional[TTSService] = None,
     ):
         self.text_ingestion = text_ingestion or TextIngestionService()
         self.url_ingestion = url_ingestion or url_ingestion_service
@@ -155,6 +157,7 @@ class VerificationOrchestrator:
         self.explanation_generator = explanation_generator or explanation_generator_service
         self.verification_repo = verification_repository or verification_repo
         self.metrics_repo = metrics_repository or MetricsRepository()
+        self.tts_service = tts_service_instance or tts_service
 
     # =========================================================================
     # STAGE 1: INPUT
@@ -722,6 +725,7 @@ class VerificationOrchestrator:
         check_id: Optional[str] = None,
         current_time: Optional[datetime] = None,
         progress_callback: Optional[Any] = None,
+        generate_voice: bool = False,
     ) -> VerificationResult:
         """
         Executes end-to-end fact verification coordinating all 21 modular stages.
@@ -933,6 +937,14 @@ class VerificationOrchestrator:
                 claim_results=verified_claim_results,
             )
 
+            # Optional Voice / TTS output layer (never a hard dependency for verification)
+            if generate_voice:
+                try:
+                    result = self.tts_service.attach_voice_to_verification_result(result)
+                except Exception as ve:
+                    logger.warning("Optional voice generation failed: %s", ve)
+                    result.tts_success = False
+
             report_progress(ProcessingStatus.COMPLETED, "COMPLETED")
             return result
 
@@ -948,6 +960,7 @@ class VerificationOrchestrator:
         check_id: Optional[str] = None,
         current_time: Optional[datetime] = None,
         progress_callback: Optional[Any] = None,
+        generate_voice: bool = False,
     ) -> VerificationResult:
         """Alias for orchestrate()."""
         return self.orchestrate(
@@ -957,6 +970,7 @@ class VerificationOrchestrator:
             check_id=check_id,
             current_time=current_time,
             progress_callback=progress_callback,
+            generate_voice=generate_voice,
         )
 
 

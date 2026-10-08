@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     STT_CONFIDENCE_THRESHOLD: float = 0.65  # Below 0.65 triggers needs_confirmation
     SARVAM_API_KEY: Optional[str] = None
     SARVAM_API_URL: str = "https://api.sarvam.ai/speech-to-text"
+    SARVAM_TTS_API_URL: str = "https://api.sarvam.ai/text-to-speech"
+    SARVAM_TTS_MODEL: str = "bulbul:v3"
+    SARVAM_TTS_SPEAKER: str = "shubh"
+    TTS_AUDIO_DIR: str = "/tmp/sachcheck_audio"
 
     # PDF Ingestion Configuration
     MAX_PDF_FILE_SIZE_BYTES: int = 25 * 1024 * 1024  # 25 MB

@@ -34,3 +34,6 @@ class WhatsAppFormattedResponse(BaseModel):
     full_evidence_url: Optional[str] = None
     claims: List[Dict[str, Any]] = Field(default_factory=list)
     formatted_body: str
+    voice_url: Optional[str] = Field(default=None, description="Optional public URL to synthesized TTS voice explanation")
+    voice_path: Optional[str] = Field(default=None, description="Optional local file path to synthesized audio")
+    has_voice: bool = Field(default=False, description="Whether TTS audio is attached")

@@ -23,6 +23,7 @@ from app.services.verification_orchestrator import (
     VerificationOrchestrator,
     verification_orchestrator,
 )
+from app.services.tts import TTSService, tts_service
 from app.services.voice_ingestion import VoiceIngestionService, voice_ingestion_service
 
 # Emoji mapping for canonical SachCheck verdicts
@@ -54,6 +55,7 @@ class WhatsAppWebhookService:
         screenshot_service: Optional[ScreenshotIngestionService] = None,
         voice_service: Optional[VoiceIngestionService] = None,
         pdf_service: Optional[PDFIngestionService] = None,
+        tts_service_instance: Optional[TTSService] = None,
         ttl_seconds: int = 86400,
         max_cache_size: int = 10000,
     ):
@@ -61,6 +63,7 @@ class WhatsAppWebhookService:
         self.screenshot_service = screenshot_service or screenshot_ingestion_service
         self.voice_service = voice_service or voice_ingestion_service
         self.pdf_service = pdf_service or pdf_ingestion_service
+        self.tts_service = tts_service_instance or tts_service
         self.ttl_seconds = ttl_seconds
         self.max_cache_size = max_cache_size
 
@@ -371,6 +374,7 @@ class WhatsAppWebhookService:
         result: VerificationResult,
         check_id: str,
         language: Optional[str] = None,
+        include_voice: bool = False,
     ) -> WhatsAppFormattedResponse:
         """
         Formats a citizen-friendly WhatsApp response adhering strictly to specification:
@@ -553,6 +557,35 @@ class WhatsAppWebhookService:
         final_body = "\n\n".join(formatted_body_parts)
 
         primary = structured_claims[0] if structured_claims else {}
+
+        # Optional Voice / TTS output layer
+        voice_url: Optional[str] = None
+        voice_path: Optional[str] = None
+        has_voice: bool = False
+
+        if include_voice or getattr(result, "audio_file", None):
+            if getattr(result, "audio_file", None):
+                voice_path = result.audio_file
+                voice_url = result.audio_url
+                has_voice = True
+            else:
+                try:
+                    expl_to_voice = primary.get("why", "") or result.summary or ""
+                    if expl_to_voice:
+                        tts_res = self.tts_service.synthesize_explanation(
+                            explanation=expl_to_voice,
+                            language=user_lang,
+                        )
+                        if tts_res.success:
+                            voice_path = tts_res.audio_path
+                            voice_url = tts_res.audio_url
+                            has_voice = True
+                        else:
+                            has_voice = False
+                except Exception as ve:
+                    logger.warning("WhatsApp TTS synthesis failed: %s", ve)
+                    has_voice = False
+
         return WhatsAppFormattedResponse(
             verdict_emoji_header=primary.get("verdict_header", overall_header),
             claim_text=primary.get("claim_text", ""),
@@ -562,18 +595,24 @@ class WhatsAppWebhookService:
             full_evidence_url=evidence_url,
             claims=structured_claims,
             formatted_body=final_body,
+            voice_url=voice_url,
+            voice_path=voice_path,
+            has_voice=has_voice,
         )
 
     # =========================================================================
     # 7. BUILD TWIML RESPONSE
     # =========================================================================
 
-    def build_twiml_response(self, message_body: str) -> str:
+    def build_twiml_response(self, message_body: str, media_url: Optional[str] = None) -> str:
         """
         Constructs standard TwiML XML payload to respond synchronously to Twilio.
+        Attaches media URL if optional TTS voice was synthesized successfully.
         """
         response = MessagingResponse()
-        response.message(message_body)
+        msg = response.message(message_body)
+        if media_url:
+            msg.media(media_url)
         return str(response)
 
     def build_empty_twiml(self) -> str:
@@ -709,15 +748,21 @@ class WhatsAppWebhookService:
             check_id=check_id,
         )
 
-        # 7. Generate WhatsApp response
+        # 7. Generate WhatsApp response (with optional voice if citizen sent voice audio)
         effective_check_id = getattr(verification_result, "check_id", None) or check_id
+        is_voice_submission = (input_type == "VOICE")
         formatted_response = self.format_whatsapp_response(
             result=verification_result,
             check_id=effective_check_id,
+            include_voice=is_voice_submission,
         )
 
-        # 8. Build TwiML XML response
-        twiml_response = self.build_twiml_response(formatted_response.formatted_body)
+        # 8. Build TwiML XML response (text + voice if TTS succeeded, text only if TTS failed)
+        media_url = formatted_response.voice_url if formatted_response.has_voice else None
+        twiml_response = self.build_twiml_response(
+            message_body=formatted_response.formatted_body,
+            media_url=media_url,
+        )
 
         # Record MessageSid to prevent future replay attacks
         if message_sid:
