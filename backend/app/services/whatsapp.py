@@ -16,6 +16,7 @@ from app.core.logging import logger
 from app.schemas.core import ClaimVerificationResult, VerificationResult
 from app.schemas.enums import InputType, Verdict
 from app.schemas.whatsapp import WhatsAppFormattedResponse
+from app.services.localization import localization_service
 from app.services.pdf_ingestion import PDFIngestionService, pdf_ingestion_service
 from app.services.screenshot_ingestion import ScreenshotIngestionService, screenshot_ingestion_service
 from app.services.verification_orchestrator import (
@@ -369,6 +370,7 @@ class WhatsAppWebhookService:
         self,
         result: VerificationResult,
         check_id: str,
+        language: Optional[str] = None,
     ) -> WhatsAppFormattedResponse:
         """
         Formats a citizen-friendly WhatsApp response adhering strictly to specification:
@@ -399,6 +401,27 @@ class WhatsAppWebhookService:
         🟡 PARTLY SUPPORTED
         ⚪ CANNOT BE CONFIRMED
         """
+        claims_to_format = result.claims if result.claims else []
+
+        # Determine target user language
+        user_lang = language
+        if not user_lang and claims_to_format:
+            user_lang = getattr(claims_to_format[0], "language", None)
+        if not user_lang and result.original_content:
+            try:
+                from app.services.language_detection import language_detector_service
+                user_lang = language_detector_service.detect(result.original_content).language
+            except Exception:
+                user_lang = "en"
+        user_lang = localization_service.normalize_language(user_lang)
+
+        # Retrieve localized UI/bot labels (no hardcoded strings)
+        why_label = localization_service.get_label("why", lang=user_lang)
+        correction_label = localization_service.get_label("correction", lang=user_lang)
+        proof_label = localization_service.get_label("proof", lang=user_lang)
+        evidence_label = localization_service.get_label("view_full_evidence", lang=user_lang)
+        official_source_label = localization_service.get_label("official_source", lang=user_lang)
+
         # Determine overall verdict header
         overall_verdict = result.overall_verdict or Verdict.CANNOT_BE_CONFIRMED
         if isinstance(overall_verdict, str):
@@ -407,24 +430,26 @@ class WhatsAppWebhookService:
             except ValueError:
                 overall_verdict = Verdict.CANNOT_BE_CONFIRMED
 
-        overall_header = VERDICT_EMOJIS.get(overall_verdict, f"⚪ {overall_verdict.value}")
+        overall_header = localization_service.get_verdict_header(overall_verdict, lang=user_lang)
 
-        claims_to_format = result.claims if result.claims else []
         structured_claims: List[Dict[str, Any]] = []
         body_sections: List[str] = []
 
         if not claims_to_format:
             # Fallback when no atomic claims decomposed
-            claim_text = (result.original_content or "No verifiable factual claim detected.").strip()
-            if not claim_text.endswith((".", "?", "!")):
+            claim_text = (
+                result.original_content
+                or localization_service.get_message("empty_submission_title", lang=user_lang)
+            ).strip()
+            if not claim_text.endswith((".", "?", "!", "\u0964", "\u0965")):
                 claim_text += "."
             why_text = (
                 result.summary
-                or "We found no check-worthy claims or insufficient evidence to confirm this claim."
+                or localization_service.get_message("empty_submission_why", lang=user_lang)
             ).strip()
 
             body_sections.append(
-                f'{overall_header}\n"{claim_text}"\n\nWhy:\n{why_text}'
+                f'{overall_header}\n"{claim_text}"\n\n{why_label}\n{why_text}'
             )
             structured_claims.append({
                 "verdict": overall_verdict,
@@ -432,6 +457,7 @@ class WhatsAppWebhookService:
                 "claim_text": claim_text,
                 "why": why_text,
                 "correction": None,
+                "language": user_lang,
             })
         else:
             # Format each atomic claim
@@ -443,14 +469,15 @@ class WhatsAppWebhookService:
                     except ValueError:
                         c_verdict = Verdict.CANNOT_BE_CONFIRMED
 
-                c_header = VERDICT_EMOJIS.get(c_verdict, f"⚪ {c_verdict.value}")
+                c_header = localization_service.get_verdict_header(c_verdict, lang=user_lang)
 
+                # Keep claim in original language
                 raw_statement = (
                     claim.normalized_claim
                     or claim.claim_text
                     or f"Claim {idx + 1}"
                 ).strip().strip('"\'')
-                if not raw_statement.endswith((".", "?", "!")):
+                if not raw_statement.endswith((".", "?", "!", "\u0964", "\u0965")):
                     raw_statement += "."
 
                 c_why = (claim.explanation or "No explanation available.").strip()
@@ -463,14 +490,14 @@ class WhatsAppWebhookService:
                     c_header,
                     f'"{raw_statement}"',
                     "",
-                    "Why:",
+                    why_label,
                     c_why,
                 ]
 
                 if c_correction:
                     claim_block_lines.extend([
                         "",
-                        "Correction:",
+                        correction_label,
                         c_correction,
                     ])
 
@@ -483,6 +510,7 @@ class WhatsAppWebhookService:
                     "claim_text": raw_statement,
                     "why": c_why,
                     "correction": c_correction,
+                    "language": getattr(claim, "language", user_lang),
                 })
 
         # Collect unique authoritative proof citations across all claims
@@ -502,7 +530,7 @@ class WhatsAppWebhookService:
                     if publisher:
                         proof_entries.append(f"{publisher} — {url}")
                     else:
-                        proof_entries.append(f"Official Source — {url}")
+                        proof_entries.append(f"{official_source_label} — {url}")
 
                 if len(proof_entries) >= 2:
                     break
@@ -518,9 +546,9 @@ class WhatsAppWebhookService:
         formatted_body_parts = ["\n\n".join(body_sections)]
 
         if proof_text:
-            formatted_body_parts.append(f"Proof:\n{proof_text}")
+            formatted_body_parts.append(f"{proof_label}\n{proof_text}")
 
-        formatted_body_parts.append(f"View full evidence:\n{evidence_url}")
+        formatted_body_parts.append(f"{evidence_label}\n{evidence_url}")
 
         final_body = "\n\n".join(formatted_body_parts)
 

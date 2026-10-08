@@ -138,6 +138,7 @@ class ClaimVerificationResult(BaseModel):
     claim_text: Optional[str] = None
     normalized_claim: Optional[str] = None
     temporal_status: Optional[TemporalStatus] = None
+    language: Optional[str] = "en"
     cache_hit: bool = Field(default=False)
 
 

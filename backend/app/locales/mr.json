@@ -1,0 +1,31 @@
+{
+  "language": "mr",
+  "labels": {
+    "why": "Why:",
+    "claim": "Claim:",
+    "correction": "Correction:",
+    "proof": "Proof:",
+    "view_full_evidence": "View full evidence:",
+    "official_source": "अधिकृत स्रोत",
+    "no_records_found": "कोणताही अधिकृत पुरावा आढळला नाही."
+  },
+  "verdicts": {
+    "FALSE": "🔴 FALSE",
+    "VERIFIED": "🟢 VERIFIED",
+    "OUTDATED": "🟠 OUTDATED",
+    "PARTLY_SUPPORTED": "🟡 PARTLY SUPPORTED",
+    "CANNOT_BE_CONFIRMED": "⚪ CANNOT BE CONFIRMED"
+  },
+  "explanations": {
+    "FALSE": "हा दावा योग्य नाही. याला समर्थन देणारा कोणताही विश्वसनीय अधिकृत पुरावा आम्हाला आढळला नाही.",
+    "VERIFIED": "हा दावा विश्वसनीय अधिकृत पुराव्यांद्वारे पडताळलेला आणि सत्य आहे.",
+    "OUTDATED": "हा दावा पूर्वी खरा होता, परंतु आता कालबाह्य झाला असून नवीन अधिकृत नियमांद्वारे अमान्य झाला आहे.",
+    "PARTLY_SUPPORTED": "पुरावे या दाव्याचे पूर्ण समर्थन करत नाहीत. काही माहिती असत्य किंवा अतिशयोक्त आहे.",
+    "CANNOT_BE_CONFIRMED": "विश्वसनीय अधिकृत पुराव्यांच्या अभावामुळे आम्ही या दाव्याची पडताळणी करू शकलो नाही."
+  },
+  "messages": {
+    "empty_submission_title": "कोणतीही पडताळणीयोग्य सामग्री दिलेली नाही.",
+    "empty_submission_why": "कृपया पडताळणीसाठी तथ्यात्मक विधान, लिंक, फोटो, व्हॉइस नोट किंवा परिपत्रक पाठवा.",
+    "processing_error": "संदेश प्रक्रिया करताना त्रुटी आली. कृपया नंतर पुन्हा प्रयत्न करा."
+  }
+}

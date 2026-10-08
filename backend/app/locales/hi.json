@@ -1,0 +1,31 @@
+{
+  "language": "hi",
+  "labels": {
+    "why": "Why:",
+    "claim": "Claim:",
+    "correction": "Correction:",
+    "proof": "Proof:",
+    "view_full_evidence": "View full evidence:",
+    "official_source": "आधिकारिक स्रोत",
+    "no_records_found": "कोई आधिकारिक रिकॉर्ड नहीं मिला।"
+  },
+  "verdicts": {
+    "FALSE": "🔴 FALSE",
+    "VERIFIED": "🟢 VERIFIED",
+    "OUTDATED": "🟠 OUTDATED",
+    "PARTLY_SUPPORTED": "🟡 PARTLY SUPPORTED",
+    "CANNOT_BE_CONFIRMED": "⚪ CANNOT BE CONFIRMED"
+  },
+  "explanations": {
+    "FALSE": "यह दावा सही नहीं है। हमें इसे समर्थन देने वाला कोई विश्वसनीय आधिकारिक प्रमाण नहीं मिला।",
+    "VERIFIED": "यह दावा विश्वसनीय आधिकारिक प्रमाणों द्वारा सत्यापित है।",
+    "OUTDATED": "यह दावा पहले सही था, लेकिन अब पुराना हो चुका है और नए आधिकारिक आदेशों द्वारा अमान्य है।",
+    "PARTLY_SUPPORTED": "प्रमाण इस दावे का पूरी तरह समर्थन नहीं करते। कुछ विवरण असमर्थित या अतिरंजित हैं।",
+    "CANNOT_BE_CONFIRMED": "विश्वसनीय आधिकारिक प्रमाणों की कमी के कारण हम इस दावे की पुष्टि नहीं कर सके।"
+  },
+  "messages": {
+    "empty_submission_title": "कोई सत्यापन योग्य सामग्री प्रदान नहीं की गई।",
+    "empty_submission_why": "कृपया सत्यापित करने के लिए एक तथ्यात्मक संदेश, लिंक, छवि, वॉयस नोट या परिपत्र भेजें।",
+    "processing_error": "संदेश संसाधित नहीं किया जा सका। कृपया बाद में पुनः प्रयास करें।"
+  }
+}

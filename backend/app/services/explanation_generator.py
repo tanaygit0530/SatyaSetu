@@ -9,6 +9,7 @@ from app.core.logging import logger
 from app.schemas.enums import SourceTier, TemporalStatus, Verdict
 from app.schemas.evidence import EvidenceItem, LockedEvidenceItem
 from app.schemas.explanation import ExplanationInput, ExplanationOutput
+from app.services.localization import localization_service
 
 # Compiled regex patterns for numbers, currencies, percentages, and dates
 NUMBER_PATTERN = re.compile(r"(?:₹|\$|€|£)?\b\d+(?:[,\.]\d+)?%?\b", re.IGNORECASE)
@@ -52,10 +53,13 @@ class ExplanationGeneratorService:
         validated_evidence: List[Union[EvidenceItem, LockedEvidenceItem, Dict[str, Any]]],
         rule_trace: Optional[List[str]] = None,
         temporal_status: Optional[TemporalStatus] = None,
+        language: str = "en",
     ) -> ExplanationOutput:
         """
-        Generates an explanation under 80 words, verified for factual grounding.
+        Generates an explanation under 80 words, verified for factual grounding,
+        in the citizen's preferred language (en, hi, mr).
         """
+        norm_lang = localization_service.normalize_language(language)
         claim_text = self._extract_claim_text(claim)
         evidence_items = self._normalize_evidence(validated_evidence)
         trace = rule_trace or []
@@ -72,6 +76,7 @@ class ExplanationGeneratorService:
             rule_trace=trace,
             temporal_status=temp_status,
             attempt=1,
+            language=norm_lang,
         )
 
         is_valid, unauthorized = self.validate_factual_grounding(candidate, grounded_facts)
@@ -105,6 +110,7 @@ class ExplanationGeneratorService:
             temporal_status=temp_status,
             attempt=2,
             previous_unauthorized=unauthorized,
+            language=norm_lang,
         )
 
         is_valid_2, unauthorized_2 = self.validate_factual_grounding(candidate_2, grounded_facts)
@@ -130,7 +136,7 @@ class ExplanationGeneratorService:
         )
 
         # 4. Fallback: Safe deterministic template (100% grounded, zero invented facts, < 80 words)
-        safe_explanation = self.get_safe_template(verdict, claim_text, evidence_items, temp_status)
+        safe_explanation = self.get_safe_template(verdict, claim_text, evidence_items, temp_status, language=norm_lang)
         safe_words = len(safe_explanation.split())
 
         return ExplanationOutput(
@@ -268,9 +274,11 @@ class ExplanationGeneratorService:
         temporal_status: TemporalStatus,
         attempt: int = 1,
         previous_unauthorized: Optional[List[str]] = None,
+        language: str = "en",
     ) -> str:
         """
-        Generates an explanation candidate via LLM if available, or domain rules.
+        Generates an explanation candidate via LLM if available, or domain rules,
+        in the requested language.
         """
         # Call LLM if configured and not demo mode
         if (self.gemini_key or self.openai_key) and not settings.DEMO_MODE:
@@ -282,16 +290,18 @@ class ExplanationGeneratorService:
                 temporal_status=temporal_status,
                 attempt=attempt,
                 previous_unauthorized=previous_unauthorized,
+                language=language,
             )
             if llm_text:
                 return llm_text.strip()
 
-        # Deterministic generation conforming to spec example
+        # Deterministic generation conforming to spec example and localized templates
         return self._generate_domain_explanation(
             claim_text=claim_text,
             verdict=verdict,
             evidence_items=evidence_items,
             temporal_status=temporal_status,
+            language=language,
         )
 
     def _generate_domain_explanation(
@@ -300,13 +310,22 @@ class ExplanationGeneratorService:
         verdict: Verdict,
         evidence_items: List[EvidenceItem],
         temporal_status: TemporalStatus,
+        language: str = "en",
     ) -> str:
-        """Produces realistic domain explanation tailored to the verdict and claim."""
+        """Produces realistic domain explanation tailored to the verdict, claim, and language."""
+        if language in ("hi", "mr"):
+            return self.get_safe_template(
+                verdict=verdict,
+                claim_text=claim_text,
+                evidence_items=evidence_items,
+                temporal_status=temporal_status,
+                language=language,
+            )
+
         c_lower = claim_text.lower()
 
         if verdict == Verdict.FALSE:
             # Spec Example matching:
-            # "No. We found no official announcement that UPI is being banned. The available evidence indicates that UPI services continue to operate. This claim should not be treated as an official announcement."
             if "upi" in c_lower and "ban" in c_lower:
                 return (
                     "No. We found no official announcement that UPI is being banned. "
@@ -321,11 +340,7 @@ class ExplanationGeneratorService:
                     "The available public documentation confirms that this claim is not genuine and has no official basis."
                 )
 
-            return (
-                "No. We found no official announcement supporting this claim. "
-                "Authoritative sources directly contradict this assertion. "
-                "This claim should not be treated as an official announcement."
-            )
+            return localization_service.get_explanation(verdict, lang="en")
 
         if verdict == Verdict.VERIFIED:
             if evidence_items and evidence_items[0].publisher:
@@ -334,64 +349,24 @@ class ExplanationGeneratorService:
                     f"Yes. Official notifications from {pub} verify this claim. "
                     "Authoritative statutory records corroborate that this announcement is authentic and in effect."
                 )
-            return (
-                "Yes. Authoritative gazette notifications and official records confirm this claim. "
-                "The public documentation verifies that this assertion is genuine."
-            )
+            return localization_service.get_explanation(verdict, lang="en")
 
-        if verdict == Verdict.OUTDATED:
-            return (
-                "This claim is outdated. While authentic in the past, newer official records show this notice is no longer in effect. "
-                "It should not be recirculated as a current directive."
-            )
-
-        if verdict == Verdict.PARTLY_SUPPORTED:
-            return (
-                "This claim is only partly supported. While the core premise has a factual foundation, "
-                "secondary details or specific figures are inaccurate, unverified, or exaggerated."
-            )
-
-        # CANNOT_BE_CONFIRMED
-        return (
-            "This claim cannot be confirmed. We found no official gazette, government circular, or credible primary documentation to verify or refute it. "
-            "SachCheck withholds judgment rather than speculating."
-        )
+        return self.get_safe_template(verdict, claim_text, evidence_items, temporal_status, language=language)
 
     def get_safe_template(
         self,
         verdict: Verdict,
-        claim_text: str,
-        evidence_items: List[EvidenceItem],
-        temporal_status: TemporalStatus,
+        claim_text: str = "",
+        evidence_items: Optional[List[EvidenceItem]] = None,
+        temporal_status: Optional[TemporalStatus] = None,
+        language: str = "en",
     ) -> str:
         """
-        Returns a 100% grounded, zero-hallucination safe template strictly under 80 words.
+        Returns a 100% grounded, zero-hallucination safe template strictly under 80 words,
+        loaded dynamically from app/locales/{en,hi,mr}.json.
         Guarantees: Zero invented numbers, zero invented dates, strict brevity.
         """
-        templates = {
-            Verdict.FALSE: (
-                "No. We found no official announcement or credible documentation supporting this claim. "
-                "The available evidence directly contradicts this assertion. "
-                "This claim should not be treated as an official announcement."
-            ),
-            Verdict.VERIFIED: (
-                "Yes. Official records and authoritative gazettes corroborate this claim. "
-                "The verified public documentation confirms that this assertion is authentic and in effect."
-            ),
-            Verdict.OUTDATED: (
-                "This claim is outdated. While authentic in the past, newer official records show this is no longer in effect. "
-                "It should not be recirculated as a current directive."
-            ),
-            Verdict.PARTLY_SUPPORTED: (
-                "This claim is only partly supported. While the underlying premise has a factual foundation, "
-                "secondary details, terms, or conditions are inaccurate, unverified, or exaggerated."
-            ),
-            Verdict.CANNOT_BE_CONFIRMED: (
-                "This claim cannot be confirmed. We found no official gazette, government circular, or credible documentation to verify or refute it. "
-                "SachCheck withholds judgment rather than speculating."
-            ),
-        }
-        return templates.get(verdict, templates[Verdict.CANNOT_BE_CONFIRMED])
+        return localization_service.get_explanation(verdict, lang=language)
 
     def _call_llm_explanation(
         self,
@@ -402,8 +377,9 @@ class ExplanationGeneratorService:
         temporal_status: TemporalStatus,
         attempt: int = 1,
         previous_unauthorized: Optional[List[str]] = None,
+        language: str = "en",
     ) -> Optional[str]:
-        """Calls Gemini API with strict grounding prompt."""
+        """Calls Gemini API with strict grounding prompt and target output language."""
         quotes_summary = "\n".join([f"- {e.publisher}: '{e.exact_quote}'" for e in evidence_items[:3] if e.exact_quote])
 
         reprimand = ""
@@ -414,14 +390,21 @@ class ExplanationGeneratorService:
                 f"DO NOT include ANY number or date that is not verbatim in the claim or evidence quotes!\n"
             )
 
+        lang_instruction = "English"
+        if language == "hi":
+            lang_instruction = "Hindi (हिंदी). Do NOT write English."
+        elif language == "mr":
+            lang_instruction = "Marathi (मराठी). Do NOT write English."
+
         prompt = (
             f"You are SachCheck's forensic explanation writer.\n"
             f"Write a simple citizen-facing explanation for the verdict.\n\n"
             f"RULES:\n"
             f"1. Strictly UNDER 80 WORDS.\n"
-            f"2. Every number or date in your explanation MUST exist verbatim in the Claim or Evidence Quotes below.\n"
-            f"3. NEVER invent numbers, fees, percentages, or dates.\n"
-            f"4. If in doubt, do not include numbers/dates at all.\n"
+            f"2. Write the explanation in {lang_instruction}.\n"
+            f"3. Every number or date in your explanation MUST exist verbatim in the Claim or Evidence Quotes below.\n"
+            f"4. NEVER invent numbers, fees, percentages, or dates.\n"
+            f"5. If in doubt, do not include numbers/dates at all.\n"
             f"{reprimand}\n"
             f"Claim: {claim_text}\n"
             f"Verdict: {verdict.value}\n"

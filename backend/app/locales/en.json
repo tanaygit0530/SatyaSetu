@@ -1,0 +1,31 @@
+{
+  "language": "en",
+  "labels": {
+    "why": "Why:",
+    "claim": "Claim:",
+    "correction": "Correction:",
+    "proof": "Proof:",
+    "view_full_evidence": "View full evidence:",
+    "official_source": "Official Source",
+    "no_records_found": "No authoritative record found."
+  },
+  "verdicts": {
+    "FALSE": "🔴 FALSE",
+    "VERIFIED": "🟢 VERIFIED",
+    "OUTDATED": "🟠 OUTDATED",
+    "PARTLY_SUPPORTED": "🟡 PARTLY SUPPORTED",
+    "CANNOT_BE_CONFIRMED": "⚪ CANNOT BE CONFIRMED"
+  },
+  "explanations": {
+    "FALSE": "No. This claim is not supported by reliable evidence. The available official evidence directly contradicts this assertion.",
+    "VERIFIED": "Yes. Official records and authoritative gazettes confirm this claim. This claim is verified by credible official evidence.",
+    "OUTDATED": "This claim is outdated. While authentic in the past, newer official records show this notice is no longer in effect.",
+    "PARTLY_SUPPORTED": "This claim is partly supported. Evidence does not support the claim as stated, and specific details are exaggerated.",
+    "CANNOT_BE_CONFIRMED": "This claim cannot be confirmed. We found no official gazette or credible documentation to verify it."
+  },
+  "messages": {
+    "empty_submission_title": "No verifiable content provided.",
+    "empty_submission_why": "Please forward a factual statement, link, image, voice note, or circular to verify.",
+    "processing_error": "Could not process message. Please try again later."
+  }
+}

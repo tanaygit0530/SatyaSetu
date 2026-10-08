@@ -575,10 +575,11 @@ class VerificationOrchestrator:
         validated_evidence: List[LockedEvidenceItem],
         rule_trace: List[str],
         temporal_status: TemporalStatus,
+        language: str = "en",
     ) -> str:
         """
         Stage 19: Generates concise citizen explanation strictly under 80 words with
-        factual number/date validation.
+        factual number/date validation in the citizen's preferred language.
         """
         res = self.explanation_generator.generate_explanation(
             claim=claim_text,
@@ -586,6 +587,7 @@ class VerificationOrchestrator:
             validated_evidence=validated_evidence,
             rule_trace=rule_trace,
             temporal_status=temporal_status,
+            language=language,
         )
         return res.explanation
 
@@ -877,12 +879,14 @@ class VerificationOrchestrator:
                 )
 
                 # Stage 19: Explanation
+                claim_lang = getattr(claim_item, "language", None) or getattr(lang_res, "language", "en")
                 explanation = self.stage_explanation(
                     claim_text=claim_text,
                     verdict=verdict,
                     validated_evidence=validated_locked,
                     rule_trace=rule_trace,
                     temporal_status=temporal_res.temporal_status,
+                    language=claim_lang,
                 )
                 report_progress(ProcessingStatus.VERIFYING, "COMPLETED")
 
@@ -900,6 +904,7 @@ class VerificationOrchestrator:
                         claim_text=claim_item.original_text,
                         normalized_claim=claim_item.normalized_claim,
                         temporal_status=temporal_res.temporal_status,
+                        language=claim_lang,
                         cache_hit=False,
                     )
                 )
