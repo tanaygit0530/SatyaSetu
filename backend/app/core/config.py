@@ -72,7 +72,7 @@ class Settings(BaseSettings):
     # LLM Structured Extraction Configuration
     LLM_PROVIDER: str = "gemini"
     GEMINI_API_KEY: Optional[str] = None
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.8-flash"
     OPENAI_API_KEY: Optional[str] = None
     DEMO_MODE: bool = False
 
@@ -91,6 +91,7 @@ class Settings(BaseSettings):
     TWILIO_WHATSAPP_NUMBER: Optional[str] = "whatsapp:+14155238886"
     TWILIO_VALIDATE_SIGNATURE: bool = True
     TWILIO_MEDIA_DOWNLOAD_TIMEOUT_SECONDS: float = 15.0
+    TWILIO_ASYNC_DISPATCH: bool = True
     BASE_PUBLIC_URL: str = "https://sachcheck.in"
 
     # Security Controls Configuration

@@ -3,7 +3,7 @@ from app.api.routes.health import router as health_router
 from app.api.routes.ingest import router as ingest_router
 from app.api.routes.language import router as language_router
 from app.api.routes.claims import router as claims_router
-from app.api.routes.checks import router as checks_router
+from app.api.routes.checks import router as checks_router, check_alias_router
 from app.api.v1.sources import router as sources_router
 from app.api.routes.whatsapp import router as whatsapp_router
 from app.api.routes.tts import router as tts_router
@@ -15,6 +15,7 @@ api_router.include_router(ingest_router)
 api_router.include_router(language_router)
 api_router.include_router(claims_router)
 api_router.include_router(checks_router)
+api_router.include_router(check_alias_router)
 api_router.include_router(sources_router)
 api_router.include_router(whatsapp_router)
 api_router.include_router(tts_router)

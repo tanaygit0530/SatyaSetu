@@ -1,5 +1,38 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
+
+
+class WhatsAppMediaItem(BaseModel):
+    """Media item attached to an incoming WhatsApp message."""
+    url: str
+    content_type: str
+    index: int = 0
+
+
+class WhatsAppIncomingMessage(BaseModel):
+    """
+    Standard parsed model for incoming WhatsApp messages received via Twilio Webhook.
+    Preserves raw claim wording and normalizes addresses to whatsapp:+...
+    """
+    message_sid: str = Field(..., description="Unique Twilio Message SID")
+    account_sid: Optional[str] = Field(default=None, description="Twilio Account SID")
+    from_number: str = Field(..., description="Sender WhatsApp address with whatsapp:+ prefix")
+    to_number: str = Field(..., description="Recipient Twilio WhatsApp address with whatsapp:+ prefix")
+    body: str = Field(default="", description="Citizen message text or media caption")
+    num_media: int = Field(default=0, description="Total media attachments count")
+    media: List[WhatsAppMediaItem] = Field(default_factory=list, description="Parsed media attachments list")
+    profile_name: Optional[str] = Field(default=None, description="WhatsApp profile display name")
+    wa_id: Optional[str] = Field(default=None, description="WhatsApp user ID")
+    received_at: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="ISO timestamp when webhook was ingested",
+    )
+
+    model_config = {
+        "populate_by_name": True,
+        "extra": "ignore",
+    }
 
 
 class TwilioWebhookData(BaseModel):

@@ -15,6 +15,30 @@ from app.schemas.core import VerificationResult
 from app.schemas.enums import ProcessingStatus
 
 router = APIRouter(prefix="/checks", tags=["Verification Checks & Asynchronous Jobs"])
+check_alias_router = APIRouter(prefix="/check", tags=["Verification Checks & Asynchronous Jobs"])
+
+
+@check_alias_router.post(
+    "",
+    summary="Submit citizen check (singular /check alias)",
+    description="Submits check. When ?sync=true is set, runs full pipeline synchronously and returns VerificationResult.",
+)
+async def submit_check_singular(
+    payload: CheckCreateRequest,
+    background_tasks: BackgroundTasks,
+    sync: bool = False,
+):
+    if sync:
+        from app.services.verification_orchestrator import verification_orchestrator
+        text_content = payload.text or payload.content or ""
+        in_type = payload.input_type.value if hasattr(payload.input_type, "value") else str(payload.input_type)
+        return verification_orchestrator.verify(
+            content=text_content,
+            input_type=in_type,
+            check_id=payload.check_id,
+            is_demo=payload.is_demo,
+        )
+    return await submit_check(payload=payload, background_tasks=background_tasks)
 
 
 @router.post(

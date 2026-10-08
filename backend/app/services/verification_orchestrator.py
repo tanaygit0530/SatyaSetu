@@ -895,7 +895,10 @@ class VerificationOrchestrator:
                 report_progress(ProcessingStatus.VERIFYING, "COMPLETED")
 
                 # Collect finding
-                evidence_ids = [e.evidence_id for e in validated_locked]
+                evidence_ids = [
+                    getattr(e, "evidence_id", None) or f"ev_{i+1}"
+                    for i, e in enumerate(validated_locked)
+                ]
                 verified_claim_results.append(
                     ClaimVerificationResult(
                         claim_id=claim_item.claim_id,

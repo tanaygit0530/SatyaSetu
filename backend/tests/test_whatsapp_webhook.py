@@ -17,11 +17,23 @@ def client():
     return TestClient(app)
 
 
+from app.core.security.rate_limiter import rate_limiter
+
+
 @pytest.fixture(autouse=True)
 def clean_webhook_cache():
-    """Clear message deduplication cache before each test."""
+    """Clear message deduplication cache and rate limiter counters before each test."""
     with whatsapp_webhook_service._lock:
         whatsapp_webhook_service._processed_messages.clear()
+    with rate_limiter._lock:
+        rate_limiter._requests.clear()
+
+
+@pytest.fixture(autouse=True)
+def default_sync_dispatch():
+    """Default to synchronous TwiML return for legacy test assertions."""
+    with patch.object(settings, "TWILIO_ASYNC_DISPATCH", False):
+        yield
 
 
 # ==============================================================================
@@ -664,3 +676,96 @@ def test_whatsapp_empty_submission(client):
         assert resp.status_code == 200
         assert "⚪ CANNOT BE CONFIRMED" in resp.text
         assert "Please forward a factual statement" in resp.text
+
+
+# ==============================================================================
+# 10. Step 18 End-to-End Async Webhook & REST Dispatch Test
+# ==============================================================================
+
+def test_whatsapp_async_webhook_acknowledgment_and_outbound_dispatch(client):
+    """
+    Step 18 Test:
+    1. Request accepted immediately
+    2. Message parsed into WhatsAppIncomingMessage
+    3. Check created
+    4. Real verification service invoked in background
+    5. Final result persisted
+    6. Outbound Twilio REST API called with actual result
+    """
+    form_params = {
+        "MessageSid": "SM_TEST_STEP18_001",
+        "AccountSid": "AC_TEST_ACCOUNT_123",
+        "From": "whatsapp:+919876543210",
+        "To": "whatsapp:+14155238886",
+        "Body": "Is UPI charging 5% fee from tomorrow?",
+        "NumMedia": "0",
+    }
+
+    mock_verif_result = VerificationResult(
+        check_id="chk_step18_001",
+        claims=[
+            ClaimVerificationResult(
+                claim_id="clm_step18_01",
+                verdict=Verdict.FALSE,
+                confidence=ConfidenceLevel.HIGH,
+                explanation="NPCI and RBI have issued no directive imposing a 5% fee on UPI payments.",
+                evidence=[
+                    LockedEvidenceItem(
+                        source_url="https://npci.org.in/press/upi-fee-rumour",
+                        publisher="NPCI",
+                        source_title="UPI Clarification on Service Fees",
+                        exact_quote="Normal UPI transactions remain completely free for citizens.",
+                        source_text_reference="p1",
+                        source_tier=1,
+                        retrieved_at="2026-10-08T10:00:00Z",
+                        claim_relation="REFUTES",
+                    )
+                ],
+                normalized_claim="UPI will charge a 5% fee from tomorrow.",
+            )
+        ],
+        overall_verdict=Verdict.FALSE,
+    )
+
+    with patch.object(settings, "TWILIO_VALIDATE_SIGNATURE", False), \
+         patch.object(settings, "TWILIO_ASYNC_DISPATCH", True), \
+         patch.object(whatsapp_webhook_service.orchestrator, "verify", return_value=mock_verif_result) as mock_verify, \
+         patch.object(whatsapp_webhook_service, "send_outbound_whatsapp_message") as mock_send_outbound:
+
+        # 1. Post webhook request
+        resp = client.post("/api/v1/whatsapp/webhook", data=form_params)
+
+        # 2. Assert webhook returns immediate HTTP 200 with acknowledgment TwiML
+        assert resp.status_code == 200
+        assert "<Response>" in resp.text
+        assert "🔎 Checking this claim with reliable sources" in resp.text
+
+        # 3. Assert real verification orchestrator was invoked
+        mock_verify.assert_called_once()
+        assert "Is UPI charging 5% fee from tomorrow?" in mock_verify.call_args[1]["content"]
+
+        # 4. Assert outbound Twilio REST API was invoked with the real formatted result
+        mock_send_outbound.assert_called_once()
+        outbound_args = mock_send_outbound.call_args[1]
+        assert outbound_args["to_number"] == "whatsapp:+919876543210"
+        assert outbound_args["incoming_message_sid"] == "SM_TEST_STEP18_001"
+        assert "🔴 FALSE" in outbound_args["body_text"]
+        assert "NPCI" in outbound_args["body_text"]
+
+
+def test_whatsapp_conversational_greeting_immediate_reply(client):
+    """Verifies conversational greetings (hi, hello, etc.) receive instant welcome guide."""
+    form_params = {
+        "MessageSid": "SM_hi_001",
+        "From": "whatsapp:+919876543210",
+        "To": "whatsapp:+14155238886",
+        "Body": "hi",
+        "NumMedia": "0",
+    }
+
+    with patch.object(settings, "TWILIO_VALIDATE_SIGNATURE", False):
+        resp = client.post("/api/v1/whatsapp/webhook", data=form_params)
+        assert resp.status_code == 200
+        assert "<Response>" in resp.text
+        assert "Welcome to SachCheck" in resp.text
+        assert "How to verify:" in resp.text

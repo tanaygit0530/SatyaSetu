@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import httpx
+from fastapi import BackgroundTasks
 from twilio.request_validator import RequestValidator
 from twilio.twiml.messaging_response import MessagingResponse
 
@@ -15,7 +16,11 @@ from app.core.exceptions import InvalidInputException
 from app.core.logging import logger
 from app.schemas.core import ClaimVerificationResult, VerificationResult
 from app.schemas.enums import InputType, Verdict
-from app.schemas.whatsapp import WhatsAppFormattedResponse
+from app.schemas.whatsapp import (
+    WhatsAppFormattedResponse,
+    WhatsAppIncomingMessage,
+    WhatsAppMediaItem,
+)
 from app.core.security.audit_logger import audit_logger
 from app.core.security.phone_hasher import phone_hasher
 from app.core.security.rate_limiter import rate_limiter
@@ -628,39 +633,272 @@ class WhatsAppWebhookService:
     # 8. OUTBOUND MESSAGE DISPATCH (OPTIONAL DIRECT TWILIO CLIENT)
     # =========================================================================
 
+    # =========================================================================
+    # 8. PARSE INCOMING MESSAGE (STEP 5)
+    # =========================================================================
+
+    def parse_incoming_message(self, form_data: Dict[str, Any]) -> WhatsAppIncomingMessage:
+        """
+        Parses Twilio webhook form payload into WhatsAppIncomingMessage model.
+        Normalizes 'From' and 'To' addresses to 'whatsapp:+...'
+        Extracts all media items into WhatsAppMediaItem list.
+        """
+        raw_from = str(form_data.get("From", "") or "").strip()
+        raw_to = str(form_data.get("To", "") or "").strip()
+
+        from_norm = raw_from if raw_from.startswith("whatsapp:") else (f"whatsapp:{raw_from}" if raw_from else "")
+        to_norm = raw_to if raw_to.startswith("whatsapp:") else (f"whatsapp:{raw_to}" if raw_to else "")
+
+        num_media_raw = form_data.get("NumMedia", 0)
+        try:
+            num_media = int(num_media_raw)
+        except (ValueError, TypeError):
+            num_media = 0
+
+        media_items: List[WhatsAppMediaItem] = []
+        for i in range(num_media):
+            m_url = form_data.get(f"MediaUrl{i}")
+            m_type = form_data.get(f"MediaContentType{i}", "")
+            if m_url:
+                media_items.append(
+                    WhatsAppMediaItem(
+                        url=str(m_url),
+                        content_type=str(m_type),
+                        index=i,
+                    )
+                )
+
+        return WhatsAppIncomingMessage(
+            message_sid=str(form_data.get("MessageSid") or form_data.get("SmsMessageSid") or form_data.get("SmsSid") or "").strip(),
+            account_sid=form_data.get("AccountSid"),
+            from_number=from_norm,
+            to_number=to_norm,
+            body=str(form_data.get("Body", "") or "").strip(),
+            num_media=num_media,
+            media=media_items,
+            profile_name=form_data.get("ProfileName"),
+            wa_id=form_data.get("WaId"),
+            received_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+    # =========================================================================
+    # 9. OUTBOUND MESSAGE DISPATCH (TWILIO REST API - STEPS 11, 12, 16)
+    # =========================================================================
+
     def send_outbound_whatsapp_message(
         self,
         to_number: str,
         body_text: str,
+        check_id: Optional[str] = None,
+        incoming_message_sid: Optional[str] = None,
     ) -> Optional[str]:
         """
-        Sends an outbound WhatsApp message via Twilio REST API client if configured.
+        Sends an outbound WhatsApp message via Twilio REST API client.
+        Uses TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER.
+        Ensures 'whatsapp:' prefix on both From and To numbers.
+        Surfaces structured logs without exposing raw numbers or secrets.
         """
         account_sid = settings.TWILIO_ACCOUNT_SID
         auth_token = settings.TWILIO_AUTH_TOKEN
         from_number = settings.TWILIO_WHATSAPP_NUMBER
 
         if not (account_sid and auth_token and from_number):
-            logger.debug("Twilio REST client credentials not configured; skipping direct outbound call.")
+            logger.error(
+                "Twilio REST credentials incomplete (SID: %s, Token: %s, From: %s). Outbound send skipped.",
+                bool(account_sid),
+                bool(auth_token),
+                bool(from_number),
+            )
             return None
+
+        clean_to = to_number.strip()
+        if not clean_to.startswith("whatsapp:"):
+            clean_to = f"whatsapp:{clean_to}"
+
+        clean_from = from_number.strip()
+        if not clean_from.startswith("whatsapp:"):
+            clean_from = f"whatsapp:{clean_from}"
+
+        hashed_to = phone_hasher.hash_phone(clean_to)
 
         try:
             from twilio.rest import Client
+            from twilio.base.exceptions import TwilioRestException
 
             client = Client(account_sid, auth_token)
             msg = client.messages.create(
-                from_=from_number,
-                to=to_number,
+                from_=clean_from,
+                to=clean_to,
                 body=body_text,
             )
-            logger.info("Sent outbound WhatsApp response %s to %s", msg.sid, to_number)
+            audit_logger.log_event(
+                event_type="WHATSAPP_OUTBOUND_SENT",
+                client_identifier=hashed_to,
+                details={
+                    "incoming_message_sid": incoming_message_sid,
+                    "check_id": check_id,
+                    "outbound_message_sid": msg.sid,
+                    "status": msg.status,
+                },
+                severity="INFO",
+                action_taken="DISPATCHED",
+            )
+            logger.info(
+                "Outbound Twilio WhatsApp message sent successfully. SID: %s | Status: %s | Check ID: %s | Inbound SID: %s",
+                msg.sid,
+                msg.status,
+                check_id,
+                incoming_message_sid,
+            )
             return msg.sid
+
+        except TwilioRestException as te:
+            logger.error(
+                "Twilio REST API Error (Code %s): %s | Check ID: %s | Inbound SID: %s",
+                te.code,
+                te.msg,
+                check_id,
+                incoming_message_sid,
+                exc_info=True,
+            )
+            audit_logger.log_event(
+                event_type="WHATSAPP_OUTBOUND_FAILED",
+                client_identifier=hashed_to,
+                details={
+                    "incoming_message_sid": incoming_message_sid,
+                    "check_id": check_id,
+                    "error_code": te.code,
+                    "error_message": te.msg,
+                },
+                severity="ERROR",
+                action_taken="FAILED",
+            )
+            raise
+
         except Exception as e:
-            logger.error("Failed to send outbound Twilio WhatsApp message: %s", e)
-            return None
+            logger.error(
+                "Unexpected failure sending outbound Twilio WhatsApp message: %s | Check ID: %s",
+                e,
+                check_id,
+                exc_info=True,
+            )
+            audit_logger.log_event(
+                event_type="WHATSAPP_OUTBOUND_FAILED",
+                client_identifier=hashed_to,
+                details={
+                    "incoming_message_sid": incoming_message_sid,
+                    "check_id": check_id,
+                    "error": str(e),
+                },
+                severity="ERROR",
+                action_taken="FAILED",
+            )
+            raise
 
     # =========================================================================
-    # 9. END-TO-END WEBHOOK PROCESSING PIPELINE
+    # 10. BACKGROUND VERIFICATION WORKER (STEPS 6, 8, 9, 11, 15)
+    # =========================================================================
+
+    async def _run_async_verification(
+        self,
+        incoming: WhatsAppIncomingMessage,
+        check_id: str,
+        input_type: str,
+    ) -> None:
+        """
+        Background worker pipeline:
+        1. Safely downloads media attachments & runs OCR/STT/PDF extraction
+        2. Calls REAL VerificationOrchestrator (real query gen, retrieval, evidence, verdict)
+        3. Formats REAL CheckResult for citizen WhatsApp response
+        4. Dispatches final verdict to user via Twilio REST API
+        5. Handles unexpected failures gracefully without fake verdicts
+        """
+        start_time = time.time()
+        logger.info(
+            "Background verification STARTED for Check ID '%s' (MessageSid: '%s')",
+            check_id,
+            incoming.message_sid,
+        )
+        try:
+            # 1. Download & extract media safely if present
+            extracted_media_text = ""
+            if incoming.num_media > 0 and incoming.media:
+                media_item = incoming.media[0]
+                try:
+                    media_bytes = await self.download_media_safely(media_item.url)
+                    extracted_media_text = self.ingest_media_bytes(media_bytes, input_type)
+                except Exception as me:
+                    logger.warning("Media ingestion notice for Check '%s': %s", check_id, me)
+
+            # 2. Assemble raw content without rewriting
+            if incoming.body and extracted_media_text:
+                final_content = f"{incoming.body}\n\n[Extracted from {input_type.lower()}]: {extracted_media_text}"
+            elif extracted_media_text:
+                final_content = extracted_media_text
+            else:
+                final_content = incoming.body
+
+            # 3. Call REAL VerificationOrchestrator
+            verification_result = self.orchestrator.verify(
+                content=final_content,
+                input_type=InputType.WHATSAPP.value,
+                check_id=check_id,
+            )
+
+            # 4. Format real WhatsApp citizen response
+            effective_check_id = getattr(verification_result, "check_id", None) or check_id
+            is_voice_submission = (input_type == "VOICE")
+            formatted_response = self.format_whatsapp_response(
+                result=verification_result,
+                check_id=effective_check_id,
+                include_voice=is_voice_submission,
+            )
+
+            # 5. Dispatch via Twilio REST API
+            self.send_outbound_whatsapp_message(
+                to_number=incoming.from_number,
+                body_text=formatted_response.formatted_body,
+                check_id=check_id,
+                incoming_message_sid=incoming.message_sid,
+            )
+
+            elapsed = round(time.time() - start_time, 2)
+            logger.info(
+                "Background verification COMPLETED in %ss for Check '%s' (MessageSid: '%s')",
+                elapsed,
+                check_id,
+                incoming.message_sid,
+            )
+
+        except Exception as e:
+            logger.error(
+                "Background verification FAILED for Check '%s' (MessageSid: '%s'): %s",
+                check_id,
+                incoming.message_sid,
+                e,
+                exc_info=True,
+            )
+            # Step 15: Send failure notice via Twilio REST API
+            try:
+                failure_notice = (
+                    "⚠️ I couldn't complete the verification right now.\n"
+                    "Please try again in a moment."
+                )
+                self.send_outbound_whatsapp_message(
+                    to_number=incoming.from_number,
+                    body_text=failure_notice,
+                    check_id=check_id,
+                    incoming_message_sid=incoming.message_sid,
+                )
+            except Exception as send_err:
+                logger.error(
+                    "Failed to deliver failure notice via Twilio REST API for Check '%s': %s",
+                    check_id,
+                    send_err,
+                )
+
+    # =========================================================================
+    # 11. END-TO-END WEBHOOK PROCESSING PIPELINE (STEPS 2, 4, 5, 6, 7, 14)
     # =========================================================================
 
     async def process_webhook(
@@ -668,17 +906,19 @@ class WhatsAppWebhookService:
         form_data: Dict[str, Any],
         request_url: str,
         signature: Optional[str],
+        background_tasks: Optional[BackgroundTasks] = None,
     ) -> str:
         """
         End-to-end Twilio WhatsApp webhook pipeline:
         1. Validate Twilio signature
-        2. Deduplicate MessageSid & prevent replay attacks
-        3. Identify input type
-        4. Safely download media if required
-        5. Create Check
-        6. Send to SAME VerificationOrchestrator
-        7. Generate WhatsApp response
-        8. Return standard TwiML XML
+        2. Parse into WhatsAppIncomingMessage
+        3. Enforce phone rate limits
+        4. Deduplicate MessageSid to prevent replay attacks
+        5. Instant welcome greeting for conversational greetings (hi, hello, etc.)
+        6. Instant clarification prompt for empty submissions
+        7. Immediate acknowledgment TwiML (Step 7)
+        8. Asynchronous background execution of REAL VerificationOrchestrator
+        9. Outbound REST delivery of real verdict to citizen's WhatsApp
         """
         # 1. Validate signature
         is_valid = self.validate_signature(request_url, form_data, signature)
@@ -692,22 +932,16 @@ class WhatsAppWebhookService:
             logger.warning("Twilio signature validation failed for request: %s", request_url)
             raise InvalidInputException("Invalid or missing Twilio signature.")
 
-        # 2. Extract phone and store ONLY hashed representation
-        raw_from = str(form_data.get("From", "") or "").strip()
-        hashed_phone = phone_hasher.hash_phone(raw_from) if raw_from else ""
+        # 2. Parse into WhatsAppIncomingMessage (Step 5)
+        incoming = self.parse_incoming_message(form_data)
+        hashed_phone = phone_hasher.hash_phone(incoming.from_number) if incoming.from_number else ""
 
         # 3. Enforce rate limit per phone number
         if hashed_phone:
             rate_limiter.enforce_phone_rate_limit(hashed_phone)
 
-        # 4. Deduplicate MessageSid & Replay Protection
-        message_sid = str(
-            form_data.get("MessageSid")
-            or form_data.get("SmsMessageSid")
-            or form_data.get("SmsSid")
-            or ""
-        ).strip()
-
+        # 4. Deduplicate MessageSid & Replay Protection (Step 14)
+        message_sid = incoming.message_sid
         if message_sid and self.is_duplicate_message(message_sid):
             audit_logger.log_event(
                 event_type="REPLAY_ATTACK_DETECTED",
@@ -722,39 +956,34 @@ class WhatsAppWebhookService:
         if message_sid:
             replay_protector.record_nonce(message_sid)
 
-
-        # 3. Identify input type
+        # 5. Identify input type
         input_type = self.identify_input_type(form_data)
-        user_body = str(form_data.get("Body", "") or "").strip()
 
-        # 4. Download and extract media safely if required
-        extracted_content = ""
-        num_media_raw = form_data.get("NumMedia", 0)
-        try:
-            num_media = int(num_media_raw)
-        except (ValueError, TypeError):
-            num_media = 0
+        # 6. Conversational greeting & onboarding handler (e.g. "hi", "hello", "namaste")
+        clean_msg = incoming.body.strip().lower().rstrip("!.,?")
+        greetings = {
+            "hi", "hello", "hey", "help", "start", "namaste", "namaskar",
+            "info", "menu", "नमस्ते", "नमस्कार", "हाय", "हॅलो"
+        }
+        if clean_msg in greetings and incoming.num_media == 0:
+            welcome_response = (
+                "🙏 *Welcome to SachCheck (सच चेक)*\n\n"
+                "Forward or send any message, rumor, screenshot, voice note, or news link to verify its authenticity.\n\n"
+                "🔍 *How to verify:*\n"
+                "• Send text: _\"Is UPI charging a 5% fee from tomorrow?\"_\n"
+                "• Send a screenshot of a news article or circular\n"
+                "• Send a voice note in Hindi, Marathi, or English\n\n"
+                "🌐 *Supported Languages:*\n"
+                "English | हिन्दी | मराठी\n\n"
+                "Send any claim now to get started!"
+            )
+            twiml = self.build_twiml_response(welcome_response)
+            if message_sid:
+                self.record_message(message_sid, twiml)
+            return twiml
 
-        if num_media > 0:
-            media_url = form_data.get("MediaUrl0")
-            if media_url:
-                try:
-                    media_bytes = await self.download_media_safely(media_url)
-                    media_text = self.ingest_media_bytes(media_bytes, input_type)
-                    if media_text:
-                        extracted_content = media_text
-                except Exception as e:
-                    logger.warning("Media processing notice: %s", e)
-
-        # Combine text body and extracted media content
-        if user_body and extracted_content:
-            final_content = f"{user_body}\n\n[Extracted from {input_type.lower()}]: {extracted_content}"
-        elif extracted_content:
-            final_content = extracted_content
-        elif user_body:
-            final_content = user_body
-        else:
-            # Empty submission
+        # 7. Empty submission handling
+        if not incoming.body.strip() and incoming.num_media == 0:
             empty_response = (
                 "⚪ CANNOT BE CONFIRMED\n\n"
                 "Claim:\nNo verifiable content provided.\n\n"
@@ -765,18 +994,67 @@ class WhatsAppWebhookService:
                 self.record_message(message_sid, twiml)
             return twiml
 
-        # 5. Create Check ID
+        # 8. Create Check ID
         check_id = f"chk_{uuid.uuid4().hex[:12]}"
 
-        # 6. Send to the SAME VerificationOrchestrator
-        # DO NOT CREATE A SECOND VERIFICATION ENGINE
+        # 9. Immediate Acknowledgment Message (Step 7)
+        ack_text = "🔎 Checking this claim with reliable sources. I'll send you the result shortly."
+        if input_type in ("SCREENSHOT", "PDF", "VOICE", "MEDIA") or incoming.num_media > 0:
+            ack_text = "🔎 Ingesting your file and verifying with official records. I'll send you the result shortly."
+
+        ack_twiml = self.build_twiml_response(ack_text)
+        if message_sid:
+            self.record_message(message_sid, ack_twiml)
+
+        # 10. Check execution mode: Async background vs Synchronous
+        if getattr(settings, "TWILIO_ASYNC_DISPATCH", True):
+            # STEP 6: Non-blocking background worker execution
+            if background_tasks is not None:
+                background_tasks.add_task(
+                    self._run_async_verification,
+                    incoming,
+                    check_id,
+                    input_type,
+                )
+            else:
+                import asyncio
+                asyncio.create_task(
+                    self._run_async_verification(
+                        incoming,
+                        check_id,
+                        input_type,
+                    )
+                )
+
+            logger.info(
+                "Enqueued background verification task for Check '%s' (MessageSid: '%s')",
+                check_id,
+                message_sid,
+            )
+            return ack_twiml
+
+        # Synchronous fallback mode (if TWILIO_ASYNC_DISPATCH=False)
+        extracted_content = ""
+        if incoming.num_media > 0 and incoming.media:
+            try:
+                media_bytes = await self.download_media_safely(incoming.media[0].url)
+                extracted_content = self.ingest_media_bytes(media_bytes, input_type)
+            except Exception as e:
+                logger.warning("Synchronous media ingestion error: %s", e)
+
+        if incoming.body and extracted_content:
+            final_content = f"{incoming.body}\n\n[Extracted from {input_type.lower()}]: {extracted_content}"
+        elif extracted_content:
+            final_content = extracted_content
+        else:
+            final_content = incoming.body
+
         verification_result = self.orchestrator.verify(
             content=final_content,
             input_type=InputType.WHATSAPP.value,
             check_id=check_id,
         )
 
-        # 7. Generate WhatsApp response (with optional voice if citizen sent voice audio)
         effective_check_id = getattr(verification_result, "check_id", None) or check_id
         is_voice_submission = (input_type == "VOICE")
         formatted_response = self.format_whatsapp_response(
@@ -785,18 +1063,14 @@ class WhatsAppWebhookService:
             include_voice=is_voice_submission,
         )
 
-        # 8. Build TwiML XML response (text + voice if TTS succeeded, text only if TTS failed)
         media_url = formatted_response.voice_url if formatted_response.has_voice else None
-        twiml_response = self.build_twiml_response(
+        sync_twiml = self.build_twiml_response(
             message_body=formatted_response.formatted_body,
             media_url=media_url,
         )
-
-        # Record MessageSid to prevent future replay attacks
         if message_sid:
-            self.record_message(message_sid, twiml_response)
-
-        return twiml_response
+            self.record_message(message_sid, sync_twiml)
+        return sync_twiml
 
 
 # Global singleton instance
