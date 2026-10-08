@@ -18,12 +18,18 @@ from app.schemas.core import (
     Input,
     MetricRecord,
     ProcessingStage,
+    ReviewItem,
     ReviewQueueItem,
     RuleTrace,
     Source,
     User,
     VerificationResult,
     ClaimVerificationResult,
+)
+from app.schemas.review import (
+    FeedbackSubmissionRequest,
+    ReviewDecisionRequest,
+    UserFeedbackType,
 )
 from app.schemas.verification import (
     VerificationInput,

@@ -304,6 +304,9 @@ class CacheRecord(BaseModel):
     ttl_seconds: Optional[int] = Field(default=604800, ge=0)  # Default 7 days
 
 
+from app.schemas.review import ReviewItem
+
+
 class ReviewQueueItem(BaseModel):
     """Auditor queue entry for claims needing human verification or dispute resolution."""
     review_id: str = Field(..., min_length=2, description="Unique review task identifier")
