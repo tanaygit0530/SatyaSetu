@@ -12,37 +12,45 @@ class CheckRepository(BaseFirestoreRepository):
 
     def __init__(self, db: Optional[Any] = None):
         super().__init__(collection_name=FirestoreCollections.CHECKS, db=db)
+        # Local in-memory fallback store for offline / unconfigured operation
+        self._local_checks: Dict[str, Check] = {}
 
     def create_check(self, check: Union[Check, Dict[str, Any]]) -> Check:
         """
         Persists a newly ingested citizen verification check document.
         """
         check_obj = check if isinstance(check, Check) else Check.model_validate(check)
+        self._local_checks[check_obj.check_id] = check_obj
         data = self.serialize_model(check_obj)
         try:
             doc_ref = self.collection.document(check_obj.check_id)
             doc_ref.set(data)
             return check_obj
         except Exception as e:
-            raise DatabaseOperationError(
-                f"Failed to create check '{check_obj.check_id}': {str(e)}"
-            ) from e
+            if self._db is not None:
+                raise DatabaseOperationError(
+                    f"Failed to create check '{check_obj.check_id}': {str(e)}"
+                ) from e
+            return check_obj
 
     def get_check(self, check_id: str) -> Optional[Check]:
         """
         Retrieves a check document by its unique check ID.
         Returns None if not found.
         """
+        local_rec = self._local_checks.get(check_id)
         try:
             doc_ref = self.collection.document(check_id)
             doc = doc_ref.get()
             if not doc.exists:
-                return None
+                return local_rec
             return Check.model_validate(doc.to_dict())
         except Exception as e:
-            raise DatabaseOperationError(
-                f"Failed to retrieve check '{check_id}': {str(e)}"
-            ) from e
+            if self._db is not None:
+                raise DatabaseOperationError(
+                    f"Failed to retrieve check '{check_id}': {str(e)}"
+                ) from e
+            return local_rec
 
     def update_check_status(
         self,
@@ -58,25 +66,30 @@ class CheckRepository(BaseFirestoreRepository):
         if not existing:
             return None
 
-        update_payload: Dict[str, Any] = {
-            "status": status_val,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-        }
-
+        existing.status = ProcessingStatus(status_val)
+        existing.updated_at = datetime.now(timezone.utc)
         if stage is not None:
             stage_obj = stage if isinstance(stage, ProcessingStage) else ProcessingStage.model_validate(stage)
             existing.stages.append(stage_obj)
-            update_payload["stages"] = [s.model_dump(mode="json") for s in existing.stages]
+
+        self._local_checks[check_id] = existing
+
+        update_payload: Dict[str, Any] = {
+            "status": status_val,
+            "updated_at": existing.updated_at.isoformat(),
+            "stages": [s.model_dump(mode="json") for s in existing.stages],
+        }
 
         try:
             doc_ref = self.collection.document(check_id)
             doc_ref.update(update_payload)
-            existing.status = ProcessingStatus(status_val)
             return existing
         except Exception as e:
-            raise DatabaseOperationError(
-                f"Failed to update status for check '{check_id}': {str(e)}"
-            ) from e
+            if self._db is not None:
+                raise DatabaseOperationError(
+                    f"Failed to update status for check '{check_id}': {str(e)}"
+                ) from e
+            return existing
 
     def save_verification_result(
         self,
@@ -91,22 +104,27 @@ class CheckRepository(BaseFirestoreRepository):
         if not existing:
             return None
 
+        existing.result = res_obj
+        existing.status = ProcessingStatus.COMPLETED
+        existing.updated_at = datetime.now(timezone.utc)
+        self._local_checks[check_id] = existing
+
         update_payload: Dict[str, Any] = {
             "result": self.serialize_model(res_obj),
             "status": ProcessingStatus.COMPLETED.value,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": existing.updated_at.isoformat(),
         }
 
         try:
             doc_ref = self.collection.document(check_id)
             doc_ref.update(update_payload)
-            existing.result = res_obj
-            existing.status = ProcessingStatus.COMPLETED
             return existing
         except Exception as e:
-            raise DatabaseOperationError(
-                f"Failed to save verification result for check '{check_id}': {str(e)}"
-            ) from e
+            if self._db is not None:
+                raise DatabaseOperationError(
+                    f"Failed to save verification result for check '{check_id}': {str(e)}"
+                ) from e
+            return existing
 
     def list_checks(
         self,
@@ -132,17 +150,28 @@ class CheckRepository(BaseFirestoreRepository):
                 results.append(Check.model_validate(doc.to_dict()))
             return results
         except Exception as e:
-            raise DatabaseOperationError(f"Failed to list checks: {str(e)}") from e
+            if self._db is not None:
+                raise DatabaseOperationError(f"Failed to list checks: {str(e)}") from e
+            filtered = list(self._local_checks.values())
+            if status is not None:
+                st_val = status.value if isinstance(status, ProcessingStatus) else str(status)
+                filtered = [c for c in filtered if c.status.value == st_val]
+            if user_id is not None:
+                filtered = [c for c in filtered if c.user_id == user_id]
+            return filtered[:limit]
 
     def delete_check(self, check_id: str) -> bool:
         """
         Deletes a check document by ID. Returns True if deleted.
         """
+        self._local_checks.pop(check_id, None)
         try:
             doc_ref = self.collection.document(check_id)
             doc_ref.delete()
             return True
         except Exception as e:
-            raise DatabaseOperationError(
-                f"Failed to delete check '{check_id}': {str(e)}"
-            ) from e
+            if self._db is not None:
+                raise DatabaseOperationError(
+                    f"Failed to delete check '{check_id}': {str(e)}"
+                ) from e
+            return True

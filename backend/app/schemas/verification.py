@@ -44,7 +44,7 @@ class VerificationResponse(BaseModel):
         description="Overall message confidence rating limited by the weakest important claim",
     )
     verdict_summary: str = Field(..., description="Clear citizen summary in simple language")
-    claims: List[ClaimResult] = Field(..., min_length=1)
+    claims: List[Any] = Field(..., min_length=1)
     cache_hit: bool = Field(default=False)
     cached_from_id: Optional[str] = None
     repository_id: str = Field(default="0x9AF...41B")
