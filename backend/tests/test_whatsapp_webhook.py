@@ -220,11 +220,178 @@ def test_whatsapp_text_claim_verification_format(client):
 
         # Verify response formatting conforms strictly to specification
         assert "🔴 FALSE" in content
-        assert "Claim:\nUPI will be banned tomorrow." in content
+        assert '"UPI will be banned tomorrow."' in content
         assert "Why:\nWe found no official evidence announcing a nationwide UPI shutdown." in content
+        assert 'Correction:\nNPCI: "NPCI clarifies UPI remains fully functional nationwide."' in content
         assert "Proof:\nNPCI — https://npci.org.in/upi-clarification" in content
         assert "View full evidence:" in content
         assert "https://sachcheck.in/checks/chk_" in content
+
+
+# ==============================================================================
+# 3b. Multiple Claims Response Formatting Tests
+# ==============================================================================
+
+def test_whatsapp_multiple_claims_response_formatting(client):
+    """
+    Verifies multi-claim WhatsApp formatting matching the user specification:
+    Original:
+    'UPI is banned tomorrow and everyone must pay a 5% fee.'
+
+    Response:
+    🔴 FALSE
+    "UPI is banned tomorrow."
+
+    Why:
+    No reliable official evidence supports this.
+
+    🟡 PARTLY SUPPORTED
+    "Everyone must pay a 5% fee."
+
+    Why:
+    Evidence does not support the claim as stated.
+    """
+    form_params = {
+        "MessageSid": "SM_multi_claims_01",
+        "From": "whatsapp:+919876543210",
+        "To": "whatsapp:+14155238886",
+        "Body": "UPI is banned tomorrow and everyone must pay a 5% fee.",
+    }
+
+    mock_result = VerificationResult(
+        check_id="chk_multi_01",
+        claims=[
+            ClaimVerificationResult(
+                claim_id="clm_01",
+                verdict=Verdict.FALSE,
+                confidence=ConfidenceLevel.HIGH,
+                explanation="No reliable official evidence supports this.",
+                evidence=[],  # No quote, so no invented correction
+                normalized_claim="UPI is banned tomorrow.",
+            ),
+            ClaimVerificationResult(
+                claim_id="clm_02",
+                verdict=Verdict.PARTLY_SUPPORTED,
+                confidence=ConfidenceLevel.MEDIUM,
+                explanation="Evidence does not support the claim as stated.",
+                evidence=[],
+                normalized_claim="Everyone must pay a 5% fee.",
+            ),
+        ],
+        overall_verdict=Verdict.FALSE,
+    )
+
+    with patch.object(settings, "TWILIO_VALIDATE_SIGNATURE", False), \
+         patch.object(whatsapp_webhook_service.orchestrator, "verify", return_value=mock_result):
+
+        resp = client.post("/api/v1/whatsapp/webhook", data=form_params)
+        assert resp.status_code == 200
+        content = resp.text
+
+        # Verify Claim 1 block
+        assert "🔴 FALSE" in content
+        assert '"UPI is banned tomorrow."' in content
+        assert "Why:\nNo reliable official evidence supports this." in content
+
+        # Verify Claim 2 block
+        assert "🟡 PARTLY SUPPORTED" in content
+        assert '"Everyone must pay a 5% fee."' in content
+        assert "Why:\nEvidence does not support the claim as stated." in content
+
+        # Verify that no correction was invented because no evidence quote existed
+        assert "Correction:" not in content
+
+        # Verify full evidence footer
+        assert "View full evidence:" in content
+        assert "https://sachcheck.in/checks/chk_multi_01" in content
+
+
+def test_whatsapp_correction_strictly_grounded_in_validated_evidence():
+    """
+    Verifies that when a claim is FALSE:
+    1. A correction is included IF grounded in validated evidence quote.
+    2. A correction is NEVER invented if evidence quote is missing.
+    """
+    service = WhatsAppWebhookService()
+
+    # Case 1: FALSE with validated evidence quote -> Correction present
+    claim_with_quote = ClaimVerificationResult(
+        claim_id="clm_with_quote",
+        verdict=Verdict.FALSE,
+        confidence=ConfidenceLevel.HIGH,
+        explanation="No evidence supports this.",
+        evidence=[
+            LockedEvidenceItem(
+                source_url="https://npci.org.in/press/01",
+                publisher="NPCI",
+                source_title="Press Release",
+                exact_quote="UPI services operate uninterrupted without shutdown.",
+                source_text_reference="ref-1",
+                source_tier=1,
+                retrieved_at="2026-10-08T10:00:00Z",
+                claim_relation="REFUTES",
+            )
+        ],
+        normalized_claim="UPI is banned tomorrow.",
+    )
+
+    result_with_quote = VerificationResult(
+        check_id="chk_quote_01",
+        claims=[claim_with_quote],
+        overall_verdict=Verdict.FALSE,
+    )
+    formatted_1 = service.format_whatsapp_response(result_with_quote, "chk_quote_01")
+    assert formatted_1.correction == 'NPCI: "UPI services operate uninterrupted without shutdown."'
+    assert 'Correction:\nNPCI: "UPI services operate uninterrupted without shutdown."' in formatted_1.formatted_body
+
+    # Case 2: FALSE with NO evidence quote -> Never invent a correction
+    claim_without_quote = ClaimVerificationResult(
+        claim_id="clm_no_quote",
+        verdict=Verdict.FALSE,
+        confidence=ConfidenceLevel.HIGH,
+        explanation="No reliable evidence supports this.",
+        evidence=[],
+        normalized_claim="UPI is banned tomorrow.",
+    )
+
+    result_without_quote = VerificationResult(
+        check_id="chk_no_quote_01",
+        claims=[claim_without_quote],
+        overall_verdict=Verdict.FALSE,
+    )
+    formatted_2 = service.format_whatsapp_response(result_without_quote, "chk_no_quote_01")
+    assert formatted_2.correction is None
+    assert "Correction:" not in formatted_2.formatted_body
+
+
+def test_whatsapp_non_false_verdicts_never_add_correction():
+    """Verifies that non-FALSE verdicts (VERIFIED, PARTLY_SUPPORTED, OUTDATED, etc.) omit Correction."""
+    service = WhatsAppWebhookService()
+
+    for non_false_verdict in [Verdict.VERIFIED, Verdict.PARTLY_SUPPORTED, Verdict.OUTDATED, Verdict.CANNOT_BE_CONFIRMED]:
+        claim = ClaimVerificationResult(
+            claim_id="clm_other",
+            verdict=non_false_verdict,
+            confidence=ConfidenceLevel.HIGH,
+            explanation="Explanation for verdict.",
+            evidence=[
+                LockedEvidenceItem(
+                    source_url="https://example.gov.in/doc",
+                    publisher="Gov Dept",
+                    source_title="Title",
+                    exact_quote="Verbatim quote text here.",
+                    source_text_reference="ref",
+                    source_tier=1,
+                    retrieved_at="2026-10-08T10:00:00Z",
+                    claim_relation="SUPPORTS",
+                )
+            ],
+            normalized_claim="Statement under check.",
+        )
+        res = VerificationResult(check_id="chk_01", claims=[claim], overall_verdict=non_false_verdict)
+        formatted = service.format_whatsapp_response(res, "chk_01")
+        assert formatted.correction is None
+        assert "Correction:" not in formatted.formatted_body
 
 
 # ==============================================================================
@@ -444,7 +611,7 @@ def test_whatsapp_emoji_and_verdict_headers(verdict, expected_emoji_header):
     formatted = whatsapp_webhook_service.format_whatsapp_response(mock_res, "chk_test_emoji")
     assert formatted.verdict_emoji_header == expected_emoji_header
     assert expected_emoji_header in formatted.formatted_body
-    assert "Claim:\nSample claim statement under review." in formatted.formatted_body
+    assert '"Sample claim statement under review."' in formatted.formatted_body
     assert "Why:\nOfficial fact check finding explanation." in formatted.formatted_body
     assert "View full evidence:" in formatted.formatted_body
     assert "https://sachcheck.in/checks/chk_test_emoji" in formatted.formatted_body

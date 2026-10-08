@@ -311,6 +311,60 @@ class WhatsAppWebhookService:
     # 6. FORMAT WHATSAPP CITIZEN RESPONSE
     # =========================================================================
 
+    def extract_grounded_correction(self, claim: ClaimVerificationResult) -> Optional[str]:
+        """
+        Extracts a factual correction for a FALSE claim strictly grounded in
+        validated evidence.
+
+        CRITICAL CONSTRAINTS:
+        - Never invent a correction.
+        - Correction must be grounded in validated evidence.
+        - Returns None if no validated evidence quote exists.
+        """
+        verdict = claim.verdict
+        is_false = (verdict == Verdict.FALSE) or (str(verdict).upper() == "FALSE")
+        if not is_false or not claim.evidence:
+            return None
+
+        # 1. Prioritize evidence marked as refuting / contradicting with an exact quote
+        for ev in claim.evidence:
+            relation = str(
+                getattr(ev, "claim_relation", None)
+                or (ev.get("claim_relation") if isinstance(ev, dict) else "")
+            ).upper()
+            if relation in ("REFUTES", "CONTRADICTS"):
+                quote = (
+                    getattr(ev, "exact_quote", None)
+                    or (ev.get("exact_quote") if isinstance(ev, dict) else None)
+                )
+                if quote and quote.strip():
+                    clean_quote = quote.strip().strip('"\'')
+                    publisher = (
+                        getattr(ev, "publisher", None)
+                        or (ev.get("publisher") if isinstance(ev, dict) else None)
+                    )
+                    if publisher and publisher.strip():
+                        return f'{publisher.strip()}: "{clean_quote}"'
+                    return f'"{clean_quote}"'
+
+        # 2. Fallback to any authoritative validated evidence item containing an exact quote
+        for ev in claim.evidence:
+            quote = (
+                getattr(ev, "exact_quote", None)
+                or (ev.get("exact_quote") if isinstance(ev, dict) else None)
+            )
+            if quote and quote.strip():
+                clean_quote = quote.strip().strip('"\'')
+                publisher = (
+                    getattr(ev, "publisher", None)
+                    or (ev.get("publisher") if isinstance(ev, dict) else None)
+                )
+                if publisher and publisher.strip():
+                    return f'{publisher.strip()}: "{clean_quote}"'
+                return f'"{clean_quote}"'
+
+        return None
+
     def format_whatsapp_response(
         self,
         result: VerificationResult,
@@ -319,21 +373,33 @@ class WhatsAppWebhookService:
         """
         Formats a citizen-friendly WhatsApp response adhering strictly to specification:
 
-        🔴 FALSE
+        For a message containing multiple claims:
+        Original: "UPI is banned tomorrow and everyone must pay a 5% fee."
 
-        Claim:
-        UPI will be banned tomorrow.
+        Response:
+        🔴 FALSE
+        "UPI is banned tomorrow."
 
         Why:
-        We found no official evidence announcing a nationwide UPI shutdown.
+        No reliable official evidence supports this.
 
-        Proof:
-        NPCI — [source]
+        [Correction:
+        NPCI: "UPI services operate uninterrupted without shutdown."]
 
-        View full evidence:
-        https://sachcheck.in/checks/{check_id}
+        🟡 PARTLY SUPPORTED
+        "Everyone must pay a 5% fee."
+
+        Why:
+        Evidence does not support the claim as stated.
+
+        Canonical Emojis:
+        🟢 VERIFIED
+        🔴 FALSE
+        🟠 OUTDATED
+        🟡 PARTLY SUPPORTED
+        ⚪ CANNOT BE CONFIRMED
         """
-        # Determine overall verdict
+        # Determine overall verdict header
         overall_verdict = result.overall_verdict or Verdict.CANNOT_BE_CONFIRMED
         if isinstance(overall_verdict, str):
             try:
@@ -341,29 +407,89 @@ class WhatsAppWebhookService:
             except ValueError:
                 overall_verdict = Verdict.CANNOT_BE_CONFIRMED
 
-        verdict_header = VERDICT_EMOJIS.get(overall_verdict, f"⚪ {overall_verdict.value}")
+        overall_header = VERDICT_EMOJIS.get(overall_verdict, f"⚪ {overall_verdict.value}")
 
-        # Extract primary claim information
-        primary_claim = result.claims[0] if result.claims else None
+        claims_to_format = result.claims if result.claims else []
+        structured_claims: List[Dict[str, Any]] = []
+        body_sections: List[str] = []
 
-        if primary_claim:
-            claim_text = (
-                primary_claim.normalized_claim
-                or primary_claim.claim_text
-                or "Citizen factual submission"
-            ).strip()
-            why_explanation = primary_claim.explanation.strip()
-        else:
+        if not claims_to_format:
+            # Fallback when no atomic claims decomposed
             claim_text = (result.original_content or "No verifiable factual claim detected.").strip()
-            why_explanation = (
+            if not claim_text.endswith((".", "?", "!")):
+                claim_text += "."
+            why_text = (
                 result.summary
                 or "We found no check-worthy claims or insufficient evidence to confirm this claim."
             ).strip()
 
-        # Extract proof / citations
+            body_sections.append(
+                f'{overall_header}\n"{claim_text}"\n\nWhy:\n{why_text}'
+            )
+            structured_claims.append({
+                "verdict": overall_verdict,
+                "verdict_header": overall_header,
+                "claim_text": claim_text,
+                "why": why_text,
+                "correction": None,
+            })
+        else:
+            # Format each atomic claim
+            for idx, claim in enumerate(claims_to_format):
+                c_verdict = claim.verdict
+                if isinstance(c_verdict, str):
+                    try:
+                        c_verdict = Verdict(c_verdict)
+                    except ValueError:
+                        c_verdict = Verdict.CANNOT_BE_CONFIRMED
+
+                c_header = VERDICT_EMOJIS.get(c_verdict, f"⚪ {c_verdict.value}")
+
+                raw_statement = (
+                    claim.normalized_claim
+                    or claim.claim_text
+                    or f"Claim {idx + 1}"
+                ).strip().strip('"\'')
+                if not raw_statement.endswith((".", "?", "!")):
+                    raw_statement += "."
+
+                c_why = (claim.explanation or "No explanation available.").strip()
+
+                # Add correction ONLY when false and strictly grounded in validated evidence
+                c_correction = self.extract_grounded_correction(claim)
+
+                # Assemble claim block
+                claim_block_lines = [
+                    c_header,
+                    f'"{raw_statement}"',
+                    "",
+                    "Why:",
+                    c_why,
+                ]
+
+                if c_correction:
+                    claim_block_lines.extend([
+                        "",
+                        "Correction:",
+                        c_correction,
+                    ])
+
+                body_sections.append("\n".join(claim_block_lines))
+
+                structured_claims.append({
+                    "claim_id": claim.claim_id,
+                    "verdict": c_verdict,
+                    "verdict_header": c_header,
+                    "claim_text": raw_statement,
+                    "why": c_why,
+                    "correction": c_correction,
+                })
+
+        # Collect unique authoritative proof citations across all claims
         proof_entries: List[str] = []
-        if primary_claim and primary_claim.evidence:
-            for ev in primary_claim.evidence:
+        seen_urls = set()
+        for clm in claims_to_format:
+            for ev in getattr(clm, "evidence", []):
                 publisher = getattr(ev, "publisher", None) or (ev.get("publisher") if isinstance(ev, dict) else None)
                 url = (
                     getattr(ev, "source_url", None)
@@ -371,54 +497,43 @@ class WhatsAppWebhookService:
                     or (ev.get("source_url") or ev.get("url") if isinstance(ev, dict) else None)
                 )
 
-                if publisher and url:
-                    proof_entries.append(f"{publisher} — {url}")
-                elif url:
-                    proof_entries.append(f"Official Source — {url}")
-                elif publisher:
-                    proof_entries.append(f"{publisher} official gazette")
+                if url and url not in seen_urls:
+                    seen_urls.add(url)
+                    if publisher:
+                        proof_entries.append(f"{publisher} — {url}")
+                    else:
+                        proof_entries.append(f"Official Source — {url}")
 
                 if len(proof_entries) >= 2:
                     break
+            if len(proof_entries) >= 2:
+                break
 
         proof_text = "\n".join(proof_entries) if proof_entries else None
 
         # Build full evidence public link
         evidence_url = f"{settings.BASE_PUBLIC_URL.rstrip('/')}/checks/{check_id}"
 
-        # Build composite WhatsApp formatted text
-        lines = [
-            verdict_header,
-            "",
-            "Claim:",
-            claim_text,
-            "",
-            "Why:",
-            why_explanation,
-        ]
+        # Combine claim sections
+        formatted_body_parts = ["\n\n".join(body_sections)]
 
         if proof_text:
-            lines.extend([
-                "",
-                "Proof:",
-                proof_text,
-            ])
+            formatted_body_parts.append(f"Proof:\n{proof_text}")
 
-        lines.extend([
-            "",
-            "View full evidence:",
-            evidence_url,
-        ])
+        formatted_body_parts.append(f"View full evidence:\n{evidence_url}")
 
-        formatted_body = "\n".join(lines)
+        final_body = "\n\n".join(formatted_body_parts)
 
+        primary = structured_claims[0] if structured_claims else {}
         return WhatsAppFormattedResponse(
-            verdict_emoji_header=verdict_header,
-            claim_text=claim_text,
-            why_explanation=why_explanation,
+            verdict_emoji_header=primary.get("verdict_header", overall_header),
+            claim_text=primary.get("claim_text", ""),
+            why_explanation=primary.get("why", ""),
+            correction=primary.get("correction"),
             proof=proof_text,
             full_evidence_url=evidence_url,
-            formatted_body=formatted_body,
+            claims=structured_claims,
+            formatted_body=final_body,
         )
 
     # =========================================================================
@@ -567,9 +682,10 @@ class WhatsAppWebhookService:
         )
 
         # 7. Generate WhatsApp response
+        effective_check_id = getattr(verification_result, "check_id", None) or check_id
         formatted_response = self.format_whatsapp_response(
             result=verification_result,
-            check_id=check_id,
+            check_id=effective_check_id,
         )
 
         # 8. Build TwiML XML response

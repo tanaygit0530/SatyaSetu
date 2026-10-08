@@ -29,6 +29,8 @@ class WhatsAppFormattedResponse(BaseModel):
     verdict_emoji_header: str
     claim_text: str
     why_explanation: str
+    correction: Optional[str] = None
     proof: Optional[str] = None
     full_evidence_url: Optional[str] = None
+    claims: List[Dict[str, Any]] = Field(default_factory=list)
     formatted_body: str
