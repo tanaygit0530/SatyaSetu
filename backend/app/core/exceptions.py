@@ -93,3 +93,37 @@ class PromptInjectionDetectedException(SachCheckException):
         )
 
 
+class SecurityViolationException(SachCheckException):
+    """Raised when an operation violates security controls (SSRF, malicious file, etc.)."""
+    def __init__(self, message: str = "Security policy violation.", details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            code="SECURITY_VIOLATION",
+            status_code=403,
+            details=details,
+        )
+
+
+class RateLimitExceededException(SachCheckException):
+    """Raised when rate limits for an IP or phone number are exceeded."""
+    def __init__(self, message: str = "Rate limit exceeded. Please try again later.", details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            code="RATE_LIMIT_EXCEEDED",
+            status_code=429,
+            details=details,
+        )
+
+
+class TokenBudgetExceededException(SachCheckException):
+    """Raised when the daily model/token budget cap has been reached."""
+    def __init__(self, message: str = "Daily token budget exceeded.", details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            code="TOKEN_BUDGET_EXCEEDED",
+            status_code=429,
+            details=details,
+        )
+
+
+

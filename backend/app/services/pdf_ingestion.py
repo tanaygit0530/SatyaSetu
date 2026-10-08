@@ -9,6 +9,7 @@ import fitz  # PyMuPDF
 from app.core.config import settings
 from app.core.exceptions import InvalidInputException
 from app.core.logging import logger
+from app.core.security.pdf_security import pdf_security_validator
 from app.schemas.ingestion import PDFIngestionResult, PDFPageText
 from app.services.pdf.ranker import ClaimBearingPageRanker, PageRankingStrategy
 
@@ -85,7 +86,10 @@ class PDFIngestionService:
         # 1. Validate magic bytes and size
         self.validate_pdf_bytes(pdf_bytes)
 
-        # 2. Write to temporary file for PyMuPDF processing
+        # 2. Reject embedded dangerous content (JavaScript, Launch actions, EmbeddedFiles)
+        pdf_security_validator.validate_pdf_security(pdf_bytes)
+
+        # 3. Write to temporary file for PyMuPDF processing
         temp_file = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
         temp_path = temp_file.name
 

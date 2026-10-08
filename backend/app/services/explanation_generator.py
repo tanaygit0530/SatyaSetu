@@ -6,6 +6,9 @@ import httpx
 
 from app.core.config import settings
 from app.core.logging import logger
+from app.core.security.pii_redactor import pii_redactor_service
+from app.core.security.prompt_security import prompt_security_service
+from app.core.security.token_budget import token_budget_manager
 from app.schemas.enums import SourceTier, TemporalStatus, Verdict
 from app.schemas.evidence import EvidenceItem, LockedEvidenceItem
 from app.schemas.explanation import ExplanationInput, ExplanationOutput
@@ -379,8 +382,21 @@ class ExplanationGeneratorService:
         previous_unauthorized: Optional[List[str]] = None,
         language: str = "en",
     ) -> Optional[str]:
-        """Calls Gemini API with strict grounding prompt and target output language."""
-        quotes_summary = "\n".join([f"- {e.publisher}: '{e.exact_quote}'" for e in evidence_items[:3] if e.exact_quote])
+        # 1. Enforce Token Budget
+        if not token_budget_manager.check_budget_available(estimated_tokens=200):
+            logger.warning("Daily token budget cap reached; falling back from external LLM explanation.")
+            return None
+
+        # 2. Redact PII from claim and evidence before sending to external model
+        clean_claim = pii_redactor_service.redact(claim_text)
+        evidence_payload = [
+            {
+                "publisher": e.publisher,
+                "exact_quote": pii_redactor_service.redact(e.exact_quote or ""),
+            }
+            for e in evidence_items[:3]
+            if e.exact_quote
+        ]
 
         reprimand = ""
         if attempt > 1 and previous_unauthorized:
@@ -396,7 +412,7 @@ class ExplanationGeneratorService:
         elif language == "mr":
             lang_instruction = "Marathi (मराठी). Do NOT write English."
 
-        prompt = (
+        system_directive = (
             f"You are SachCheck's forensic explanation writer.\n"
             f"Write a simple citizen-facing explanation for the verdict.\n\n"
             f"RULES:\n"
@@ -405,12 +421,16 @@ class ExplanationGeneratorService:
             f"3. Every number or date in your explanation MUST exist verbatim in the Claim or Evidence Quotes below.\n"
             f"4. NEVER invent numbers, fees, percentages, or dates.\n"
             f"5. If in doubt, do not include numbers/dates at all.\n"
-            f"{reprimand}\n"
-            f"Claim: {claim_text}\n"
             f"Verdict: {verdict.value}\n"
             f"Temporal Status: {temporal_status.value}\n"
-            f"Evidence Quotes:\n{quotes_summary or 'None'}\n\n"
-            f"Write the explanation:"
+            f"{reprimand}"
+        )
+
+        # 3. Construct hardened prompt with SYSTEM, USER CONTENT, and RETRIEVED EVIDENCE separation
+        prompt = prompt_security_service.build_secure_prompt(
+            system_directive=system_directive,
+            user_content=clean_claim,
+            retrieved_evidence=evidence_payload,
         )
 
         try:
@@ -424,6 +444,14 @@ class ExplanationGeneratorService:
                     resp = client.post(url, json=payload)
                     if resp.status_code == 200:
                         data = resp.json()
+                        usage = data.get("usageMetadata", {})
+                        p_tokens = usage.get("promptTokenCount", len(prompt.split()) * 2)
+                        c_tokens = usage.get("candidatesTokenCount", 50)
+                        token_budget_manager.consume_tokens(
+                            prompt_tokens=p_tokens,
+                            completion_tokens=c_tokens,
+                            model=self.model,
+                        )
                         return data["candidates"][0]["content"]["parts"][0]["text"].strip()
         except Exception as e:
             logger.warning("Gemini explanation generation request failed: %s", e)

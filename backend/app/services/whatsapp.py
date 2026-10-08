@@ -16,6 +16,10 @@ from app.core.logging import logger
 from app.schemas.core import ClaimVerificationResult, VerificationResult
 from app.schemas.enums import InputType, Verdict
 from app.schemas.whatsapp import WhatsAppFormattedResponse
+from app.core.security.audit_logger import audit_logger
+from app.core.security.phone_hasher import phone_hasher
+from app.core.security.rate_limiter import rate_limiter
+from app.core.security.replay_protector import replay_protector
 from app.services.localization import localization_service
 from app.services.pdf_ingestion import PDFIngestionService, pdf_ingestion_service
 from app.services.screenshot_ingestion import ScreenshotIngestionService, screenshot_ingestion_service
@@ -679,10 +683,24 @@ class WhatsAppWebhookService:
         # 1. Validate signature
         is_valid = self.validate_signature(request_url, form_data, signature)
         if not is_valid:
+            audit_logger.log_event(
+                event_type="UNAUTHORIZED_API_ACCESS",
+                details={"reason": "Invalid or missing Twilio signature", "url": request_url},
+                severity="WARNING",
+                action_taken="BLOCKED",
+            )
             logger.warning("Twilio signature validation failed for request: %s", request_url)
             raise InvalidInputException("Invalid or missing Twilio signature.")
 
-        # 2. Deduplicate MessageSid
+        # 2. Extract phone and store ONLY hashed representation
+        raw_from = str(form_data.get("From", "") or "").strip()
+        hashed_phone = phone_hasher.hash_phone(raw_from) if raw_from else ""
+
+        # 3. Enforce rate limit per phone number
+        if hashed_phone:
+            rate_limiter.enforce_phone_rate_limit(hashed_phone)
+
+        # 4. Deduplicate MessageSid & Replay Protection
         message_sid = str(
             form_data.get("MessageSid")
             or form_data.get("SmsMessageSid")
@@ -691,9 +709,19 @@ class WhatsAppWebhookService:
         ).strip()
 
         if message_sid and self.is_duplicate_message(message_sid):
+            audit_logger.log_event(
+                event_type="REPLAY_ATTACK_DETECTED",
+                client_identifier=hashed_phone,
+                details={"message_sid": message_sid},
+                action_taken="THROTTLED",
+            )
             logger.info("Duplicate or replayed MessageSid detected: '%s'. Returning cached ACK.", message_sid)
             cached_twiml = self.get_cached_response(message_sid)
             return cached_twiml or self.build_empty_twiml()
+
+        if message_sid:
+            replay_protector.record_nonce(message_sid)
+
 
         # 3. Identify input type
         input_type = self.identify_input_type(form_data)

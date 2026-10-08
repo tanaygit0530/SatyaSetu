@@ -93,5 +93,12 @@ class Settings(BaseSettings):
     TWILIO_MEDIA_DOWNLOAD_TIMEOUT_SECONDS: float = 15.0
     BASE_PUBLIC_URL: str = "https://sachcheck.in"
 
+    # Security Controls Configuration
+    SECURITY_PHONE_SALT: str = "sachcheck_salt_v1"
+    RATE_LIMIT_PER_NUMBER_PER_MINUTE: int = 10
+    RATE_LIMIT_PER_IP_PER_MINUTE: int = 30
+    DAILY_TOKEN_BUDGET: int = 1000000
+    REPLAY_WINDOW_SECONDS: int = 300
+
 
 settings = Settings()
