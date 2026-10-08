@@ -248,6 +248,13 @@ class TemporalVerificationService:
         # Evidence 2026: "Scheme X was discontinued in 2025."
         # Claim: "Scheme X currently gives ₹10,000."
         # -> OUTDATED, CONTRADICTED_BY_NEWER_EVIDENCE
+        # Does NOT apply to permanent origin/immutable facts (e.g. "UPI was developed by NPCI")
+        origin_relation_words = {
+            "developed", "founded", "created", "invented", "designed",
+            "national animal", "established by", "origin",
+        }
+        is_immutable_fact = any(r in claim_text.lower() for r in origin_relation_words)
+
         has_discontinuation = False
         discontinuation_year: Optional[int] = None
         discontinuation_text = ""
@@ -255,22 +262,23 @@ class TemporalVerificationService:
         supporting_older_evidence = False
         older_year: Optional[int] = None
 
-        for item in parsed_items:
-            item_year_str = self._extract_year_number(item.date or item.text)
-            item_year = int(item_year_str) if item_year_str else None
-            text_lower = item.text.lower()
+        if not is_immutable_fact:
+            for item in parsed_items:
+                item_year_str = self._extract_year_number(item.date or item.text)
+                item_year = int(item_year_str) if item_year_str else None
+                text_lower = item.text.lower()
 
-            # Check if this item reports discontinuation / repeal
-            if any(k in text_lower for k in self.DISCONTINUATION_KEYWORDS):
-                has_discontinuation = True
-                disc_years = re.findall(r"\b(19\d\d|20\d\d)\b", item.text)
-                discontinuation_year = int(disc_years[-1]) if disc_years else item_year
-                discontinuation_text = item.text
-            else:
-                # Corroborating older record
-                if item_year and item_year < current_year:
-                    supporting_older_evidence = True
-                    older_year = item_year
+                # Check if this item reports discontinuation / repeal of the specific subject
+                if any(k in text_lower for k in self.DISCONTINUATION_KEYWORDS):
+                    has_discontinuation = True
+                    disc_years = re.findall(r"\b(19\d\d|20\d\d)\b", item.text)
+                    discontinuation_year = int(disc_years[-1]) if disc_years else item_year
+                    discontinuation_text = item.text
+                else:
+                    # Corroborating older record
+                    if item_year and item_year < current_year:
+                        supporting_older_evidence = True
+                        older_year = item_year
 
         if has_discontinuation and (supporting_older_evidence or len(parsed_items) >= 2):
             # True then (in older year), but False now!
@@ -306,9 +314,18 @@ class TemporalVerificationService:
 
         # 5. Check for Historical Recirculation Mismatch (Older order with no ongoing proof)
         # E.g. Claim asserts "Railways ordered suspension starting tomorrow", but evidence date is 2020
-        if dates.evidence_date:
+        # Does NOT apply to timeless facts, permanent attributes, or origin relations (e.g. "UPI was developed by NPCI")
+        temporary_order_words = {
+            "tomorrow", "starting tomorrow", "today", "effective from tomorrow",
+            "curfew", "lockdown", "holiday", "shutdown", "shut down", "suspension",
+            "suspended", "trains cancelled", "cancelled", "postponed", "banned from tomorrow",
+            "closed tomorrow", "banned tomorrow",
+        }
+        claim_asserts_temporary_order = any(w in claim_text.lower() for w in temporary_order_words)
+
+        if dates.evidence_date and claim_asserts_temporary_order:
             ev_year = int(self._extract_year_number(dates.evidence_date) or 0)
-            if ev_year and (current_year - ev_year >= 2) and dates.is_present_claim:
+            if ev_year and (current_year - ev_year >= 2):
                 return TemporalVerificationResult(
                     temporal_status=TemporalStatus.EXPIRED,
                     verdict=Verdict.OUTDATED,

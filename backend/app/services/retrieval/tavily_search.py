@@ -18,11 +18,18 @@ class TavilySearchProvider(WebSearchProvider):
         self,
         api_key: Optional[str] = None,
         api_url: Optional[str] = None,
-        timeout: float = 10.0,
+        timeout: float = 8.0,
     ) -> None:
         self.api_key = api_key or settings.TAVILY_API_KEY
         self.api_url = api_url or settings.TAVILY_API_URL
         self.timeout = timeout
+        self._client: Optional[httpx.Client] = None
+
+    def _get_client(self) -> httpx.Client:
+        if self._client is None or self._client.is_closed:
+            limits = httpx.Limits(max_keepalive_connections=15, max_connections=30, keepalive_expiry=30.0)
+            self._client = httpx.Client(timeout=self.timeout, limits=limits)
+        return self._client
 
     @property
     def provider_name(self) -> str:
@@ -34,7 +41,7 @@ class TavilySearchProvider(WebSearchProvider):
         max_results: int = 5,
     ) -> List[CandidateEvidence]:
         """
-        Executes web search via Tavily Search API.
+        Executes web search via Tavily Search API with connection pooling.
         Gracefully returns empty list if unconfigured or unreachable.
         """
         clean_query = query.strip()
@@ -54,8 +61,9 @@ class TavilySearchProvider(WebSearchProvider):
         }
 
         try:
-            with httpx.Client(timeout=self.timeout) as client:
-                response = client.post(self.api_url, json=payload)
+            client = self._get_client()
+            response = client.post(self.api_url, json=payload)
+
 
             if response.status_code == 401 or response.status_code == 403:
                 logger.warning("Tavily API authentication failed: HTTP %d", response.status_code)

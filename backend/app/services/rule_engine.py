@@ -213,60 +213,7 @@ class DeterministicRuleEngine:
                 source_citations=evidence_items,
             )
 
-        # 7. Check for Conflicting Sources between sources of equal tier
-        has_conflicting_sources = (
-            (agreement is not None and 0.25 <= agreement <= 0.75)
-            or (
-                evidence_judgments is not None
-                and any(j.stance == EvidenceStance.SUPPORTS for j in evidence_judgments)
-                and any(j.stance == EvidenceStance.CONTRADICTS for j in evidence_judgments)
-            )
-        )
-
-        contradiction_dominates = False
-        if has_conflicting_sources and evidence_judgments:
-            ev_by_id = {e.id: e for e in evidence_items}
-            contra_tiers = [
-                ev_by_id[j.evidence_id].tier for j in evidence_judgments
-                if j.stance == EvidenceStance.CONTRADICTS and j.evidence_id in ev_by_id
-            ]
-            supp_tiers = [
-                ev_by_id[j.evidence_id].tier for j in evidence_judgments
-                if j.stance == EvidenceStance.SUPPORTS and j.evidence_id in ev_by_id
-            ]
-            if any(t == SourceTier.TIER_1_PRIMARY for t in contra_tiers) and not any(t == SourceTier.TIER_1_PRIMARY for t in supp_tiers):
-                contradiction_dominates = True
-
-        has_mixed_judgment = (
-            evidence_judgments is not None
-            and any(j.stance == EvidenceStance.MIXED for j in evidence_judgments)
-        )
-
-        if (has_conflicting_sources and not contradiction_dominates) or has_mixed_judgment:
-            conflict_token = "CONFLICTING_SOURCES" if (has_conflicting_sources and not has_mixed_judgment) else "CONDITIONAL_TERMS"
-            rule_trace = [tier_token, "PARTIAL_SUPPORT", conflict_token, "CREDIBLE_SOURCE_PRESENT"]
-            logger.info("Deterministic match: RULE-PARTIALLY-SUPPORTED on claim %d", claim_num)
-            return ClaimResult(
-                id=claim_id,
-                claim_number=claim_num,
-                claim_text=claim_text,
-                language=lang,
-                verdict=Verdict.PARTLY_SUPPORTED,
-                confidence=78.5,
-                confidence_level=ConfidenceLevel.MEDIUM,
-                summary="Partly supported: factual foundation exists but secondary details or conditions are inaccurate, unverified, or contested.",
-                detailed_analysis=(
-                    (evidence_judgments[0].reason if has_mixed_judgment and evidence_judgments else None)
-                    or (interpretation.discrepancy_explanation if interpretation else None)
-                    or "Available evidence sources present conflicting or partial findings across equal tiers. Evaluated as partly supported."
-                ),
-                temporal_status=temporal_status or TemporalStatus.CURRENT,
-                rule_matched="RULE-PARTIALLY-SUPPORTED",
-                rule_trace=rule_trace,
-                source_citations=evidence_items,
-            )
-
-        # 8. Check for Direct Refutation / Contradiction -> FALSE
+        # 7. Check for Direct Refutation / Contradiction -> FALSE (Part 10, Part 12)
         has_strong_contradiction = (
             (contradiction_strength and contradiction_strength.upper() in ("HIGH", "STRONG"))
             or (
@@ -280,14 +227,43 @@ class DeterministicRuleEngine:
             or (interpretation and interpretation.refutes_claim)
         )
 
-        if has_strong_contradiction and (has_tier1 or has_tier2 or not (has_tier1 or has_tier2 or has_tier3) or (interpretation and interpretation.refutes_claim)):
+        # Check if Tier 1 authoritative sources directly support the claim (Part 5 & Part 27)
+        tier1_direct_support = (
+            evidence_judgments is not None
+            and any(
+                j.stance == EvidenceStance.SUPPORTS
+                and getattr(j, "direct_support", False)
+                and any(
+                    e.id == j.evidence_id and (e.tier == SourceTier.TIER_1_PRIMARY or source_registry_service.get_tier(e.domain or e.url) == 1)
+                    for e in evidence_items
+                )
+                for j in evidence_judgments
+            )
+        )
+        tier1_contradiction = (
+            evidence_judgments is not None
+            and any(
+                j.stance == EvidenceStance.CONTRADICTS
+                and any(
+                    e.id == j.evidence_id and (e.tier == SourceTier.TIER_1_PRIMARY or source_registry_service.get_tier(e.domain or e.url) == 1)
+                    for e in evidence_items
+                )
+                for j in evidence_judgments
+            )
+        )
+
+        if has_strong_contradiction and (not tier1_direct_support or tier1_contradiction) and (has_tier1 or has_tier2 or not (has_tier1 or has_tier2 or has_tier3) or (interpretation and interpretation.refutes_claim)):
             temporal_token = "CURRENT_EVIDENCE" if (temporal_status != TemporalStatus.DATE_UNKNOWN) else "DATE_UNKNOWN"
             rule_trace = [tier_token, "STRONG_CONTRADICTION", "QUOTE_VALIDATED", temporal_token]
 
             explanation = (
                 interpretation.discrepancy_explanation
                 if interpretation and interpretation.discrepancy_explanation
-                else "Primary statutory records and official gazettes refute this assertion."
+                else (
+                    evidence_judgments[0].reason
+                    if evidence_judgments and any(j.stance == EvidenceStance.CONTRADICTS for j in evidence_judgments)
+                    else "Primary statutory records and authoritative public records refute this assertion."
+                )
             )
 
             logger.info("Deterministic match: RULE-DIRECT-REFUTATION on claim %d", claim_num)
@@ -308,7 +284,7 @@ class DeterministicRuleEngine:
                 source_citations=evidence_items,
             )
 
-        # 9. Check for Official Corroboration (Tier 1 or Tier 2) -> VERIFIED
+        # 8. Check for Official Corroboration (Tier 1 or Tier 2) with DIRECT SUPPORT -> VERIFIED (Part 10)
         has_suspicious_evidence = any(getattr(e, "is_suspicious", False) for e in evidence_items)
 
         tier1_sources = [
@@ -331,18 +307,23 @@ class DeterministicRuleEngine:
             or (agreement is not None and agreement >= 0.75)
         )
 
+        has_direct_support = (
+            (evidence_judgments is not None and any(getattr(j, "direct_support", False) and j.stance == EvidenceStance.SUPPORTS for j in evidence_judgments))
+            or (interpretation is not None and getattr(interpretation, "direct_support", False))
+            or (agreement is not None and agreement >= 0.90)
+        )
+
         has_partial_details = (
-            (evidence_judgments is not None and any(j.stance == EvidenceStance.MIXED for j in evidence_judgments))
+            (not has_direct_support and evidence_judgments is not None and any(j.stance == EvidenceStance.MIXED for j in evidence_judgments) and any(j.stance == EvidenceStance.SUPPORTS for j in evidence_judgments))
             or (interpretation and interpretation.supports_claim and bool(interpretation.discrepancy_explanation))
             or (interpretation and interpretation.supports_claim and len(tier1_sources) == 0 and len(tier2_sources) == 0 and not source_tiers)
         )
 
-        if has_support and (len(tier1_sources) >= 1 or len(tier2_sources) >= 1 or (source_tiers and (1 in source_tiers or 2 in source_tiers))) and not has_partial_details:
+        if has_support and has_direct_support and (len(tier1_sources) >= 1 or len(tier2_sources) >= 1 or (source_tiers and (1 in source_tiers or 2 in source_tiers))) and not has_partial_details:
             temporal_token = "HISTORICAL_TRUE_EVIDENCE" if temporal_status == TemporalStatus.HISTORICAL_TRUE else "CURRENT_EVIDENCE"
-            rule_trace = [tier_token, "CREDIBLE_CORROBORATION", "QUOTE_VALIDATED", temporal_token]
+            rule_trace = [tier_token, "CREDIBLE_CORROBORATION", "DIRECT_SUPPORT_VERIFIED", "QUOTE_VALIDATED", temporal_token]
             if has_suspicious_evidence:
                 rule_trace.append("SUSPICIOUS_EVIDENCE_FLAGGED")
-
 
             pub = tier1_sources[0].publisher if tier1_sources else (tier2_sources[0].publisher if tier2_sources else "Official Record")
             dom = tier1_sources[0].domain if tier1_sources else (tier2_sources[0].domain if tier2_sources else "gov.in")
@@ -365,9 +346,19 @@ class DeterministicRuleEngine:
                 source_citations=evidence_items,
             )
 
-        # 10. Check for Partly Supported Evidence
-        if has_support and has_partial_details:
-            rule_trace = [tier_token, "PARTIAL_SUPPORT", "CONDITIONAL_TERMS", "CREDIBLE_SOURCE_PRESENT"]
+        # 9. Check for Conflicting Sources between sources of equal tier OR genuine Partial Support (Part 11)
+        has_conflicting_sources = (
+            (agreement is not None and 0.25 <= agreement <= 0.75)
+            or (
+                evidence_judgments is not None
+                and any(j.stance == EvidenceStance.SUPPORTS for j in evidence_judgments)
+                and any(j.stance == EvidenceStance.CONTRADICTS for j in evidence_judgments)
+            )
+        )
+
+        if has_conflicting_sources or (has_support and has_partial_details):
+            conflict_token = "CONFLICTING_SOURCES" if has_conflicting_sources else "CONDITIONAL_TERMS"
+            rule_trace = [tier_token, "PARTIAL_SUPPORT", conflict_token, "CREDIBLE_SOURCE_PRESENT"]
             logger.info("Deterministic match: RULE-PARTIALLY-SUPPORTED on claim %d", claim_num)
             return ClaimResult(
                 id=claim_id,
@@ -377,9 +368,10 @@ class DeterministicRuleEngine:
                 verdict=Verdict.PARTLY_SUPPORTED,
                 confidence=78.5,
                 confidence_level=ConfidenceLevel.MEDIUM,
-                summary="Partially supported: core premise has factual basis but secondary details remain unverified.",
+                summary="Partly supported: core premise has factual basis but secondary details or conditions are inaccurate, unverified, or contested.",
                 detailed_analysis=(
                     (interpretation.discrepancy_explanation if interpretation else None)
+                    or (evidence_judgments[0].reason if evidence_judgments else None)
                     or "Available sources confirm partial elements of this claim but cannot substantiate all particulars."
                 ),
                 temporal_status=temporal_status or TemporalStatus.CURRENT,

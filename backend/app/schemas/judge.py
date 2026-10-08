@@ -41,7 +41,12 @@ class EvidenceJudgeAssessment(BaseModel):
         default=EvidenceAssessmentLevel.HIGH,
         description="Evidential strength: HIGH, MEDIUM, or LOW",
     )
+    direct_support: bool = Field(
+        default=False,
+        description="Whether evidence directly supports the core relationship/fact rather than merely related topic",
+    )
     reason: str = Field(..., description="Concise objective rationale explaining the stance")
+
 
 
 class JudgeEvidenceInputItem(BaseModel):

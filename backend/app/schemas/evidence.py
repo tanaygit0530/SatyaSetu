@@ -124,6 +124,8 @@ class EvidenceInterpretation(BaseModel):
     actual_amount: Optional[float] = Field(None, description="Verified numerical or financial figure in record")
     domain_flagged_malicious: bool = Field(default=False, description="Whether URL/domain is on CERT-In blacklist")
     discrepancy_explanation: Optional[str] = Field(None, description="Detailed explanation of discrepancy")
+    direct_support: bool = Field(default=False, description="Whether evidence directly substantiates the core relationship/fact")
+
 
 
 class LockedEvidenceItem(BaseModel):

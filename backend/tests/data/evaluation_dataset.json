@@ -1,0 +1,1577 @@
+[
+  {
+    "claim_id": "eval_true_001",
+    "claim_text": "UPI was developed by NPCI.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Official NPCI / RBI documentation"
+  },
+  {
+    "claim_id": "eval_true_002",
+    "claim_text": "IMPS is available 24 hours a day.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI 24/7 service statement"
+  },
+  {
+    "claim_id": "eval_true_003",
+    "claim_text": "RTGS is operated by the Reserve Bank of India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI official website"
+  },
+  {
+    "claim_id": "eval_true_004",
+    "claim_text": "NEFT operates on a 24x7 basis throughout the year.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI 24x7 circular"
+  },
+  {
+    "claim_id": "eval_true_005",
+    "claim_text": "Unified Payments Interface is an Indian instant payment system.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI / Government of India"
+  },
+  {
+    "claim_id": "eval_true_006",
+    "claim_text": "BHIM app was developed by National Payments Corporation of India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI BHIM portal"
+  },
+  {
+    "claim_id": "eval_true_007",
+    "claim_text": "Aadhaar is issued by UIDAI.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "UIDAI official portal"
+  },
+  {
+    "claim_id": "eval_true_008",
+    "claim_text": "ISRO launched the Chandrayaan-3 lunar mission.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "ISRO official release"
+  },
+  {
+    "claim_id": "eval_true_009",
+    "claim_text": "Reserve Bank of India is the central bank of India.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI Act / RBI website"
+  },
+  {
+    "claim_id": "eval_true_010",
+    "claim_text": "SEBI regulates the securities market in India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "SEBI Act / Official website"
+  },
+  {
+    "claim_id": "eval_true_011",
+    "claim_text": "IRDAI regulates insurance in India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "IRDAI official portal"
+  },
+  {
+    "claim_id": "eval_true_012",
+    "claim_text": "PAN card is issued by the Income Tax Department of India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "IT Department official site"
+  },
+  {
+    "claim_id": "eval_true_013",
+    "claim_text": "GST stands for Goods and Services Tax.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "CBIC GST portal"
+  },
+  {
+    "claim_id": "eval_true_014",
+    "claim_text": "India is located in South Asia.",
+    "language": "en",
+    "claim_type": "LOCATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Survey of India / UN geographic data"
+  },
+  {
+    "claim_id": "eval_true_015",
+    "claim_text": "New Delhi is the capital of India.",
+    "language": "en",
+    "claim_type": "LOCATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Government of India official portal"
+  },
+  {
+    "claim_id": "eval_true_016",
+    "claim_text": "India's national animal is the Bengal tiger.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Know India Portal, GoI"
+  },
+  {
+    "claim_id": "eval_true_017",
+    "claim_text": "India's national bird is the Indian peacock.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Know India Portal, GoI"
+  },
+  {
+    "claim_id": "eval_true_018",
+    "claim_text": "The national currency of India is the Indian Rupee.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI official site"
+  },
+  {
+    "claim_id": "eval_true_019",
+    "claim_text": "NITI Aayog replaced the Planning Commission.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Cabinet Secretariat notification"
+  },
+  {
+    "claim_id": "eval_true_020",
+    "claim_text": "Supreme Court of India is the highest judicial forum in India.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Supreme Court of India portal"
+  },
+  {
+    "claim_id": "eval_true_021",
+    "claim_text": "The President of India is the ceremonial head of state.",
+    "language": "en",
+    "claim_type": "PERSON",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Constitution of India"
+  },
+  {
+    "claim_id": "eval_true_022",
+    "claim_text": "Lok Sabha is the lower house of India's Parliament.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Parliament of India"
+  },
+  {
+    "claim_id": "eval_true_023",
+    "claim_text": "Rajya Sabha is the upper house of India's Parliament.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Parliament of India"
+  },
+  {
+    "claim_id": "eval_true_024",
+    "claim_text": "PM Kisan provides income support to farmers in India.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Ministry of Agriculture PM-Kisan portal"
+  },
+  {
+    "claim_id": "eval_true_025",
+    "claim_text": "Ayushman Bharat PM-JAY is a health assurance scheme.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "National Health Authority"
+  },
+  {
+    "claim_id": "eval_true_026",
+    "claim_text": "यूपीआई एनपीसीआई द्वारा विकसित किया गया था।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI / PIB Hindi release"
+  },
+  {
+    "claim_id": "eval_true_027",
+    "claim_text": "भारत की राजधानी नई दिल्ली है।",
+    "language": "hi",
+    "claim_type": "LOCATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत सरकार पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_028",
+    "claim_text": "भारतीय रिजर्व बैंक भारत का केंद्रीय बैंक है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "आरबीआई हिंदी पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_029",
+    "claim_text": "आधार कार्ड यूआईडीएआई द्वारा जारी किया जाता है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "यूआईडीएआई पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_030",
+    "claim_text": "इसरो ने चंद्रयान-3 मिशन लॉन्च किया था।",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "इसरो आधिकारिक प्रेस विज्ञप्ति"
+  },
+  {
+    "claim_id": "eval_true_031",
+    "claim_text": "भारत का राष्ट्रीय पशु बाघ है।",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत राष्ट्रीय पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_032",
+    "claim_text": "भारत का राष्ट्रीय पक्षी मोर है।",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत राष्ट्रीय पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_033",
+    "claim_text": "जीएसटी का अर्थ वस्तु एवं सेवा कर है।",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "सीबीआईसी आधिकारिक पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_034",
+    "claim_text": "नीति आयोग की स्थापना 2015 में हुई थी।",
+    "language": "hi",
+    "claim_type": "DATE",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "कैबिनेट अधिसूचना"
+  },
+  {
+    "claim_id": "eval_true_035",
+    "claim_text": "सुप्रीम कोर्ट भारत की सर्वोच्च अदालत है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत का सर्वोच्च न्यायालय"
+  },
+  {
+    "claim_id": "eval_true_036",
+    "claim_text": "यूपीआय एनपीसीआयने विकसित केले आहे.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI अधिकृत माहिती"
+  },
+  {
+    "claim_id": "eval_true_037",
+    "claim_text": "भारताची राजधानी नवी दिल्ली आहे.",
+    "language": "mr",
+    "claim_type": "LOCATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत सरकार अधिकृत संकेतस्थळ"
+  },
+  {
+    "claim_id": "eval_true_038",
+    "claim_text": "भारतीय रिझर्व्ह बँक ही भारताची मध्यवर्ती बँक आहे.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "आरबीआय अधिकृत संकेतस्थळ"
+  },
+  {
+    "claim_id": "eval_true_039",
+    "claim_text": "भारताचा राष्ट्रीय प्राणी वाघ आहे.",
+    "language": "mr",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "अधिकृत राष्ट्रीय पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_040",
+    "claim_text": "इस्रो ही भारताची अंतराळ संशोधन संस्था आहे.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "इस्रो अधिकृत संकेतस्थळ"
+  },
+  {
+    "claim_id": "eval_true_041",
+    "claim_text": "आधार कार्ड UIDAI द्वारे दिले जाते.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "UIDAI अधिकृत पोर्टल"
+  },
+  {
+    "claim_id": "eval_true_042",
+    "claim_text": "महाराष्ट्राची राजधानी मुंबई आहे.",
+    "language": "mr",
+    "claim_type": "LOCATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "महाराष्ट्र शासन संकेतस्थळ"
+  },
+  {
+    "claim_id": "eval_true_043",
+    "claim_text": "UPI ko NPCI ne develop kiya hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI official documentation"
+  },
+  {
+    "claim_id": "eval_true_044",
+    "claim_text": "India ki capital New Delhi hai.",
+    "language": "hi",
+    "claim_type": "LOCATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "GoI official portal"
+  },
+  {
+    "claim_id": "eval_true_045",
+    "claim_text": "ISRO ne Chandrayaan 3 launch kiya tha.",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "ISRO official release"
+  },
+  {
+    "claim_id": "eval_true_046",
+    "claim_text": "Aadhaar card UIDAI issue karta hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "UIDAI official portal"
+  },
+  {
+    "claim_id": "eval_true_047",
+    "claim_text": "RBI India ka central bank hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI official portal"
+  },
+  {
+    "claim_id": "eval_true_048",
+    "claim_text": "IMPS 24 ghante chalne wali payment service hai.",
+    "language": "hi",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI official circular"
+  },
+  {
+    "claim_id": "eval_true_049",
+    "claim_text": "Tiger India ka national animal hai.",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Know India Portal"
+  },
+  {
+    "claim_id": "eval_true_050",
+    "claim_text": "Bhim app NPCI ne banaya hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "VERIFIED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI official site"
+  },
+  {
+    "claim_id": "eval_false_001",
+    "claim_text": "UPI was developed by NASA.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI / PIB official contradiction"
+  },
+  {
+    "claim_id": "eval_false_002",
+    "claim_text": "IMPS only works during bank working hours.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI 24/7 round the clock evidence"
+  },
+  {
+    "claim_id": "eval_false_003",
+    "claim_text": "India's national animal is the lion.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Tiger is national animal, GoI source"
+  },
+  {
+    "claim_id": "eval_false_004",
+    "claim_text": "Reserve Bank of India was founded in 2020.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI was founded in 1935, RBI Act"
+  },
+  {
+    "claim_id": "eval_false_005",
+    "claim_text": "Aadhaar card is issued by the United Nations.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "UIDAI issues Aadhaar, not UN"
+  },
+  {
+    "claim_id": "eval_false_006",
+    "claim_text": "ISRO is an agency of the United States Government.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "ISRO is Government of India agency"
+  },
+  {
+    "claim_id": "eval_false_007",
+    "claim_text": "Unified Payments Interface has been completely banned across India.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "PIB / NPCI denial of ban rumor"
+  },
+  {
+    "claim_id": "eval_false_008",
+    "claim_text": "The currency of India is the United States Dollar.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Indian Rupee is legal tender"
+  },
+  {
+    "claim_id": "eval_false_009",
+    "claim_text": "SEBI regulates traffic signals in Mumbai.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "SEBI regulates securities markets"
+  },
+  {
+    "claim_id": "eval_false_010",
+    "claim_text": "PM Kisan offers 10 lakh rupees monthly to every citizen.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "PM-Kisan is 6000 INR per year"
+  },
+  {
+    "claim_id": "eval_false_011",
+    "claim_text": "World Health Organization is the central bank of India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI is central bank of India"
+  },
+  {
+    "claim_id": "eval_false_012",
+    "claim_text": "Chandrayaan-3 landed on Mars.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Chandrayaan-3 landed on Moon"
+  },
+  {
+    "claim_id": "eval_false_013",
+    "claim_text": "GST was introduced in India in 1947.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "GST introduced in 2017"
+  },
+  {
+    "claim_id": "eval_false_014",
+    "claim_text": "NITI Aayog was established by the British Empire in 1850.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NITI Aayog established in 2015"
+  },
+  {
+    "claim_id": "eval_false_015",
+    "claim_text": "Supreme Court of India is located in London.",
+    "language": "en",
+    "claim_type": "LOCATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Located in New Delhi"
+  },
+  {
+    "claim_id": "eval_false_016",
+    "claim_text": "India has no Constitution.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Constitution of India enacted 1950"
+  },
+  {
+    "claim_id": "eval_false_017",
+    "claim_text": "Mumbai is the capital of Tamil Nadu.",
+    "language": "en",
+    "claim_type": "LOCATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Chennai is capital of Tamil Nadu"
+  },
+  {
+    "claim_id": "eval_false_018",
+    "claim_text": "Indian Railways is operated by Apple Inc.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Operated by Ministry of Railways"
+  },
+  {
+    "claim_id": "eval_false_019",
+    "claim_text": "COVID-19 vaccines cause immediate cellular WiFi generation.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_2",
+    "expected_evidence_characteristics": "WHO / Fact-check debunking"
+  },
+  {
+    "claim_id": "eval_false_020",
+    "claim_text": "Drinking boiled kerosene completely cures all viral infections.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_2",
+    "expected_evidence_characteristics": "Medical refutation / toxic substance"
+  },
+  {
+    "claim_id": "eval_false_021",
+    "claim_text": "The Parliament of India consists of only one member.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Constitutional refutation"
+  },
+  {
+    "claim_id": "eval_false_022",
+    "claim_text": "Aadhaar number has 50 digits.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Aadhaar is 12 digits"
+  },
+  {
+    "claim_id": "eval_false_023",
+    "claim_text": "ATM cash withdrawals will be permanently abolished from midnight.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "PIB fact check refutation"
+  },
+  {
+    "claim_id": "eval_false_024",
+    "claim_text": "Google founded the Reserve Bank of India.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "RBI Act 1934 refutation"
+  },
+  {
+    "claim_id": "eval_false_025",
+    "claim_text": "Indian flag has twenty colors.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Tricolour specification, GoI"
+  },
+  {
+    "claim_id": "eval_false_026",
+    "claim_text": "यूपीआई को नासा ने बनाया है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "एनपीसीआई द्वारा विकसित"
+  },
+  {
+    "claim_id": "eval_false_027",
+    "claim_text": "भारत का राष्ट्रीय पशु शेर है।",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत का राष्ट्रीय पशु बाघ है"
+  },
+  {
+    "claim_id": "eval_false_028",
+    "claim_text": "आरबीआई की स्थापना 2022 में हुई थी।",
+    "language": "hi",
+    "claim_type": "DATE",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "1935 में स्थापना हुई"
+  },
+  {
+    "claim_id": "eval_false_029",
+    "claim_text": "आधार कार्ड अमेरिका की सरकार देती है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "यूआईडीएआई जारी करता है"
+  },
+  {
+    "claim_id": "eval_false_030",
+    "claim_text": "चंद्रयान 3 मंगल ग्रह पर उतरा था।",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "चंद्रमा पर उतरा था"
+  },
+  {
+    "claim_id": "eval_false_031",
+    "claim_text": "भारत में कल से 500 रुपये के नोट बंद हो रहे हैं।",
+    "language": "hi",
+    "claim_type": "POLICY",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "पीआईबी फैक्ट चेक खंडन"
+  },
+  {
+    "claim_id": "eval_false_032",
+    "claim_text": "इसरो रूस की एक निजी कंपनी है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारत सरकार की संस्था"
+  },
+  {
+    "claim_id": "eval_false_033",
+    "claim_text": "भारत की राजधानी टोक्यो है।",
+    "language": "hi",
+    "claim_type": "LOCATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "राजधानी नई दिल्ली है"
+  },
+  {
+    "claim_id": "eval_false_034",
+    "claim_text": "जीएसटी 1920 में लागू हुआ था।",
+    "language": "hi",
+    "claim_type": "DATE",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "2017 में लागू"
+  },
+  {
+    "claim_id": "eval_false_035",
+    "claim_text": "नीति आयोग क्रिकेट बोर्ड का संचालन करता है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "नीति निर्माण थिंक टैंक"
+  },
+  {
+    "claim_id": "eval_false_036",
+    "claim_text": "यूपीआय नासाने विकसित केले आहे.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI ने विकसित केले"
+  },
+  {
+    "claim_id": "eval_false_037",
+    "claim_text": "भारताचा राष्ट्रीय प्राणी सिंह आहे.",
+    "language": "mr",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "वाघ हा राष्ट्रीय प्राणी आहे"
+  },
+  {
+    "claim_id": "eval_false_038",
+    "claim_text": "आरबीआय अमेरिकेची बँक आहे.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "भारताची मध्यवर्ती बँक"
+  },
+  {
+    "claim_id": "eval_false_039",
+    "claim_text": "महाराष्ट्राची राजधानी कोलकाता आहे.",
+    "language": "mr",
+    "claim_type": "LOCATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "मुंबई ही राजधानी आहे"
+  },
+  {
+    "claim_id": "eval_false_040",
+    "claim_text": "आधार कार्ड 100 अंकी असते.",
+    "language": "mr",
+    "claim_type": "NUMBER",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "आधार 12 अंकी असते"
+  },
+  {
+    "claim_id": "eval_false_041",
+    "claim_text": "इस्रो ही खाजगी सॉफ्टवेअर कंपनी आहे.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "अंतराळ संशोधन संस्था"
+  },
+  {
+    "claim_id": "eval_false_042",
+    "claim_text": "भारतात सर्व बँका कायमच्या बंद झाल्या आहेत.",
+    "language": "mr",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "पीआयबी / आरबीआय खंडन"
+  },
+  {
+    "claim_id": "eval_false_043",
+    "claim_text": "UPI ko NASA ne develop kiya hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI developed UPI"
+  },
+  {
+    "claim_id": "eval_false_044",
+    "claim_text": "India ka national animal lion hai.",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Bengal Tiger is national animal"
+  },
+  {
+    "claim_id": "eval_false_045",
+    "claim_text": "Kal se 500 ke saare note ban ho rahe hain.",
+    "language": "hi",
+    "claim_type": "POLICY",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "PIB Fact Check"
+  },
+  {
+    "claim_id": "eval_false_046",
+    "claim_text": "Aadhaar card Elon Musk ne issue kiya hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "UIDAI issue karta hai"
+  },
+  {
+    "claim_id": "eval_false_047",
+    "claim_text": "ISRO America ki space agency hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "India's space agency"
+  },
+  {
+    "claim_id": "eval_false_048",
+    "claim_text": "Chandrayaan 3 Sun pe land hua tha.",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Moon pe land hua"
+  },
+  {
+    "claim_id": "eval_false_049",
+    "claim_text": "IMPS sirf bank timing me kaam karta hai.",
+    "language": "hi",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "24/7 kaam karta hai"
+  },
+  {
+    "claim_id": "eval_false_050",
+    "claim_text": "UPI pe kal se guaranteed 20% tax lagega.",
+    "language": "hi",
+    "claim_type": "NUMBER",
+    "expected_verdict": "FALSE",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "PIB / NPCI denial"
+  },
+  {
+    "claim_id": "eval_partly_001",
+    "claim_text": "UPI was developed by NPCI in 1995.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI developed UPI is true, but in 2016, not 1995"
+  },
+  {
+    "claim_id": "eval_partly_002",
+    "claim_text": "NITI Aayog was formed under Prime Minister Narendra Modi in 1998.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NITI Aayog formed under PM Modi is true, but in 2015"
+  },
+  {
+    "claim_id": "eval_partly_003",
+    "claim_text": "ISRO launched Chandrayaan-3 using an Apollo rocket.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "ISRO launched Chandrayaan-3 is true, but using LVM3 rocket"
+  },
+  {
+    "claim_id": "eval_partly_004",
+    "claim_text": "Reserve Bank of India is in Mumbai and is owned by a private bank.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "HQ in Mumbai is true, fully owned by Government of India"
+  },
+  {
+    "claim_id": "eval_partly_005",
+    "claim_text": "Aadhaar is a 12-digit number issued by the Ministry of External Affairs.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "12-digit is true, issued by UIDAI"
+  },
+  {
+    "claim_id": "eval_partly_006",
+    "claim_text": "India's national bird is the peacock which is found only in Antarctica.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Peacock is national bird is true, not native to Antarctica"
+  },
+  {
+    "claim_id": "eval_partly_007",
+    "claim_text": "IMPS is operated 24x7 by the World Bank.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "24x7 is true, operated by NPCI"
+  },
+  {
+    "claim_id": "eval_partly_008",
+    "claim_text": "GST has multiple slabs and replaced all global tariffs.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Multiple slabs is true, replaced Indian indirect taxes"
+  },
+  {
+    "claim_id": "eval_partly_009",
+    "claim_text": "Supreme Court of India has judges appointed by the United Nations.",
+    "language": "en",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Has judges is true, appointed by President of India"
+  },
+  {
+    "claim_id": "eval_partly_010",
+    "claim_text": "Indian Rupee symbol was designed by Udaya Kumar in 1820.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Designed by Udaya Kumar is true, in 2010"
+  },
+  {
+    "claim_id": "eval_partly_011",
+    "claim_text": "UPI supports peer to peer transactions exclusively between government officials.",
+    "language": "en",
+    "claim_type": "RELATIONSHIP",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Supports P2P is true, open to public"
+  },
+  {
+    "claim_id": "eval_partly_012",
+    "claim_text": "BHIM app was launched in 2016 by Steve Jobs.",
+    "language": "en",
+    "claim_type": "PERSON",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Launched in 2016 is true, launched by PM Narendra Modi"
+  },
+  {
+    "claim_id": "eval_partly_013",
+    "claim_text": "Ayushman Bharat covers hospitalization expenses up to 100 crore rupees per family.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Covers hospitalization is true, limit is 5 lakh"
+  },
+  {
+    "claim_id": "eval_partly_014",
+    "claim_text": "PM Kisan transfers 6,000 rupees weekly to eligible farmer accounts.",
+    "language": "en",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Transfers 6000 INR is true, yearly in 3 instalments"
+  },
+  {
+    "claim_id": "eval_partly_015",
+    "claim_text": "New Delhi is the national capital and has a population of 5 trillion people.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Capital is true, number is exaggerated"
+  },
+  {
+    "claim_id": "eval_partly_016",
+    "claim_text": "यूपीआई एनपीसीआई ने 1990 में बनाया था।",
+    "language": "hi",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "एनपीसीआई ने बनाया सच है, 2016 में"
+  },
+  {
+    "claim_id": "eval_partly_017",
+    "claim_text": "इसरो ने चंद्रयान 3 नासा के रॉकेट से भेजा था।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "चंद्रयान 3 सच, रॉकेट एलवीएम3 था"
+  },
+  {
+    "claim_id": "eval_partly_018",
+    "claim_text": "आधार कार्ड 12 अंकों का होता है और इसे गृह मंत्रालय बनाता है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "12 अंक सच, यूआईडीएआई बनाता है"
+  },
+  {
+    "claim_id": "eval_partly_019",
+    "claim_text": "भारत का राष्ट्रीय पशु बाघ है जो सिर्फ समुद्र में रहता है।",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "बाघ राष्ट्रीय पशु सच, जमीन पर रहता है"
+  },
+  {
+    "claim_id": "eval_partly_020",
+    "claim_text": "आरबीआई का मुख्यालय मुंबई में है और यह एक निजी विदेशी कंपनी है।",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "मुंबई सच, सरकारी संस्था"
+  },
+  {
+    "claim_id": "eval_partly_021",
+    "claim_text": "यूपीआय एनपीसीआयने 1999 मध्ये सुरू केले.",
+    "language": "mr",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "एनपीसीआयने सुरू केले खरे, वर्ष 2016"
+  },
+  {
+    "claim_id": "eval_partly_022",
+    "claim_text": "महाराष्ट्राची राजधानी मुंबई असून ती आफ्रिकेत आहे.",
+    "language": "mr",
+    "claim_type": "LOCATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "मुंबई राजधानी खरी, भारतात आहे"
+  },
+  {
+    "claim_id": "eval_partly_023",
+    "claim_text": "आधार कार्ड 12 अंकी असते आणि ते पोस्ट ऑफिस बनवते.",
+    "language": "mr",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "12 अंकी खरे, UIDAI जारी करते"
+  },
+  {
+    "claim_id": "eval_partly_024",
+    "claim_text": "UPI NPCI ne 2005 me launch kiya tha.",
+    "language": "hi",
+    "claim_type": "DATE",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NPCI launch is true, 2016 me hua"
+  },
+  {
+    "claim_id": "eval_partly_025",
+    "claim_text": "Aadhaar 12 digit ka hota hai aur usse FBI issue karti hai.",
+    "language": "hi",
+    "claim_type": "ORGANIZATION",
+    "expected_verdict": "PARTLY_SUPPORTED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "12 digit true, UIDAI issue karti hai"
+  },
+  {
+    "claim_id": "eval_outdated_001",
+    "claim_text": "Planning Commission formulates five-year plans for India currently.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Replaced by NITI Aayog in 2015"
+  },
+  {
+    "claim_id": "eval_outdated_002",
+    "claim_text": "1000 rupee currency notes are valid legal tender in India today.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Demonetised in Nov 2016, RBI notification"
+  },
+  {
+    "claim_id": "eval_outdated_003",
+    "claim_text": "Jammu and Kashmir is governed under Article 370 of the Indian Constitution.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Abrogated in August 2019"
+  },
+  {
+    "claim_id": "eval_outdated_004",
+    "claim_text": "NEFT operates only during bank working hours on weekdays.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Operates 24x7 since December 2019"
+  },
+  {
+    "claim_id": "eval_outdated_005",
+    "claim_text": "RTGS is available only from 7 AM to 6 PM on working days.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Operates 24x7 since December 2020"
+  },
+  {
+    "claim_id": "eval_outdated_006",
+    "claim_text": "India is currently ruled by the British East India Company.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Historical power ended in 1858"
+  },
+  {
+    "claim_id": "eval_outdated_007",
+    "claim_text": "Pratibha Patil is the current serving President of India.",
+    "language": "en",
+    "claim_type": "PERSON",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Served 2007-2012, Droupadi Murmu is current"
+  },
+  {
+    "claim_id": "eval_outdated_008",
+    "claim_text": "Manmohan Singh is the current Prime Minister of India.",
+    "language": "en",
+    "claim_type": "PERSON",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Served 2004-2014, Narendra Modi is current"
+  },
+  {
+    "claim_id": "eval_outdated_009",
+    "claim_text": "Urjit Patel is the current Governor of the Reserve Bank of India.",
+    "language": "en",
+    "claim_type": "PERSON",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Shaktikanta Das succeeded him"
+  },
+  {
+    "claim_id": "eval_outdated_010",
+    "claim_text": "India has 29 states and 7 union territories.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Changed following J&K Reorganisation Act 2019"
+  },
+  {
+    "claim_id": "eval_outdated_011",
+    "claim_text": "Service tax of 15% is levied on restaurant bills in India today.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Subsumed under GST in 2017"
+  },
+  {
+    "claim_id": "eval_outdated_012",
+    "claim_text": "Rail Budget is presented separately from the Union Budget.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Merged with Union Budget from 2017"
+  },
+  {
+    "claim_id": "eval_outdated_013",
+    "claim_text": "Planning Commission is headed by Montek Singh Ahluwalia right now.",
+    "language": "en",
+    "claim_type": "PERSON",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Commission dissolved in 2014"
+  },
+  {
+    "claim_id": "eval_outdated_014",
+    "claim_text": "Income tax exemption limit is 50,000 rupees per year.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Historical tax slab from decades ago"
+  },
+  {
+    "claim_id": "eval_outdated_015",
+    "claim_text": "Doordarshan is the sole television broadcaster in India.",
+    "language": "en",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Privatisation allowed satellite TV since 1990s"
+  },
+  {
+    "claim_id": "eval_outdated_016",
+    "claim_text": "भारत में 1000 रुपये के नोट अभी भी वैध हैं।",
+    "language": "hi",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "2016 में बंद हो चुके हैं"
+  },
+  {
+    "claim_id": "eval_outdated_017",
+    "claim_text": "योजना आयोग अभी भी भारत के लिए योजनाएं बना रहा है।",
+    "language": "hi",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "2015 में नीति आयोग बना"
+  },
+  {
+    "claim_id": "eval_outdated_018",
+    "claim_text": "मनमोहन सिंह भारत के वर्तमान प्रधानमंत्री हैं।",
+    "language": "hi",
+    "claim_type": "PERSON",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "नरेंद्र मोदी वर्तमान पीएम हैं"
+  },
+  {
+    "claim_id": "eval_outdated_019",
+    "claim_text": "जम्मू कश्मीर में आज भी अनुच्छेद 370 लागू है।",
+    "language": "hi",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "2019 में निष्प्रभावी किया गया"
+  },
+  {
+    "claim_id": "eval_outdated_020",
+    "claim_text": "एनईएफटी केवल बैंक समय में चलता है।",
+    "language": "hi",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "दिसंबर 2019 से 24x7 उपलब्ध"
+  },
+  {
+    "claim_id": "eval_outdated_021",
+    "claim_text": "भारतात 1000 च्या नोटा अजूनही चलनात आहेत.",
+    "language": "mr",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "2016 मध्ये बंद झाल्या"
+  },
+  {
+    "claim_id": "eval_outdated_022",
+    "claim_text": "नियोजन आयोग भारताचे बजेट ठरवतो.",
+    "language": "mr",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "नीती आयोगाने जागा घेतली"
+  },
+  {
+    "claim_id": "eval_outdated_023",
+    "claim_text": "मनमोहन सिंग भारताचे विद्यमान पंतप्रधान आहेत.",
+    "language": "mr",
+    "claim_type": "PERSON",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "माजी पंतप्रधान आहेत"
+  },
+  {
+    "claim_id": "eval_outdated_024",
+    "claim_text": "1000 ka note abhi bhi chalta hai market me.",
+    "language": "hi",
+    "claim_type": "POLICY",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "2016 me demonetise ho gaya"
+  },
+  {
+    "claim_id": "eval_outdated_025",
+    "claim_text": "Planning Commission abhi bhi 5-year plan banata hai.",
+    "language": "hi",
+    "claim_type": "CURRENT_STATUS",
+    "expected_verdict": "OUTDATED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "NITI Aayog ban chuka hai"
+  },
+  {
+    "claim_id": "eval_unconfirmed_001",
+    "claim_text": "Aliens secretly landed in a remote village of Rajasthan last night.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "No credible official report or documentation"
+  },
+  {
+    "claim_id": "eval_unconfirmed_002",
+    "claim_text": "NPCI secret committee plans to shut down UPI on an undisclosed secret date.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_1",
+    "expected_evidence_characteristics": "Unverifiable secret internal speculation"
+  },
+  {
+    "claim_id": "eval_unconfirmed_003",
+    "claim_text": "An unknown citizen found a trillion carat diamond in their private backyard yesterday.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "No credible corroboration"
+  },
+  {
+    "claim_id": "eval_unconfirmed_004",
+    "claim_text": "Ancient time machines are hidden inside a secret underground bunker in Pune.",
+    "language": "en",
+    "claim_type": "LOCATION",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Conspiracy claim with no factual grounding"
+  },
+  {
+    "claim_id": "eval_unconfirmed_005",
+    "claim_text": "A confidential private meeting occurred between unnamed officials about a mystery tax.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Vague unsubstantiated rumor"
+  },
+  {
+    "claim_id": "eval_unconfirmed_006",
+    "claim_text": "Telepathic communication was achieved by a secret laboratory in Kerala yesterday.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Pseudoscientific unverifiable assertion"
+  },
+  {
+    "claim_id": "eval_unconfirmed_007",
+    "claim_text": "The exact number of pebbles on Earth is exactly 938,201,849,203,111.",
+    "language": "en",
+    "claim_type": "NUMBER",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Unverifiable arbitrary count"
+  },
+  {
+    "claim_id": "eval_unconfirmed_008",
+    "claim_text": "Every smartphone in India will emit purple light tomorrow at 3:15 AM.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Unfounded viral prediction"
+  },
+  {
+    "claim_id": "eval_unconfirmed_009",
+    "claim_text": "A mystery bird with crystal wings was sighted in the Himalayas.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Mythological / folklore unconfirmed rumor"
+  },
+  {
+    "claim_id": "eval_unconfirmed_010",
+    "claim_text": "An anonymous hacker claims to hold the private dreams of all bank managers.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Immeasurable claim"
+  },
+  {
+    "claim_id": "eval_unconfirmed_011",
+    "claim_text": "A private unreleased document states that trees secretly talk in binary code.",
+    "language": "en",
+    "claim_type": "FACT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Unverifiable assertion"
+  },
+  {
+    "claim_id": "eval_unconfirmed_012",
+    "claim_text": "Underwater mermaids held a conference near the Mumbai coastline last week.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Fictional unverifiable rumor"
+  },
+  {
+    "claim_id": "eval_unconfirmed_013",
+    "claim_text": "Government of India will replace all roads with chocolate in 2099.",
+    "language": "en",
+    "claim_type": "POLICY",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Absurd future prediction"
+  },
+  {
+    "claim_id": "eval_unconfirmed_014",
+    "claim_text": "A subterranean kingdom exists exactly 5 kilometers beneath Bengaluru airport.",
+    "language": "en",
+    "claim_type": "LOCATION",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Mythological / unsubstantiated claim"
+  },
+  {
+    "claim_id": "eval_unconfirmed_015",
+    "claim_text": "A hidden radio signal from Jupiter predicted the winner of next year local election.",
+    "language": "en",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Astrological / unverifiable prophecy"
+  },
+  {
+    "claim_id": "eval_unconfirmed_016",
+    "claim_text": "कल रात राजस्थान के एक गांव में गुप्त एलियंस उतरे थे।",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "कोई आधिकारिक प्रमाण नहीं"
+  },
+  {
+    "claim_id": "eval_unconfirmed_017",
+    "claim_text": "पुणे के एक गुप्त बंकर में टाइम मशीन छिपी हुई है।",
+    "language": "hi",
+    "claim_type": "LOCATION",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "अपुष्ट अफवाह"
+  },
+  {
+    "claim_id": "eval_unconfirmed_018",
+    "claim_text": "कल सुबह ठीक 4 बजे सभी फोन से बैंगनी रोशनी निकलेगी।",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "निराधार भविष्यवाणी"
+  },
+  {
+    "claim_id": "eval_unconfirmed_019",
+    "claim_text": "हिमालय में क्रिस्टल के पंखों वाला पक्षी देखा गया है।",
+    "language": "hi",
+    "claim_type": "FACT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "काल्पनिक दावा"
+  },
+  {
+    "claim_id": "eval_unconfirmed_020",
+    "claim_text": "एक अज्ञात व्यक्ति को अपने आंगन में एक खरब कैरेट का हीरा मिला।",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "कोई स्वतंत्र पुष्टि नहीं"
+  },
+  {
+    "claim_id": "eval_unconfirmed_021",
+    "claim_text": "काल रात्री गुप्त परग्रहवासी महाराष्ट्रातील एका शेतात उतरले.",
+    "language": "mr",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "कोणताही पुरावा नाही"
+  },
+  {
+    "claim_id": "eval_unconfirmed_022",
+    "claim_text": "पुण्यातील एका तळघरात गुप्त टाईम मशीन सापडली आहे.",
+    "language": "mr",
+    "claim_type": "LOCATION",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "अफवा, पुरावा नाही"
+  },
+  {
+    "claim_id": "eval_unconfirmed_023",
+    "claim_text": "उद्या सकाळी सर्व मोबाईलमधून जांभळा प्रकाश बाहेर पडेल.",
+    "language": "mr",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "अपुष्ट व्हायरल मेसेज"
+  },
+  {
+    "claim_id": "eval_unconfirmed_024",
+    "claim_text": "Secret aliens kal raat Rajasthan me land huye the.",
+    "language": "hi",
+    "claim_type": "EVENT",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "No official source"
+  },
+  {
+    "claim_id": "eval_unconfirmed_025",
+    "claim_text": "Pune ke secret bunker me time machine rakhi hai.",
+    "language": "hi",
+    "claim_type": "LOCATION",
+    "expected_verdict": "CANNOT_BE_CONFIRMED",
+    "expected_source_type": "TIER_4",
+    "expected_evidence_characteristics": "Unconfirmed rumor"
+  }
+]

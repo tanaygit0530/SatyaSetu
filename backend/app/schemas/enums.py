@@ -100,3 +100,22 @@ class ContradictionStrength(str, Enum):
     WEAK = "WEAK"
     NONE = "NONE"
 
+
+class ClaimType(str, Enum):
+    """
+    Lightweight claim classification types influencing targeted retrieval:
+    FACT, RELATIONSHIP, DATE, NUMBER, LOCATION, PERSON, ORGANIZATION, EVENT, POLICY, CURRENT_STATUS, COMPARISON.
+    """
+    FACT = "FACT"
+    RELATIONSHIP = "RELATIONSHIP"
+    DATE = "DATE"
+    NUMBER = "NUMBER"
+    LOCATION = "LOCATION"
+    PERSON = "PERSON"
+    ORGANIZATION = "ORGANIZATION"
+    EVENT = "EVENT"
+    POLICY = "POLICY"
+    CURRENT_STATUS = "CURRENT_STATUS"
+    COMPARISON = "COMPARISON"
+
+

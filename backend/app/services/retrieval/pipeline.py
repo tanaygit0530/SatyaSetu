@@ -1,5 +1,7 @@
+import concurrent.futures
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
+
 
 from app.core.logging import logger
 from app.schemas.enums import SourceTier
@@ -81,47 +83,43 @@ class EvidenceRetrievalPipeline:
         contradiction_query = query_set.contradiction_query or f"{clean_claim} not true fact check"
 
         # ----------------------------------------------------------------------
-        # Stage 2: Fact Check API (ClaimReview debunks)
+        # Stages 2 & 3: Concurrent Fact Check & Web Retrieval (Part 14)
         # ----------------------------------------------------------------------
         fact_check_candidates: List[CandidateEvidence] = []
-        try:
-            fc_1 = self.fact_check_provider.search_claims(
-                query=clean_claim,
-                language_code=language,
-                max_results=5,
-            )
-            fact_check_candidates.extend(fc_1)
-
-            if contradiction_query and contradiction_query != clean_claim:
-                fc_2 = self.fact_check_provider.search_claims(
-                    query=contradiction_query,
-                    language_code=language,
-                    max_results=3,
-                )
-                fact_check_candidates.extend(fc_2)
-        except Exception as e:
-            logger.warning("Fact check provider search encountered error: %s", str(e))
-
-        # ----------------------------------------------------------------------
-        # Stage 3: Search API (Entity, Official & News Search)
-        # ----------------------------------------------------------------------
         search_candidates: List[CandidateEvidence] = []
-        try:
-            # 1. Search with entity-focused query (e.g. "NPCI UPI ban announcement")
-            s_entity = self.search_provider.search(query=entity_query, max_results=4)
-            search_candidates.extend(s_entity)
 
-            # 2. Search with English query (e.g. "UPI banned India tomorrow")
-            if english_query != entity_query:
-                s_english = self.search_provider.search(query=english_query, max_results=3)
-                search_candidates.extend(s_english)
+        search_terms = [q for q in [entity_query, english_query, contradiction_query] if q]
+        deduped_search_terms = list(dict.fromkeys(search_terms))
 
-            # 3. Search with contradiction query (e.g. "NPCI UPI not banned official")
-            if contradiction_query:
-                s_contra = self.search_provider.search(query=contradiction_query, max_results=3)
-                search_candidates.extend(s_contra)
-        except Exception as e:
-            logger.warning("Search provider lookup encountered error: %s", str(e))
+        def _fetch_fact_checks() -> List[CandidateEvidence]:
+            fc_res: List[CandidateEvidence] = []
+            try:
+                fc_res.extend(self.fact_check_provider.search_claims(query=clean_claim, language_code=language, max_results=4))
+                if contradiction_query and contradiction_query != clean_claim:
+                    fc_res.extend(self.fact_check_provider.search_claims(query=contradiction_query, language_code=language, max_results=3))
+            except Exception as fe:
+                logger.warning("Fact check provider search error: %s", fe)
+            return fc_res
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            fc_future = executor.submit(_fetch_fact_checks)
+            search_futures = {
+                executor.submit(self.search_provider.search, q, 4): q
+                for q in deduped_search_terms[:4]
+            }
+
+            try:
+                fact_check_candidates = fc_future.result(timeout=6.0)
+            except Exception as e:
+                logger.warning("Fact check future resolution note: %s", e)
+
+            for fut in concurrent.futures.as_completed(search_futures, timeout=8.0):
+                try:
+                    res = fut.result()
+                    if res:
+                        search_candidates.extend(res)
+                except Exception as e:
+                    logger.warning("Search query future resolution note: %s", e)
 
         # ----------------------------------------------------------------------
         # Stage 4: Collect Candidates
@@ -129,6 +127,7 @@ class EvidenceRetrievalPipeline:
         all_raw_candidates: List[CandidateEvidence] = fact_check_candidates + search_candidates
         fact_check_count = len(fact_check_candidates)
         search_count = len(search_candidates)
+
 
         if not all_raw_candidates:
             logger.info("No candidates discovered from fact check or search APIs.")
@@ -267,29 +266,36 @@ class EvidenceRetrievalPipeline:
         self, candidates: List[CandidateEvidence], max_fetches: int = 3
     ) -> List[CandidateEvidence]:
         """
-        Safely fetches clean article text for top candidates using url_ingestion_service.
+        Safely fetches clean article text for top candidates concurrently using url_ingestion_service.
         Adheres to SSRF restrictions, timeouts, and redirect limits.
         """
-        for i, c in enumerate(candidates[:max_fetches]):
-            # If candidate already has full content (e.g. from provider), skip fetch
+        to_fetch = []
+        for c in candidates[:max_fetches]:
             if c.raw_content and len(c.raw_content) > 300:
                 continue
-
             if not c.url.startswith("http://") and not c.url.startswith("https://"):
                 continue
+            to_fetch.append(c)
 
+        if not to_fetch:
+            return candidates
+
+        def _fetch_single(cand: CandidateEvidence):
             try:
-                ingested = url_ingestion_service.ingest_url(c.url)
+                ingested = url_ingestion_service.ingest_url(cand.url)
                 if ingested.status == "SUCCESS" and ingested.text:
-                    c.raw_content = ingested.text
-                    if ingested.title and (not c.title or len(c.title) < 10):
-                        c.title = ingested.title
-                    if ingested.publisher and not c.publisher:
-                        c.publisher = ingested.publisher
-                    if ingested.published_date and not c.publish_date:
-                        c.publish_date = ingested.published_date
+                    cand.raw_content = ingested.text
+                    if ingested.title and (not cand.title or len(cand.title) < 10):
+                        cand.title = ingested.title
+                    if ingested.publisher and not cand.publisher:
+                        cand.publisher = ingested.publisher
+                    if ingested.published_date and not cand.publish_date:
+                        cand.publish_date = ingested.published_date
             except Exception as e:
-                logger.info("Page fetch for %s skipped safely: %s", c.url, str(e))
+                logger.info("Page fetch for %s skipped safely: %s", cand.url, str(e))
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(to_fetch), 4)) as executor:
+            list(executor.map(_fetch_single, to_fetch))
 
         return candidates
 

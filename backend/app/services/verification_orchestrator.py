@@ -1,3 +1,5 @@
+import concurrent.futures
+import json
 import time
 import uuid
 from datetime import datetime, timezone
@@ -317,24 +319,28 @@ class VerificationOrchestrator:
         language: Optional[str] = None,
     ) -> List[CandidateEvidence]:
         """
-        Stage 9: Queries Google Fact Check Tools API for existing ClaimReview debunks.
+        Stage 9: Queries Google Fact Check Tools API for existing ClaimReview debunks concurrently.
         """
         candidates: List[CandidateEvidence] = []
         try:
-            fc_1 = self.retrieval_pipeline.fact_check_provider.search_claims(
-                query=queries.claim_text,
-                language_code=language,
-                max_results=5,
-            )
-            candidates.extend(fc_1)
-
+            fc_tasks = [(queries.claim_text, 5)]
             if queries.contradiction_query and queries.contradiction_query != queries.claim_text:
-                fc_2 = self.retrieval_pipeline.fact_check_provider.search_claims(
-                    query=queries.contradiction_query,
-                    language_code=language,
-                    max_results=3,
-                )
-                candidates.extend(fc_2)
+                fc_tasks.append((queries.contradiction_query, 3))
+
+            def _search_fc(task: Tuple[str, int]) -> List[CandidateEvidence]:
+                try:
+                    return self.retrieval_pipeline.fact_check_provider.search_claims(
+                        query=task[0],
+                        language_code=language,
+                        max_results=task[1],
+                    )
+                except Exception as ex:
+                    logger.warning("Fact check query '%s' failed: %s", task[0], ex)
+                    return []
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(fc_tasks)) as executor:
+                for res in executor.map(_search_fc, fc_tasks):
+                    candidates.extend(res)
         except Exception as e:
             logger.warning("Fact check retrieval stage encountered error: %s", e)
         return candidates
@@ -348,7 +354,7 @@ class VerificationOrchestrator:
         queries: ClaimSearchQueries,
     ) -> List[CandidateEvidence]:
         """
-        Stage 10: Queries web search provider for statutory notices and reputable reporting.
+        Stage 10: Queries web search provider concurrently for statutory notices and reputable reporting (Part 14).
         """
         candidates: List[CandidateEvidence] = []
         try:
@@ -360,12 +366,20 @@ class VerificationOrchestrator:
             if not search_terms:
                 search_terms = [queries.claim_text]
 
-            for query_str in search_terms[:2]:
-                results = self.retrieval_pipeline.search_provider.search(
-                    query=query_str,
-                    max_results=5,
-                )
-                candidates.extend(results)
+            # Parallel query execution (Part 14)
+            def _search_single(term: str) -> List[CandidateEvidence]:
+                try:
+                    return self.retrieval_pipeline.search_provider.search(
+                        query=term,
+                        max_results=5,
+                    )
+                except Exception as ex:
+                    logger.warning("Search query '%s' failed: %s", term, ex)
+                    return []
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(search_terms[:3]), 3)) as executor:
+                for results in executor.map(_search_single, search_terms[:3]):
+                    candidates.extend(results)
         except Exception as e:
             logger.warning("Web search retrieval stage encountered error: %s", e)
         return candidates
@@ -606,6 +620,7 @@ class VerificationOrchestrator:
         input_type: str = "TEXT",
         duration_ms: int = 0,
         cache_hit: bool = False,
+        timing_ms: Optional[Dict[str, int]] = None,
     ) -> VerificationResult:
         """
         Stage 20: Persists verified atomic claims into Shared Claim Memory
@@ -645,6 +660,7 @@ class VerificationOrchestrator:
             overall_verdict=overall_verdict,
             confidence=overall_conf,
             summary=claim_results[0].explanation if claim_results else "No claims verified.",
+            timing_ms=timing_ms,
         )
 
         # Save to verification repo
@@ -757,21 +773,26 @@ class VerificationOrchestrator:
                 except Exception as pe:
                     logger.debug("Progress callback exception for '%s': %s", c_id, pe)
 
+        timings: Dict[str, int] = {}
         try:
             # Stage: EXTRACTING
             report_progress(ProcessingStatus.EXTRACTING, "RUNNING")
 
-            # Stage 1: Input
+            # Stage 1 & 2: Input & Ingestion
+            t_ingest_start = time.time()
             inp = self.stage_input(content, input_type)
-
-            # Stage 2: Ingestion
             ingested_text = self.stage_ingestion(inp["content"], inp["input_type"])
+            timings["ingestion_ms"] = int((time.time() - t_ingest_start) * 1000)
 
             # Stage 3: Language Detection
+            t_lang_start = time.time()
             lang_res = self.stage_language_detection(ingested_text)
+            timings["language_detection_ms"] = int((time.time() - t_lang_start) * 1000)
 
             # Stage 4: Claim Extraction
+            t_claim_start = time.time()
             extracted_claims = self.stage_claim_extraction(ingested_text, is_demo=is_demo)
+            timings["claim_extraction_ms"] = int((time.time() - t_claim_start) * 1000)
             report_progress(ProcessingStatus.EXTRACTING, "COMPLETED")
 
             # Stage: CLAIMING
@@ -782,7 +803,9 @@ class VerificationOrchestrator:
                 c.normalized_claim = self.stage_claim_normalization(c)
 
             # Stage 6: Dependency Analysis
+            t_dep_start = time.time()
             dep_graph = self.stage_dependency_analysis(extracted_claims)
+            timings["dependency_analysis_ms"] = int((time.time() - t_dep_start) * 1000)
             execution_order = dep_graph.execution_order or [c.claim_id for c in extracted_claims]
             claim_map = {c.claim_id: c for c in extracted_claims}
 
@@ -796,9 +819,12 @@ class VerificationOrchestrator:
                     continue
 
                 claim_text = claim_item.normalized_claim or claim_item.original_text
+                claim_type = getattr(claim_item, "claim_type", None) or self.claim_extractor.classify_claim_type(claim_text)
 
                 # Stage 7: Shared Claim Memory Lookup
+                t_mem_start = time.time()
                 mem_lookup = self.stage_shared_claim_memory_lookup(claim_item, current_time=current_time)
+                timings["memory_lookup_ms"] = int((time.time() - t_mem_start) * 1000)
 
                 if mem_lookup.hit and mem_lookup.record is not None:
                     # Cache hit! Reuse safely
@@ -818,6 +844,7 @@ class VerificationOrchestrator:
                             claim_text=claim_item.original_text,
                             normalized_claim=claim_item.normalized_claim,
                             temporal_status=TemporalStatus.CURRENT,
+                            claim_type=claim_type,
                             cache_hit=True,
                         )
                     )
@@ -831,58 +858,74 @@ class VerificationOrchestrator:
                 report_progress(ProcessingStatus.RETRIEVING, "RUNNING")
 
                 # Stage 8: Query Generation
+                t_qgen_start = time.time()
                 queries = self.stage_query_generation(claim_item)
+                timings["query_generation_ms"] = int((time.time() - t_qgen_start) * 1000)
 
-                # Stage 9: Fact Check Retrieval
-                fc_candidates = self.stage_fact_check_retrieval(queries, language=lang_res.language)
-
-                # Stage 10: Web Retrieval
-                web_candidates = self.stage_web_retrieval(queries)
+                # Stage 9 & 10: Fact Check & Web Retrieval in parallel (Part 14)
+                t_ret_start = time.time()
+                with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ret_exec:
+                    future_fc = ret_exec.submit(self.stage_fact_check_retrieval, queries, lang_res.language)
+                    future_web = ret_exec.submit(self.stage_web_retrieval, queries)
+                    fc_candidates = future_fc.result()
+                    web_candidates = future_web.result()
                 raw_candidates = fc_candidates + web_candidates
 
                 # Stage 11: Source Ranking
                 ranked_candidates = self.stage_source_ranking(raw_candidates)
+                timings["retrieval_ms"] = int((time.time() - t_ret_start) * 1000)
                 report_progress(ProcessingStatus.RETRIEVING, "COMPLETED")
 
                 # Stage: VALIDATING
                 report_progress(ProcessingStatus.VALIDATING, "RUNNING")
 
                 # Stage 12: Page Fetch
+                t_fetch_start = time.time()
                 fetched_sources = self.stage_page_fetch(ranked_candidates)
+                timings["source_fetching_ms"] = int((time.time() - t_fetch_start) * 1000)
 
                 # Stage 13: Evidence Extraction
+                t_ev_start = time.time()
                 cand_evidence = self.stage_evidence_extraction(claim_text, fetched_sources)
+                timings["evidence_extraction_ms"] = int((time.time() - t_ev_start) * 1000)
 
                 # Stage 14: Grounding Validation (Evidence Locking)
+                t_val_start = time.time()
                 validated_locked = self.stage_grounding_validation(cand_evidence, fetched_sources)
+                timings["evidence_validation_ms"] = int((time.time() - t_val_start) * 1000)
                 report_progress(ProcessingStatus.VALIDATING, "COMPLETED")
 
                 # Stage: VERIFYING
                 report_progress(ProcessingStatus.VERIFYING, "RUNNING")
 
                 # Stage 15: Evidence Judge
+                t_judge_start = time.time()
                 judgments = self.stage_evidence_judge(claim_text, validated_locked)
+                timings["judge_ms"] = int((time.time() - t_judge_start) * 1000)
 
                 # Stage 16: Temporal Analysis
+                t_temp_start = time.time()
                 temporal_res = self.stage_temporal_analysis(claim_text, validated_locked)
+                timings["temporal_analysis_ms"] = int((time.time() - t_temp_start) * 1000)
 
-                # Stage 17: Deterministic Verdict
+                # Stage 17 & 18: Deterministic Verdict & Confidence
+                t_verd_start = time.time()
                 verdict, rule_trace = self.stage_deterministic_verdict(
                     claim=claim_item,
                     validated_evidence=validated_locked,
                     judgments=judgments,
                     temporal_result=temporal_res,
                 )
-
-                # Stage 18: Confidence
                 confidence = self.stage_confidence(
                     validated_evidence=validated_locked,
                     judgments=judgments,
                     temporal_result=temporal_res,
                     verdict=verdict,
                 )
+                timings["verdict_engine_ms"] = int((time.time() - t_verd_start) * 1000)
 
                 # Stage 19: Explanation
+                t_exp_start = time.time()
                 claim_lang = getattr(claim_item, "language", None) or getattr(lang_res, "language", "en")
                 explanation = self.stage_explanation(
                     claim_text=claim_text,
@@ -892,6 +935,7 @@ class VerificationOrchestrator:
                     temporal_status=temporal_res.temporal_status,
                     language=claim_lang,
                 )
+                timings["explanation_ms"] = int((time.time() - t_exp_start) * 1000)
                 report_progress(ProcessingStatus.VERIFYING, "COMPLETED")
 
                 # Collect finding
@@ -911,6 +955,7 @@ class VerificationOrchestrator:
                         claim_text=claim_item.original_text,
                         normalized_claim=claim_item.normalized_claim,
                         temporal_status=temporal_res.temporal_status,
+                        claim_type=claim_type,
                         language=claim_lang,
                         cache_hit=False,
                     )
@@ -920,7 +965,15 @@ class VerificationOrchestrator:
                 report_progress(ProcessingStatus.CLAIMING, "COMPLETED")
 
             duration_ms = max(int((time.time() - start_time) * 1000), 1)
+            timings["total_ms"] = duration_ms
             final_cache_hit = all_claims_cached if verified_claim_results else False
+
+            # Structured profiling log (Part 1 - no secrets or raw phone numbers)
+            logger.info(
+                "Verification timing profile for check %s: %s",
+                c_id,
+                json.dumps(timings),
+            )
 
             # Stage 20: Store Result
             result = self.stage_store_result(
@@ -930,6 +983,7 @@ class VerificationOrchestrator:
                 input_type=inp["input_type"],
                 duration_ms=duration_ms,
                 cache_hit=final_cache_hit,
+                timing_ms=timings,
             )
 
             # Stage 21: Metrics

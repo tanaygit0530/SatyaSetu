@@ -12,7 +12,8 @@ from app.schemas.claim import (
     AtomicClaimsOutput,
     ExtractedClaim,
 )
-from app.schemas.enums import Language
+from app.schemas.enums import ClaimType, Language
+
 from app.services.language_detection import language_detector_service
 from app.utils.sanitizer import sanitize_input_text
 
@@ -90,8 +91,75 @@ QUESTION_MARKERS: List[str] = [
     "did rbi announce", "has upi been banned?",
 ]
 
+RELATION_PATTERNS: List[str] = [
+    r"\b(?:developed|built|created|founded|invented|designed|established|launched|started|managed|run|owned)\s+by\b",
+    r"\b(?:developer|creator|founder|owner|inventor)\s+of\b",
+    r"\b(?:subsidiary|division|arm|parent|partner)\s+of\b",
+    r"\b(?:affiliated|associated|merged|collaborated|partnered)\s+with\b",
+    r"\b(?:headquartered|located|based)\s+in\b",
+    r"\b(?:acquired|bought)\s+by\b",
+    r"\b(?:who\s+developed|who\s+created|who\s+founded|who\s+built)\b",
+]
+
+
+def classify_claim_type(
+    text: str,
+    entities: Optional[List[str]] = None,
+    numbers: Optional[List[Any]] = None,
+    dates: Optional[List[Any]] = None,
+) -> ClaimType:
+    """
+    Lightweight deterministic claim type classification (Part 4):
+    FACT, RELATIONSHIP, DATE, NUMBER, LOCATION, PERSON, ORGANIZATION, EVENT, POLICY, CURRENT_STATUS, COMPARISON.
+    """
+    lower = text.lower().strip()
+
+    # 1. Comparison
+    if re.search(r"\b(?:more than|less than|higher than|lower than|faster than|slower than|better than|worse than|exceeds|highest|lowest|fastest|slowest)\b", lower):
+        return ClaimType.COMPARISON
+
+    # 2. Relationship
+    if any(re.search(pat, lower) for pat in RELATION_PATTERNS):
+        return ClaimType.RELATIONSHIP
+
+    # 3. Current status / Service availability (evaluated before numeric to capture 24x7/hours)
+    if re.search(r"\b(?:banned|ban|shut\s*down|halted|suspended|closed|open\s*normal|operational|active|available|24\s*hours|round\s*the\s*clock|working\s*hours|currently|now|today|at\s*present)\b", lower):
+        return ClaimType.CURRENT_STATUS
+
+    # 4. Number / Financial
+    if (numbers and len(numbers) > 0) or re.search(r"\b(?:\d+[\d,]*%|\d+[\d,]*\s*(?:crore|lakh|percent|fee|charge|rs|₹|rupees|inr|usd|dollars))\b", lower):
+        return ClaimType.NUMBER
+
+    # 5. Date
+    if (dates and len(dates) > 0) or re.search(r"\b(?:\d{4}|\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|tomorrow|yesterday|from\s+tomorrow|starting\s+tomorrow)\b", lower):
+        return ClaimType.DATE
+
+    # 6. Policy
+    if re.search(r"\b(?:circular|gazette|rule|guidelines|scheme|mandate|notification|decree|act|bill|law|order)\b", lower):
+        return ClaimType.POLICY
+
+    # 7. Person
+    if re.search(r"\b(?:prime minister|president|governor|minister|chief minister|ceo|director|chairman|spokesperson|judge|justice)\b", lower):
+        return ClaimType.PERSON
+
+    # 8. Location
+    if re.search(r"\b(?:ward\s+\d+|district|city|state|capital|located\s+at|in\s+india|in\s+delhi|in\s+mumbai|in\s+pune)\b", lower):
+        return ClaimType.LOCATION
+
+    # 9. Organization
+    if re.search(r"\b(?:organization|institution|agency|ministry|corporation|bank|department|board|committee)\b", lower):
+        return ClaimType.ORGANIZATION
+
+    # 10. Event
+    if re.search(r"\b(?:conference|summit|meeting|ceremony|inauguration|rally|protest|strike|election|match|championship)\b", lower):
+        return ClaimType.EVENT
+
+    # Default
+    return ClaimType.FACT
+
 
 class ClaimExtractorService:
+
     """
     Atomic Claim Extraction Engine for SachCheck.
 
@@ -306,19 +374,50 @@ class ClaimExtractorService:
             norm_second = re.sub(r"\bAll users\b", "All UPI users", norm_second, flags=re.IGNORECASE)
         elif "all students" in norm_second.lower() and "scholarship" in first_lower:
             norm_second = re.sub(r"\bAll students\b", "All scholarship applicants", norm_second, flags=re.IGNORECASE)
-
         return self._normalize_statement(norm_second)
 
+
     def _normalize_statement(self, text: str) -> str:
-        """Standardizes punctuation and capitalization for canonical statement."""
+        """Standardizes punctuation, unwraps conversational questions into factual statements."""
         t = text.strip()
         if not t:
             return ""
-        if t[0].islower():
+
+        # Unwrap common inquiry framing into declarative proposition
+        # E.g. "Is UPI was developed by NPCI?" -> "UPI was developed by NPCI."
+        # E.g. "Is it true that UPI charges 5% fee?" -> "UPI charges 5% fee."
+        lower_t = t.lower()
+        if lower_t.endswith("?"):
+            t = t[:-1].strip()
+
+        question_prefixes = [
+            r"^(?:is\s+it\s+true\s+that|kya\s+yeh\s+sach\s+hai\s+ki|kya\s+yeh\s+sach\s+hai)\s+",
+            r"^(?:is\s+it\s+true\s+if)\s+",
+            r"^(?:did\s+the\s+government\s+announce\s+that)\s+",
+            r"^(?:did\s+(?:rbi|npci|government|pib))\s+",
+            r"^(?:kya\s+(?:kal\s+se|aaj\s+se)?)\s*",
+            r"^(?:kay\s+he\s+khare\s+aahe\s+ki)\s*",
+        ]
+        for qp in question_prefixes:
+            t = re.sub(qp, "", t, flags=re.IGNORECASE).strip()
+
+        # Handle "Is UPI was developed by NPCI" -> "UPI was developed by NPCI"
+        # Handle "Is IMPS available 24 hours a day" -> "IMPS is available 24 hours a day"
+        is_pattern = re.match(r"^(?:is|was|are|were)\s+([a-zA-Z0-9_\s]+?)\s+(?:was\s+|is\s+|are\s+)?([a-zA-Z0-9_\s.,'-]+)$", t, re.IGNORECASE)
+        if is_pattern:
+            subj = is_pattern.group(1).strip()
+            rest = is_pattern.group(2).strip()
+            if not any(rest.lower().startswith(v) for v in ["was", "is", "are", "were"]):
+                t = f"{subj} is {rest}"
+            else:
+                t = f"{subj} {rest}"
+
+        if t and t[0].islower():
             t = t[0].upper() + t[1:]
         if not t.endswith((".", "!", "?", "।")):
             t = t + "."
         return t
+
 
     def _build_atomic_claim(
         self,
@@ -454,8 +553,13 @@ class ClaimExtractorService:
         if scan.has_injection:
             return "instruction", False
 
-        # 1. Question Rule: Questions should not automatically become claims
-        if lower.endswith("?") or any(q in lower for q in QUESTION_MARKERS):
+        # 1. Pure conversational questions without verifiable content
+        has_entities_or_action = bool(
+            re.search(r"\b(?:upi|npci|rbi|imps|bhim|railway|train|government|tiger|lion|nasa|india|delhi|mumbai|aadhaar|uidai)\b", lower)
+            or any(re.search(pat, lower) for pat in RELATION_PATTERNS)
+            or re.search(r"\b\d+\b", lower)
+        )
+        if (lower.endswith("?") or any(q in lower for q in QUESTION_MARKERS)) and not has_entities_or_action:
             return "question", False
 
         # 2. Opinion Rule: Opinions should be marked non-verifiable
@@ -466,17 +570,10 @@ class ClaimExtractorService:
         if any(pred in lower for pred in PREDICTION_MARKERS):
             return "prediction", False
 
-        # 4. Verifiable Domain Classification
-        if re.search(r"\b(?:fee|tax|dbt|grant|allowance|₹|rupaye|fine|scholarship|refund|rate|repo)\b", lower):
-            return "financial", True
-        if re.search(r"\b(?:banned|ban|suspended|notified|scheme|circular|order|rule|guideline|hike)\b", lower):
-            return "policy", True
-        if re.search(r"\b(?:water|pipeline|contamination|health|virus|hospital|disease|drink)\b", lower):
-            return "health", True
-        if re.search(r"\b(?:phishing|domain|link|recharge|malware|hacked|fake-website)\b", lower):
-            return "cybersecurity", True
+        # 4. Lightweight claim type classification (Part 4)
+        c_type = classify_claim_type(text)
+        return c_type.value, True
 
-        return "policy", True
 
     # ==========================================================================
     # Structured LLM Client Execution

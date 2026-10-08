@@ -45,6 +45,41 @@ class URLIngestionService:
         self.timeout = timeout or settings.URL_FETCH_TIMEOUT_SECONDS
         self.max_response_bytes = max_response_bytes or settings.URL_MAX_RESPONSE_BYTES
         self.max_redirects = max_redirects or settings.URL_MAX_REDIRECTS
+        # Part 23: HTTP connection pooling
+        self._client: Optional[httpx.Client] = None
+        self._cache: Dict[str, Tuple[float, URLIngestionResult]] = {}
+        self._cache_ttl_seconds = 1800.0
+
+    def _get_client(self) -> httpx.Client:
+        if self._client is None or self._client.is_closed:
+            limits = httpx.Limits(max_keepalive_connections=20, max_connections=50, keepalive_expiry=30.0)
+            self._client = httpx.Client(
+                timeout=self.timeout,
+                limits=limits,
+                follow_redirects=False,
+            )
+        return self._client
+
+    @staticmethod
+    def canonical_url(url: str) -> str:
+        """Normalizes URL for deduplication (Part 24). Strips tracking params and fragments."""
+        try:
+            parsed = urllib.parse.urlparse(url.strip())
+            netloc = parsed.netloc.lower()
+            if netloc.startswith("www."):
+                netloc = netloc[4:]
+            path = parsed.path.rstrip("/")
+            # Filter tracking parameters
+            query_tuples = urllib.parse.parse_qsl(parsed.query, keep_blank_values=False)
+            filtered_query = [
+                (k, v) for k, v in query_tuples
+                if not (k.lower().startswith("utm_") or k.lower() in ("ref", "fbclid", "gclid", "src", "source"))
+            ]
+            new_query = urllib.parse.urlencode(filtered_query)
+            return urllib.parse.urlunparse((parsed.scheme.lower(), netloc, path, "", new_query, ""))
+        except Exception:
+            return url.strip().lower().rstrip("/")
+
 
     def validate_and_resolve_url(self, url: str) -> Tuple[str, str, int]:
         """
@@ -152,17 +187,18 @@ class URLIngestionService:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
 
-        with httpx.Client(timeout=self.timeout, follow_redirects=False) as client:
-            for redirect_idx in range(self.max_redirects + 1):
-                # Revalidate URL and DNS IP on every hop!
-                clean_url, _, _ = self.validate_and_resolve_url(current_url)
+        client = self._get_client()
+        for redirect_idx in range(self.max_redirects + 1):
+            # Revalidate URL and DNS IP on every hop!
+            clean_url, _, _ = self.validate_and_resolve_url(current_url)
 
-                try:
-                    response = client.get(clean_url, headers=headers)
-                except Exception as req_err:
-                    raise InvalidInputException(
-                        f"Failed to fetch URL '{clean_url}': {str(req_err)}"
-                    ) from req_err
+            try:
+                response = client.get(clean_url, headers=headers)
+            except Exception as req_err:
+                raise InvalidInputException(
+                    f"Failed to fetch URL '{clean_url}': {str(req_err)}"
+                ) from req_err
+
 
                 # Handle HTTP redirects manually
                 if response.status_code in (301, 302, 303, 307, 308):
@@ -313,12 +349,19 @@ class URLIngestionService:
         Executes complete secure URL ingestion workflow:
         Validation → DNS Filtering → Redirect Expansion → Fetching → Dead Page Detection → Text Extraction.
         """
+        canon = self.canonical_url(url)
+        now = datetime.now().timestamp()
+        if canon in self._cache:
+            ts, cached_res = self._cache[canon]
+            if now - ts < self._cache_ttl_seconds:
+                return cached_res
+
         final_url, status_code, html = self.fetch_url(url)
 
         # Detect Dead Pages (404, 410, 5xx)
         if status_code in (404, 410):
             logger.info("URL %s returned dead page status %d", final_url, status_code)
-            return URLIngestionResult(
+            res = URLIngestionResult(
                 final_url=final_url,
                 title="",
                 publisher=urllib.parse.urlparse(final_url).hostname or "",
@@ -326,10 +369,12 @@ class URLIngestionService:
                 text="",
                 status="DEAD_PAGE",
             )
+            self._cache[canon] = (now, res)
+            return res
 
         if status_code >= 400:
             logger.info("URL %s returned error status %d", final_url, status_code)
-            return URLIngestionResult(
+            res = URLIngestionResult(
                 final_url=final_url,
                 title="",
                 publisher=urllib.parse.urlparse(final_url).hostname or "",
@@ -337,11 +382,13 @@ class URLIngestionService:
                 text="",
                 status="ERROR",
             )
+            self._cache[canon] = (now, res)
+            return res
 
         # Extract metadata and article content
         meta = self.extract_article_metadata(html, final_url)
 
-        return URLIngestionResult(
+        res = URLIngestionResult(
             final_url=final_url,
             title=meta["title"],
             publisher=meta["publisher"],
@@ -349,6 +396,9 @@ class URLIngestionService:
             text=meta["text"],
             status="SUCCESS",
         )
+        self._cache[canon] = (now, res)
+        return res
+
 
 
 url_ingestion_service = URLIngestionService()

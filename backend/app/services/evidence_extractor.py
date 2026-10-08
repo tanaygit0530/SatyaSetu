@@ -165,41 +165,113 @@ class EvidenceExtractorService:
             validation_notes="Candidate evidence pending statutory and temporal rule engine validation.",
         )
 
+    def score_passage_relevance(
+        self,
+        claim_text: str,
+        passage_text: str,
+        source_tier: int = 2,
+    ) -> float:
+        """
+        Calculates 7-factor relevance score for candidate evidence passages (Part 7):
+        evidence_score =
+            0.25 * semantic_similarity
+          + 0.20 * entity_match
+          + 0.25 * relation_match
+          + 0.10 * exact_term_match
+          + 0.10 * source_authority
+          + 0.10 * temporal_relevance
+        """
+        claim_lower = claim_text.lower()
+        passage_lower = passage_text.lower()
+
+        claim_tokens = self._tokenize(claim_text)
+        passage_tokens = self._tokenize(passage_text)
+
+        if not claim_tokens or not passage_tokens:
+            return 0.0
+
+        # 1. Semantic similarity (recall + Jaccard)
+        overlap = len(claim_tokens.intersection(passage_tokens))
+        jaccard = overlap / len(claim_tokens.union(passage_tokens))
+        recall = overlap / len(claim_tokens)
+        semantic_similarity = (recall * 0.7) + (jaccard * 0.3)
+
+        # 2. Entity match: check entities (capitalized / acronym / key tokens)
+        entities = [w for w in re.findall(r"\b[A-Za-z0-9_]{2,}\b", claim_text) if w[0].isupper() or w.isupper()]
+        if not entities:
+            entities = list(claim_tokens)
+        entity_hits = sum(1 for e in entities if e.lower() in passage_lower)
+        entity_match = min(1.0, entity_hits / max(len(entities), 1))
+
+        # 3. Relationship match: predicate/verbs/relations (e.g. developed, launched, banned, charges, works)
+        relation_keywords = {
+            "developed", "develop", "developer", "built", "created", "founded",
+            "charges", "fee", "cost", "free", "available", "works", "hours",
+            "banned", "ban", "prohibited", "launched", "notified", "announced",
+            "national", "animal", "president", "minister", "governor",
+        }
+        claim_relations = [w for w in claim_tokens if w in relation_keywords]
+        if claim_relations:
+            relation_hits = sum(1 for r in claim_relations if r in passage_lower)
+            relation_match = min(1.0, relation_hits / len(claim_relations))
+        else:
+            # If no explicit relation keyword, derive from refutation / corroboration signals
+            has_signals = any(sig in passage_lower for sig in self.REFUTATION_SIGNALS | self.SUPPORT_SIGNALS)
+            relation_match = 0.8 if has_signals else (0.5 if recall > 0.4 else 0.2)
+
+        # 4. Exact keyword / phrase match (n-grams)
+        words = [w for w in claim_lower.split() if w not in self.STOP_WORDS and len(w) > 2]
+        exact_bigram_hit = False
+        for i in range(len(words) - 1):
+            bigram = f"{words[i]} {words[i+1]}"
+            if bigram in passage_lower:
+                exact_bigram_hit = True
+                break
+        exact_term_match = 1.0 if exact_bigram_hit else (0.5 if recall > 0.6 else 0.0)
+
+        # 5. Source authority
+        authority_map = {1: 1.0, 2: 0.8, 3: 0.5}
+        source_authority = authority_map.get(source_tier, 0.4)
+
+        # 6. Temporal relevance
+        temporal_relevance = 0.8  # Default high for non-conflicting current passages
+
+        score = (
+            (0.25 * semantic_similarity)
+            + (0.20 * entity_match)
+            + (0.25 * relation_match)
+            + (0.10 * exact_term_match)
+            + (0.10 * source_authority)
+            + (0.10 * temporal_relevance)
+        )
+        return min(1.0, max(0.0, score))
+
     def _identify_relevant_passage(
-        self, claim_text: str, document_text: str
+        self,
+        claim_text: str,
+        document_text: str,
+        source_tier: int = 2,
     ) -> Optional[Dict[str, Any]]:
         """
-        Scans document text, identifies relevant paragraphs/passages, and extracts candidate quotes.
+        Scans document text, locates small candidate paragraphs (Part 8),
+        ranks candidate passages using 7-factor relevance scoring (Part 7),
+        and extracts exact candidate quotes.
         """
         claim_tokens = self._tokenize(claim_text)
         if not claim_tokens:
             return None
 
-        # Split document into paragraphs and sentences
-        paragraphs = [p.strip() for p in document_text.split("\n\n") if len(p.strip()) > 20]
-        if not paragraphs:
-            paragraphs = [p.strip() for p in document_text.split("\n") if len(p.strip()) > 20]
-        if not paragraphs:
-            paragraphs = [document_text]
+        # Split document into paragraphs
+        raw_paragraphs = [p.strip() for p in re.split(r"\n\s*\n", document_text) if len(p.strip()) > 20]
+        if not raw_paragraphs:
+            raw_paragraphs = [p.strip() for p in document_text.split("\n") if len(p.strip()) > 20]
+        if not raw_paragraphs:
+            raw_paragraphs = [document_text.strip()]
 
         scored_passages: List[Dict[str, Any]] = []
-
-        for para in paragraphs:
-            para_tokens = self._tokenize(para)
-            overlap = len(claim_tokens.intersection(para_tokens))
-            if overlap == 0:
-                continue
-
-            jaccard = overlap / len(claim_tokens.union(para_tokens))
-            recall = overlap / len(claim_tokens)
-
-            # Check refutation / support bonus
-            para_lower = para.lower()
-            has_signal = any(sig in para_lower for sig in self.REFUTATION_SIGNALS | self.SUPPORT_SIGNALS)
-            signal_bonus = 0.25 if has_signal else 0.0
-
-            score = min(1.0, (recall * 0.6) + (jaccard * 0.2) + signal_bonus)
-            if score > 0.20:
+        for para in raw_paragraphs:
+            score = self.score_passage_relevance(claim_text, para, source_tier=source_tier)
+            if score >= 0.20:
                 scored_passages.append({
                     "text": para,
                     "score": score,
@@ -209,35 +281,35 @@ class EvidenceExtractorService:
             # Fallback to sentence-level scan across the whole document
             sentences = self._split_sentences(document_text)
             for sent in sentences:
-                sent_tokens = self._tokenize(sent)
-                overlap = len(claim_tokens.intersection(sent_tokens))
-                if overlap > 0:
-                    score = min(1.0, (overlap / len(claim_tokens)) * 0.8)
-                    if score > 0.20:
-                        scored_passages.append({"text": sent, "score": score})
+                score = self.score_passage_relevance(claim_text, sent, source_tier=source_tier)
+                if score >= 0.20:
+                    scored_passages.append({"text": sent, "score": score})
 
         if not scored_passages:
             return None
 
-        # Pick highest scoring passage as relevant_text
-        best_passage = max(scored_passages, key=lambda p: p["score"])
-        relevant_text = best_passage["text"]
-        relevance_score = best_passage["score"]
+        # Sort candidate passages by score
+        scored_passages.sort(key=lambda p: p["score"], reverse=True)
 
-        # Extract candidate quotes from relevant text
-        candidate_quotes = self._extract_candidate_quotes(relevant_text, claim_tokens)
+        # Extract small candidate windows: Top 3-5 relevant passages (Part 8)
+        top_windows = scored_passages[:5]
+        combined_relevant_text = "\n\n".join(w["text"] for w in top_windows)
+        highest_score = top_windows[0]["score"]
+
+        # Extract verbatim candidate quotes from the top candidate windows
+        candidate_quotes = self._extract_candidate_quotes(top_windows[0]["text"], claim_tokens)
 
         return {
-            "relevant_text": relevant_text,
+            "relevant_text": combined_relevant_text,
             "candidate_quotes": candidate_quotes,
-            "relevance_score": relevance_score,
+            "relevance_score": highest_score,
         }
 
     def _extract_candidate_quotes(
         self, passage: str, claim_tokens: Set[str]
     ) -> List[str]:
         """
-        Extracts salient, exact sentences from the passage that directly address the claim.
+        Extracts salient, exact verbatim sentences from the passage that address the claim.
         """
         sentences = self._split_sentences(passage)
         if not sentences:
@@ -250,15 +322,21 @@ class EvidenceExtractorService:
                 continue
             s_tokens = self._tokenize(s_clean)
             overlap = len(claim_tokens.intersection(s_tokens))
+            if overlap == 0:
+                continue
+
             s_lower = s_clean.lower()
-            signal_bonus = 2 if any(sig in s_lower for sig in self.REFUTATION_SIGNALS | self.SUPPORT_SIGNALS) else 0
-            score = overlap + signal_bonus
-            if score > 0:
-                scored_sentences.append((score, s_clean))
+            signal_bonus = 3 if any(sig in s_lower for sig in self.REFUTATION_SIGNALS | self.SUPPORT_SIGNALS) else 0
+
+            # Relation check
+            relation_keywords = {"developed", "built", "created", "founded", "hours", "fee", "animal", "national"}
+            relation_bonus = 2 if any(r in s_lower for r in relation_keywords) else 0
+
+            score = overlap + signal_bonus + relation_bonus
+            scored_sentences.append((score, s_clean))
 
         if scored_sentences:
             scored_sentences.sort(key=lambda x: x[0], reverse=True)
-            # Return top 1-2 quotes
             return [item[1] for item in scored_sentences[:2]]
 
         return [sentences[0].strip()]
