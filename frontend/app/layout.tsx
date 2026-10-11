@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
-  title: "SachCheck — Forward it. Know if it's true.",
+  title: 'SatyaSetu — Civic Truth: Before You Forward It, Verify It.',
   description:
-    'AI-powered claim verification platform for multilingual India. Forward any WhatsApp text, screenshot, voice memo, or circular to verify with proof.',
+    'AI-powered claim verification platform for multilingual India. Verify suspicious messages, screenshots, voice notes, and circulars with statutory proof.',
   keywords: [
+    'SatyaSetu',
     'fact check',
     'misinformation',
     'WhatsApp forward check',

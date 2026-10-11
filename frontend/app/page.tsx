@@ -1,367 +1,402 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
 import { InputTabs } from '@/components/input/InputTabs';
 import { VerdictBadge } from '@/components/verdict/VerdictBadge';
+import { APP_CONFIG } from '@/lib/constants';
+import { isAuthenticated } from '@/lib/auth';
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, []);
+
   return (
     <AppShell>
       {/* SECTION 1: HERO */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-surface-container-low/60 to-background py-space-xl md:py-space-2xl border-b border-outline-variant/60">
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-surface-container-low/70 via-background to-background py-space-xl md:py-space-2xl border-b border-outline-variant/60">
         <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop flex flex-col items-center text-center space-y-space-md">
           {/* Trust Banner Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant text-primary font-label-sm text-[12px] font-semibold">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container-high border border-outline-variant text-primary font-label-sm text-[12px] font-semibold">
             <span className="material-symbols-outlined text-[16px] text-primary">verified_user</span>
-            <span>Indian Civic Multi-lingual Fact Verification Engine</span>
+            <span>Official SatyaSetu Misinformation Combat Architecture</span>
             <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
             <span className="text-on-surface-variant font-code-sm">IFCN Standard</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-headline-xl text-3xl sm:text-4xl md:text-5xl font-extrabold text-on-surface tracking-tight max-w-3xl leading-tight">
-            Don't forward it. <br className="hidden sm:inline" />
-            <span className="text-primary">Check it first.</span>
+          <h1 className="font-headline-xl text-3xl sm:text-5xl md:text-6xl font-black text-on-surface tracking-tight max-w-4xl leading-tight">
+            Before You Forward It, <br className="hidden sm:inline" />
+            <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-700">
+              Verify It.
+            </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            Forward it. Know if it's true. In your language, with statutory proof. We dissect complex forwards claim by claim against official gazettes.
+          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl text-base sm:text-lg">
+            Verify suspicious messages, screenshots, voice notes, PDFs, and links with evidence-backed explanations in your language.
           </p>
 
-          {/* Integrated 5-Way Input Composer */}
-          <div className="w-full max-w-3xl pt-space-md text-left">
+          {/* Action CTAs */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              href={isLoggedIn ? '/dashboard' : '/login'}
+              className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold transition-all shadow-xs flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {isLoggedIn ? 'dashboard' : 'login'}
+              </span>
+              <span>{isLoggedIn ? 'Go to Personal Dashboard' : 'Start Verifying / Get Started'}</span>
+            </Link>
+
+            <a
+              href="#how-it-works"
+              className="px-5 py-3 rounded-xl border border-outline-variant bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[18px]">account_tree</span>
+              <span>How It Works</span>
+            </a>
+
+            <Link
+              href="/whatsapp"
+              className="px-5 py-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-[#146336] dark:text-emerald-300 font-label-md text-label-md font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[18px] text-emerald-600">chat</span>
+              <span>WhatsApp Tipline</span>
+            </Link>
+          </div>
+
+          {/* Integrated Multi-Modal Verification Composer */}
+          <div className="w-full max-w-3xl pt-space-lg text-left">
             <InputTabs />
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: CLAIM DECOMPOSITION DEMONSTRATION */}
-      <section className="py-space-2xl bg-surface-container-lowest border-b border-outline-variant">
-        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop">
-          <div className="text-center max-w-2xl mx-auto space-y-2 mb-space-xl">
+      {/* SECTION 2: HOW IT WORKS (Compact Flow Diagram) */}
+      <section id="how-it-works" className="py-space-2xl bg-surface-container-lowest border-b border-outline-variant">
+        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop space-y-space-xl">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="font-code-sm text-[12px] text-primary font-bold uppercase tracking-wider">
-              Atomic Claim Extraction
+              Verification Pipeline
             </span>
-            <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-              One forward can contain many claims.
+            <h2 className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-on-surface">
+              How SatyaSetu Verifies Claims
             </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Rumours mix truthful facts with fabricated numbers to deceive readers. SachCheck unpacks every statement individually.
+            <p className="font-body-md text-on-surface-variant text-sm sm:text-base">
+              A four-stage deterministic workflow powered by authoritative source grounding and atomic claim extraction.
             </p>
           </div>
 
-          {/* Visual Forward Decomposition Card */}
-          <div className="max-w-4xl mx-auto rounded-2xl bg-surface-container-low border border-outline-variant p-space-md md:p-space-lg space-y-space-md">
-            {/* Raw Forward Quote */}
-            <div className="rounded-xl bg-surface-container-lowest p-space-md border border-outline-variant">
-              <span className="font-label-sm text-[11px] font-bold uppercase tracking-wider text-outline">
-                Forwarded WhatsApp Message:
-              </span>
-              <blockquote className="font-serif italic text-on-surface text-[16px] md:text-[17px] mt-1">
-                "URGENT: Ministry of Education announced Prime Minister Higher Merit Scholarship 2026. All college students receive ₹50,000 cash grant directly in bank. Register today on pmssy-gov.in."
-              </blockquote>
+          {/* Compact 4-Step Diagram */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-space-md relative">
+            {/* Step 1 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-3 relative">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary font-code-sm font-bold flex items-center justify-center border border-primary/20">
+                01
+              </div>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                1. Submit Content
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Forward WhatsApp messages, upload circular PDFs, audio clips, or paste news links into our portal.
+              </p>
             </div>
 
-            {/* Decomposed Atomic Claims */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md pt-2">
-              {/* Claim 1 */}
-              <div className="rounded-xl bg-surface-container-lowest border border-outline-variant p-space-md space-y-2 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-code-sm text-[11px] font-bold text-outline">CLAIM 1</span>
-                  <VerdictBadge verdict="VERIFIED" size="sm" />
-                </div>
-                <p className="font-body-sm text-[13px] text-on-surface font-medium">
-                  "Ministry has notified PM Higher Merit Scheme."
-                </p>
-                <p className="font-code-sm text-[11px] text-tertiary">
-                  ✓ Confirmed in Gazette MoE/HE/2026/04
-                </p>
+            {/* Step 2 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-3 relative">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary font-code-sm font-bold flex items-center justify-center border border-primary/20">
+                02
               </div>
-
-              {/* Claim 2 */}
-              <div className="rounded-xl bg-surface-container-lowest border border-outline-variant p-space-md space-y-2 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-code-sm text-[11px] font-bold text-outline">CLAIM 2</span>
-                  <VerdictBadge verdict="FALSE" size="sm" />
-                </div>
-                <p className="font-body-sm text-[13px] text-on-surface font-medium">
-                  "All students receive ₹50,000 cash grant."
-                </p>
-                <p className="font-code-sm text-[11px] text-error">
-                  ✕ False: ₹12,000/yr strictly for top 80th percentile
-                </p>
-              </div>
-
-              {/* Claim 3 */}
-              <div className="rounded-xl bg-surface-container-lowest border border-outline-variant p-space-md space-y-2 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-code-sm text-[11px] font-bold text-outline">CLAIM 3</span>
-                  <VerdictBadge verdict="FALSE" size="sm" />
-                </div>
-                <p className="font-body-sm text-[13px] text-on-surface font-medium">
-                  "Apply on domain pmssy-gov.in."
-                </p>
-                <p className="font-code-sm text-[11px] text-error">
-                  ✕ Phishing URL. Genuine: scholarships.gov.in
-                </p>
-              </div>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                2. Extract Claims
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Multi-claim statements are decomposed into atomic, verifiable propositions to isolate falsehoods from truth.
+              </p>
             </div>
 
-            <div className="text-center pt-2">
-              <Link
-                href="/check/SC-2026-8941"
-                className="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary font-bold hover:underline"
-              >
-                <span>View Full Forensic Verification Record</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-              </Link>
+            {/* Step 3 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-3 relative">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary font-code-sm font-bold flex items-center justify-center border border-primary/20">
+                03
+              </div>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                3. Retrieve Evidence
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Queries Tier-1 Gazettes, PIB Fact Check, and statutory archives. Verified against Shared Rumour Memory.
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-3 relative">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary font-code-sm font-bold flex items-center justify-center border border-primary/20">
+                04
+              </div>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                4. Deliver Verdict
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Receive an authoritative verdict, verbatim quotations, and direct links to official sources in your language.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3: THE 5 CANONICAL VERDICTS */}
-      <section className="py-space-2xl bg-background border-b border-outline-variant">
-        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop">
-          <div className="text-center max-w-2xl mx-auto space-y-2 mb-space-xl">
+      {/* SECTION 3: FIVE VERDICTS TAXONOMY */}
+      <section className="py-space-2xl bg-surface-container-low/50 border-b border-outline-variant">
+        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop space-y-space-xl">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="font-code-sm text-[12px] text-primary font-bold uppercase tracking-wider">
-              Standardized System
+              Transparent Classification
             </span>
-            <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-              The 5 Evidentiary Verdicts
+            <h2 className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-on-surface">
+              The Five Evidentiary Verdicts
             </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Every verdict token is strictly paired with an unambiguous glyph and color standard compliant with accessibility requirements.
+            <p className="font-body-md text-on-surface-variant text-sm">
+              SatyaSetu adheres strictly to IFCN fact-checking criteria. We never guess: when evidence is insufficient, claims are marked as unconfirmed.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md">
-            {[
-              {
-                verdict: 'VERIFIED' as const,
-                desc: 'Full factual alignment with verifiable, authoritative primary records.',
-              },
-              {
-                verdict: 'FALSE' as const,
-                desc: 'Wholly fabricated statements or manipulated media debunked by official sources.',
-              },
-              {
-                verdict: 'OUTDATED' as const,
-                desc: 'Authentic historical orders misleadingly recirculated as present reality.',
-              },
-              {
-                verdict: 'PARTLY_SUPPORTED' as const,
-                desc: 'Mixture of factual premises and unverified extrapolations or numbers.',
-              },
-              {
-                verdict: 'CANNOT_BE_CONFIRMED' as const,
-                desc: 'Insufficient documentary records or subjective assertion without public record.',
-              },
-            ].map((item) => (
-              <div
-                key={item.verdict}
-                className="p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant flex flex-col justify-between space-y-3 shadow-2xs"
-              >
-                <VerdictBadge verdict={item.verdict} size="md" />
-                <p className="font-body-sm text-[13px] text-on-surface-variant flex-1">
-                  {item.desc}
-                </p>
-                <div className="pt-2 border-t border-outline-variant/60 font-code-sm text-[11px] text-outline">
-                  IFCN Section 11 Standard
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: 4-STEP PIPELINE */}
-      <section className="py-space-2xl bg-surface-container-lowest border-b border-outline-variant">
-        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop">
-          <div className="text-center max-w-2xl mx-auto space-y-2 mb-space-xl">
-            <span className="font-code-sm text-[12px] text-primary font-bold uppercase tracking-wider">
-              How It Works
-            </span>
-            <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-              AI reads. Evidence proves. Rules decide.
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              We never let a black-box LLM make ungrounded decisions. Every verdict is backed by statutory evidence and deterministic rules.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-space-md">
-            {[
-              {
-                step: '01',
-                title: 'Atomic Extraction',
-                desc: 'Multilingual NLP isolates specific testable factual claims from opinions, greetings, or rhetoric.',
-                icon: 'segment',
-              },
-              {
-                step: '02',
-                title: 'Statutory Retrieval',
-                desc: 'Live crawlers query eGazette, PIB Fact Check, National Portals, and Railway orders.',
-                icon: 'account_balance',
-              },
-              {
-                step: '03',
-                title: 'Exact Quote Matching',
-                desc: 'Extracts verbatim quotes from authenticated PDF circulars and certifies source precedence.',
-                icon: 'format_quote',
-              },
-              {
-                step: '04',
-                title: 'Deterministic Verdict',
-                desc: 'Rule engine executes hard Boolean checks to prevent hallucinations before publishing verdict.',
-                icon: 'gavel',
-              },
-            ].map((col) => (
-              <div
-                key={col.step}
-                className="p-space-md rounded-xl bg-surface-container-low border border-outline-variant space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-code-sm text-[14px] font-bold text-primary">
-                    {col.step}
-                  </span>
-                  <div className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
-                    <span className="material-symbols-outlined text-[18px]">
-                      {col.icon}
-                    </span>
-                  </div>
-                </div>
-                <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                  {col.title}
-                </h3>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  {col.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 5: MULTILINGUAL SHOWCASE */}
-      <section className="py-space-2xl bg-background border-b border-outline-variant">
-        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop">
-          <div className="text-center max-w-2xl mx-auto space-y-2 mb-space-xl">
-            <span className="font-code-sm text-[12px] text-primary font-bold uppercase tracking-wider">
-              Multilingual India
-            </span>
-            <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-              Built for English, हिन्दी, and मराठी
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Misinformation targets linguistic comfort. SachCheck ingests and delivers evidence seamlessly across Indian languages.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md max-w-5xl mx-auto">
-            {/* English Card */}
-            <div className="p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-label-sm font-bold text-primary">English (Indian)</span>
-                <span className="px-2 py-0.5 rounded bg-surface-container font-code-sm text-[11px]">EN</span>
-              </div>
-              <p className="font-serif italic text-on-surface text-[15px]">
-                "Scholarship amount is ₹50,000 for all college students."
-              </p>
-              <div className="pt-2 border-t border-outline-variant">
-                <VerdictBadge verdict="FALSE" size="sm" />
-                <p className="font-body-sm text-[12px] text-on-surface-variant mt-1.5">
-                  Refuted: Amount is ₹12,000/yr under official NSP guidelines.
-                </p>
-              </div>
-            </div>
-
-            {/* Hindi Card */}
-            <div className="p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-label-sm font-bold text-primary">हिन्दी</span>
-                <span className="px-2 py-0.5 rounded bg-surface-container font-code-sm text-[11px]">HI</span>
-              </div>
-              <p className="font-devanagari text-on-surface text-[15px]">
-                "कॉलेज छात्रों के लिए छात्रवृत्ति राशि ₹50,000 सीधे बैंक में मिलेगी।"
-              </p>
-              <div className="pt-2 border-t border-outline-variant">
-                <VerdictBadge verdict="FALSE" size="sm" />
-                <p className="font-devanagari text-[12px] text-on-surface-variant mt-1.5">
-                  असत्य: आधिकारिक एनएसपी दिशानिर्देशों के तहत राशि ₹12,000/वर्ष है।
-                </p>
-              </div>
-            </div>
-
-            {/* Marathi Card */}
-            <div className="p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-label-sm font-bold text-primary">मराठी</span>
-                <span className="px-2 py-0.5 rounded bg-surface-container font-code-sm text-[11px]">MR</span>
-              </div>
-              <p className="font-devanagari text-on-surface text-[15px]">
-                "महाविद्यालयीन विद्यार्थ्यांसाठी शिष्यवृत्तीची रक्कम ₹50,000 आहे."
-              </p>
-              <div className="pt-2 border-t border-outline-variant">
-                <VerdictBadge verdict="FALSE" size="sm" />
-                <p className="font-devanagari text-[12px] text-on-surface-variant mt-1.5">
-                  खोटे: अधिकृत राजपत्रानुसार रक्कम प्रतिवर्ष ₹12,000 मंजूर आहे.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 6: WHATSAPP INTEGRATION CALLOUT */}
-      <section className="py-space-2xl bg-surface-container-low border-b border-outline-variant">
-        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop">
-          <div className="max-w-4xl mx-auto rounded-2xl bg-surface-container-lowest border border-outline-variant p-space-lg md:p-space-xl flex flex-col md:flex-row items-center justify-between gap-space-lg shadow-sm">
-            <div className="space-y-3 text-left">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-[#146336] font-code-sm text-[12px] font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#1E8E4E]"></span>
-                WhatsApp Verified Bot Active
-              </div>
-              <h3 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                Verify where forwards already live.
+            {/* 1. VERIFIED */}
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-emerald-500/30 space-y-2.5 shadow-2xs">
+              <VerdictBadge verdict="VERIFIED" size="sm" />
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Statutorily Accurate
               </h3>
-              <p className="font-body-md text-body-md text-on-surface-variant max-w-lg">
-                No app installation required. Forward any voice note, image circular, or forward directly to our verified civic tipline number.
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Supported by active official gazette notifications, primary circulars, or certified government announcements.
               </p>
-              <div className="pt-1 flex flex-wrap gap-3">
-                <Link
-                  href="/whatsapp"
-                  className="px-5 py-2.5 rounded-xl bg-[#1E8E4E] hover:bg-[#146336] text-white font-label-md text-label-md font-bold flex items-center gap-2 shadow-xs transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">chat</span>
-                  <span>Connect on WhatsApp</span>
-                </Link>
-                <Link
-                  href="/how-we-decide"
-                  className="px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low"
-                >
-                  Read Methodology
-                </Link>
-              </div>
             </div>
 
-            <div className="w-full md:w-64 p-space-md rounded-xl bg-surface-container-low border border-outline-variant space-y-2 text-center">
-              <span className="font-code-sm text-[11px] text-outline font-bold">
-                CIVIC TIPLINE
-              </span>
-              <p className="font-headline-sm text-[18px] font-bold text-on-surface">
-                +91 91122 33445
+            {/* 2. FALSE */}
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-rose-500/30 space-y-2.5 shadow-2xs">
+              <VerdictBadge verdict="FALSE" size="sm" />
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Factually Refuted
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Directly contradicted by official public records, statutory notices, or confirmed as fabricated disinformation.
               </p>
-              <p className="font-body-sm text-[11px] text-on-surface-variant">
-                Auto-replies in 3 seconds with official Gazette evidence cards.
+            </div>
+
+            {/* 3. OUTDATED */}
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-amber-500/30 space-y-2.5 shadow-2xs">
+              <VerdictBadge verdict="OUTDATED" size="sm" />
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Expired Context
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                May have been true in a previous financial year or pandemic period, but circulated today as current truth.
+              </p>
+            </div>
+
+            {/* 4. PARTLY_SUPPORTED */}
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-orange-500/30 space-y-2.5 shadow-2xs">
+              <VerdictBadge verdict="PARTLY_SUPPORTED" size="sm" />
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Mixed Evidence
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Contains a kernel of truth (e.g., scheme exists) mixed with inflated grant amounts or phishing registration links.
+              </p>
+            </div>
+
+            {/* 5. CANNOT_BE_CONFIRMED */}
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-slate-500/30 space-y-2.5 shadow-2xs">
+              <VerdictBadge verdict="CANNOT_BE_CONFIRMED" size="sm" />
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Insufficient Evidence
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                When official records are absent or private claims lack public evidence, SatyaSetu abstains from speculation.
               </p>
             </div>
           </div>
         </div>
       </section>
+
+      {/* SECTION 4: REAL IMPLEMENTED FEATURES */}
+      <section id="features" className="py-space-2xl bg-surface-container-lowest border-b border-outline-variant">
+        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop space-y-space-xl">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="font-code-sm text-[12px] text-primary font-bold uppercase tracking-wider">
+              Core Capabilities
+            </span>
+            <h2 className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-on-surface">
+              Engineered for Real-World Civic Misinformation
+            </h2>
+            <p className="font-body-md text-on-surface-variant text-sm">
+              Every feature below is implemented in code and operational across our web portal and WhatsApp bot.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md">
+            {/* Feature 1 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[28px]">multimodal</span>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                Multimodal Input Ingestion
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Accepts text forwards, screenshot images with OCR, audio voice memos, PDF circulars, and article URLs.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[28px]">segment</span>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                Atomic Claim-Level Correction
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Decomposes mixed forwards into discrete statements so legitimate facts aren't mistakenly dismissed alongside false claims.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[28px]">policy</span>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                Evidence-Grounded Verdicts
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Every verdict cites Tier-1 gazettes, official .gov.in domains, and verified IFCN repositories with verbatim quotes.
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[28px]">fingerprint</span>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                Shared Rumour Memory
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Identifies viral forwards using L1 caching and L2 vector memory, returning instant verified responses to curb spread.
+              </p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[28px]">translate</span>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                Multilingual Reasoning
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Supports verification and explanation in Hindi, Marathi, and English with cross-lingual claim mapping.
+              </p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="p-space-md rounded-2xl bg-surface-container-low border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[28px]">chat</span>
+              <h3 className="font-headline-sm text-base font-bold text-on-surface">
+                Twilio WhatsApp Integration
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Direct tipline integration via official webhook with verified OTP delivery and user session management.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5: CIVIC IMPACT (INTENDED BENEFITS) */}
+      <section id="impact" className="py-space-2xl bg-surface-container-low/40 border-b border-outline-variant">
+        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop space-y-space-xl">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="font-code-sm text-[12px] text-primary font-bold uppercase tracking-wider">
+              Intended Benefits
+            </span>
+            <h2 className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-on-surface">
+              Civic Impact & Digital Literacy Goals
+            </h2>
+            <p className="font-body-md text-on-surface-variant text-sm">
+              Our mission is to empower citizens with evidentiary truth before harmful forwards are amplified.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[24px]">language</span>
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Language Inclusion
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Ensuring citizens accessing regional languages receive equal evidentiary protection from viral deceptions.
+              </p>
+            </div>
+
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[24px]">school</span>
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Media Literacy
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Training readers to spot phishing URLs, forged government circulars, and out-of-context video claims.
+              </p>
+            </div>
+
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[24px]">shield</span>
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Financial Scam Prevention
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Intercepting fake welfare recruitment scams and fraudulent lottery schemes before citizens suffer losses.
+              </p>
+            </div>
+
+            <div className="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-2 shadow-2xs">
+              <span className="material-symbols-outlined text-primary text-[24px]">speed</span>
+              <h3 className="font-headline-sm text-sm font-bold text-on-surface">
+                Rapid Fact-Check Triage
+              </h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Substantially reducing turnaround time from days to seconds with deterministic rules and authoritative search.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 6: FOOTER */}
+      <footer className="py-space-xl bg-surface-container-lowest border-t border-outline-variant text-xs text-on-surface-variant">
+        <div className="max-w-7xl mx-auto px-margin md:px-margin-desktop flex flex-col sm:flex-row items-center justify-between gap-space-md text-center sm:text-left">
+          <div className="space-y-1">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <span className="font-bold text-on-surface">{APP_CONFIG.name}</span>
+              <span>•</span>
+              <span>{APP_CONFIG.compliance}</span>
+            </div>
+            <p className="text-[11px] text-outline">
+              Evidence-based misinformation verification engine. Built for transparency and civic resilience.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 flex-wrap justify-center font-medium">
+            <Link href="/whatsapp" className="hover:text-primary transition-colors">
+              WhatsApp Tipline
+            </Link>
+            <Link href="/how-we-decide" className="hover:text-primary transition-colors">
+              Decision Standard
+            </Link>
+            <Link href="/history" className="hover:text-primary transition-colors">
+              Public Ledger
+            </Link>
+            <Link href="/login" className="hover:text-primary transition-colors font-bold text-primary">
+              Citizen Login
+            </Link>
+          </div>
+        </div>
+      </footer>
     </AppShell>
   );
 }

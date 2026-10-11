@@ -1,7 +1,8 @@
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import JSONResponse
 
+from app.api.dependencies import get_optional_current_user
 from app.jobs import job_manager
 from app.schemas.check import (
     CheckClaimsResponse,
@@ -11,7 +12,7 @@ from app.schemas.check import (
     CheckEvidenceResponse,
     CheckStatusResponse,
 )
-from app.schemas.core import VerificationResult
+from app.schemas.core import User, VerificationResult
 from app.schemas.enums import InputType, ProcessingStatus
 
 router = APIRouter(prefix="/checks", tags=["Verification Checks & Asynchronous Jobs"])
@@ -27,7 +28,9 @@ async def submit_check_singular(
     payload: CheckCreateRequest,
     background_tasks: BackgroundTasks,
     sync: bool = False,
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ):
+    eff_user_id = payload.user_id or (current_user.user_id if current_user else None)
     if sync:
         from app.services.verification_orchestrator import verification_orchestrator
         text_content = payload.text or payload.content or ""
@@ -38,7 +41,8 @@ async def submit_check_singular(
             check_id=payload.check_id,
             is_demo=payload.is_demo,
         )
-    return await submit_check(payload=payload, background_tasks=background_tasks)
+    payload.user_id = eff_user_id
+    return await submit_check(payload=payload, background_tasks=background_tasks, current_user=current_user)
 
 
 @router.post(
@@ -54,21 +58,14 @@ async def submit_check_singular(
 async def submit_check(
     payload: CheckCreateRequest,
     background_tasks: BackgroundTasks,
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ) -> CheckCreateResponse:
-    """
-    POST /checks
-    ↓
-    202 Accepted
-    ↓
-    check_id
-    ↓
-    background processing
-    """
+    eff_user_id = payload.user_id or (current_user.user_id if current_user else None)
     job = job_manager.create_check_job(
         text=payload.text or payload.content or "",
         input_type=payload.input_type,
         check_id=payload.check_id,
-        user_id=payload.user_id,
+        user_id=eff_user_id,
         is_demo=payload.is_demo,
         background_tasks=background_tasks,
     )
@@ -89,6 +86,7 @@ async def upload_and_check(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(..., description="Uploaded screenshot image, voice audio, or PDF notice"),
     input_type: str = Form("SCREENSHOT", description="Type of input: SCREENSHOT, VOICE, PDF"),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ) -> CheckCreateResponse:
     contents = await file.read()
     extracted_text = ""
@@ -116,9 +114,12 @@ async def upload_and_check(
     if not extracted_text.strip():
         extracted_text = f"[Attached {norm_type} file: {file.filename}]"
 
+    eff_user_id = current_user.user_id if current_user else None
+
     job = job_manager.create_check_job(
         text=extracted_text,
         input_type=inp_type,
+        user_id=eff_user_id,
         background_tasks=background_tasks,
     )
     return CheckCreateResponse(

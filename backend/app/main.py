@@ -63,6 +63,16 @@ def create_application() -> FastAPI:
             },
         )
 
+    # Mount root /health endpoint for hosting platforms (Render, Railway)
+    @app.get("/health", tags=["Health"], include_in_schema=True)
+    async def root_health():
+        return {
+            "status": "healthy",
+            "service": settings.SERVICE_NAME,
+            "version": settings.VERSION,
+            "environment": settings.ENVIRONMENT,
+        }
+
     # Mount API version prefix: /api/v1
     app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 

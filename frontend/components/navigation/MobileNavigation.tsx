@@ -8,11 +8,11 @@ export function MobileNavigation() {
   const pathname = usePathname();
 
   const tabs = [
-    { label: 'Check', path: '/check', icon: 'fact_check' },
+    { label: 'Verify', path: '/check', icon: 'fact_check' },
+    { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { label: 'History', path: '/history', icon: 'history' },
     { label: 'WhatsApp', path: '/whatsapp', icon: 'chat' },
-    { label: 'Decide', path: '/how-we-decide', icon: 'policy' },
-    { label: 'Settings', path: '/settings', icon: 'settings' },
+    { label: 'Standards', path: '/how-we-decide', icon: 'policy' },
   ];
 
   // Don't show bottom bar inside admin pages

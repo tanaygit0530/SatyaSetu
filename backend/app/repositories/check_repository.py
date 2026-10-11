@@ -245,6 +245,108 @@ class CheckRepository(BaseFirestoreRepository):
             "hourlyVolume": hourly_volume,
         }
 
+    def get_user_analytics_summary(self, user_id: str) -> Dict[str, Any]:
+        """
+        Computes genuine personal verification analytics for a specific authenticated user.
+        Calculates metrics strictly from actual stored records owned by that user.
+        Returns clean zero-states for new users without mock data.
+        """
+        checks = self.list_checks(user_id=user_id, limit=200)
+        total_checks = len(checks)
+        verdict_counts = {
+            "verified": 0,
+            "falseClaims": 0,
+            "outdated": 0,
+            "partlySupported": 0,
+            "cannotConfirm": 0,
+        }
+
+        # Activity timeline by date (YYYY-MM-DD)
+        daily_counts: Dict[str, int] = {}
+        recent_checks: List[Dict[str, Any]] = []
+
+        for chk in checks:
+            if chk.created_at:
+                day_key = chk.created_at.strftime("%Y-%m-%d")
+                daily_counts[day_key] = daily_counts.get(day_key, 0) + 1
+
+            verdict_val = "UNVERIFIED"
+            summary_text = chk.input.raw_content
+            if chk.result:
+                v_str = str(chk.result.overall_verdict.value if hasattr(chk.result.overall_verdict, "value") else (chk.result.overall_verdict or "")).upper()
+                if "VERIFIED" in v_str:
+                    verdict_counts["verified"] += 1
+                    verdict_val = "VERIFIED"
+                elif "FALSE" in v_str:
+                    verdict_counts["falseClaims"] += 1
+                    verdict_val = "FALSE"
+                elif "OUTDATED" in v_str:
+                    verdict_counts["outdated"] += 1
+                    verdict_val = "OUTDATED"
+                elif "PARTLY" in v_str:
+                    verdict_counts["partlySupported"] += 1
+                    verdict_val = "PARTLY_SUPPORTED"
+                elif "CANNOT" in v_str or "UNCONFIRMED" in v_str:
+                    verdict_counts["cannotConfirm"] += 1
+                    verdict_val = "CANNOT_BE_CONFIRMED"
+
+                if chk.result.summary:
+                    summary_text = chk.result.summary
+                elif chk.result.claims and chk.result.claims[0].claim_text:
+                    summary_text = chk.result.claims[0].claim_text
+
+            inp_type = chk.input.input_type.value if hasattr(chk.input.input_type, "value") else str(chk.input.input_type)
+
+            recent_checks.append({
+                "check_id": chk.check_id,
+                "summary": summary_text[:140] + ("..." if len(summary_text) > 140 else ""),
+                "verdict": verdict_val,
+                "input_type": inp_type,
+                "timestamp": chk.created_at.isoformat() if chk.created_at else None,
+                "status": chk.status.value if hasattr(chk.status, "value") else str(chk.status),
+            })
+
+        # Activity timeline formatted for Recharts
+        activity_timeline = [
+            {"date": d, "checks": count}
+            for d, count in sorted(daily_counts.items())
+        ]
+
+        standard_verdict_counts = {
+            "VERIFIED": verdict_counts["verified"],
+            "FALSE": verdict_counts["falseClaims"],
+            "OUTDATED": verdict_counts["outdated"],
+            "PARTLY_SUPPORTED": verdict_counts["partlySupported"],
+            "CANNOT_BE_CONFIRMED": verdict_counts["cannotConfirm"],
+        }
+
+        # Format timeline supporting both "checks" and "count"
+        formatted_timeline = [
+            {"date": d, "checks": count, "count": count}
+            for d, count in sorted(daily_counts.items())
+        ]
+
+        # 5 Verdict breakdown distribution
+        verdict_distribution = [
+            {"name": "Verified", "key": "VERIFIED", "count": verdict_counts["verified"], "color": "#1E8E4E"},
+            {"name": "False", "key": "FALSE", "count": verdict_counts["falseClaims"], "color": "#D93025"},
+            {"name": "Outdated", "key": "OUTDATED", "count": verdict_counts["outdated"], "color": "#F2994A"},
+            {"name": "Partly Supported", "key": "PARTLY_SUPPORTED", "count": verdict_counts["partlySupported"], "color": "#F9AB00"},
+            {"name": "Unconfirmed", "key": "CANNOT_BE_CONFIRMED", "count": verdict_counts["cannotConfirm"], "color": "#70757A"},
+        ]
+
+        return {
+            "total_checks": total_checks,
+            "totalChecks": total_checks,
+            "verdict_counts": standard_verdict_counts,
+            "verdictCounts": verdict_counts,
+            "verdictDistribution": verdict_distribution,
+            "activity_timeline": formatted_timeline,
+            "activityTimeline": formatted_timeline,
+            "recent_checks": recent_checks[:10],
+            "recentChecks": recent_checks[:10],
+        }
+
     def delete_check(self, check_id: str) -> bool:
         """
         Deletes a check document by ID. Returns True if deleted.
