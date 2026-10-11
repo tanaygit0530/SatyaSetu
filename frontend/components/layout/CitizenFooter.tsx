@@ -52,8 +52,8 @@ export function CitizenFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/c/SC-2026-8941" className="hover:text-primary transition-colors">
-                  Sample Public Verdict
+                <Link href="/history" className="hover:text-primary transition-colors">
+                  Recent Case Dossiers
                 </Link>
               </li>
             </ul>

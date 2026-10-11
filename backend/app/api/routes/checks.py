@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import JSONResponse
 
 from app.jobs import job_manager
@@ -12,7 +12,7 @@ from app.schemas.check import (
     CheckStatusResponse,
 )
 from app.schemas.core import VerificationResult
-from app.schemas.enums import ProcessingStatus
+from app.schemas.enums import InputType, ProcessingStatus
 
 router = APIRouter(prefix="/checks", tags=["Verification Checks & Asynchronous Jobs"])
 check_alias_router = APIRouter(prefix="/check", tags=["Verification Checks & Asynchronous Jobs"])
@@ -76,6 +76,95 @@ async def submit_check(
         check_id=job.check_id,
         status="RECEIVED",
     )
+
+
+@router.post(
+    "/upload",
+    response_model=CheckCreateResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Upload media attachment (screenshot, voice, PDF) and enqueue check",
+    description="Ingests uploaded media via OCR/STT/PDF service, extracts text, and enqueues verification job.",
+)
+async def upload_and_check(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(..., description="Uploaded screenshot image, voice audio, or PDF notice"),
+    input_type: str = Form("SCREENSHOT", description="Type of input: SCREENSHOT, VOICE, PDF"),
+) -> CheckCreateResponse:
+    contents = await file.read()
+    extracted_text = ""
+    norm_type = input_type.upper()
+
+    if norm_type in ("SCREENSHOT", "IMAGE"):
+        from app.services.screenshot_ingestion import screenshot_ingestion_service
+        res = screenshot_ingestion_service.ingest_screenshot(contents, filename=file.filename)
+        extracted_text = res.extracted_text
+        inp_type = InputType.SCREENSHOT
+    elif norm_type in ("VOICE", "AUDIO"):
+        from app.services.voice_ingestion import voice_ingestion_service
+        res = voice_ingestion_service.ingest_voice(contents, filename=file.filename)
+        extracted_text = res.transcript
+        inp_type = InputType.VOICE
+    elif norm_type == "PDF":
+        from app.services.pdf_ingestion import pdf_ingestion_service
+        res = pdf_ingestion_service.ingest_pdf(contents, filename=file.filename)
+        extracted_text = res.extracted_text
+        inp_type = InputType.PDF
+    else:
+        extracted_text = contents.decode("utf-8", errors="ignore")
+        inp_type = InputType.TEXT
+
+    if not extracted_text.strip():
+        extracted_text = f"[Attached {norm_type} file: {file.filename}]"
+
+    job = job_manager.create_check_job(
+        text=extracted_text,
+        input_type=inp_type,
+        background_tasks=background_tasks,
+    )
+    return CheckCreateResponse(
+        check_id=job.check_id,
+        status="RECEIVED",
+    )
+
+
+@router.get(
+    "",
+    response_model=List[CheckDetailResponse],
+    status_code=status.HTTP_200_OK,
+    summary="List recent verification checks",
+    description="Returns real checks stored in repository ordered newest first.",
+)
+async def list_checks(
+    limit: int = Query(50, ge=1, le=200),
+    status: Optional[str] = Query(None),
+) -> List[CheckDetailResponse]:
+    checks = job_manager.list_checks(limit=limit, status=status)
+    results: List[CheckDetailResponse] = []
+    for check in checks:
+        claims = check.result.claims if (check.result and check.result.claims) else []
+        results.append(
+            CheckDetailResponse(
+                check_id=check.check_id,
+                status=check.status.value,
+                input_type=check.input.input_type.value if hasattr(check.input.input_type, "value") else str(check.input.input_type),
+                text=check.input.raw_content,
+                created_at=check.created_at,
+                updated_at=check.updated_at,
+                completed_at=check.result.completed_at if check.result else None,
+                claims=claims,
+                result=check.result,
+            )
+        )
+    return results
+
+
+@router.get(
+    "/stats/summary",
+    status_code=status.HTTP_200_OK,
+    summary="Aggregated analytics summary computed from genuine stored checks",
+)
+async def get_checks_stats() -> Dict[str, Any]:
+    return job_manager.get_stats()
 
 
 @router.get(

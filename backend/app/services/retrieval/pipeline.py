@@ -105,7 +105,7 @@ class EvidenceRetrievalPipeline:
             fc_future = executor.submit(_fetch_fact_checks)
             search_futures = {
                 executor.submit(self.search_provider.search, q, 4): q
-                for q in deduped_search_terms[:4]
+                for q in deduped_search_terms[:3]
             }
 
             try:
@@ -271,7 +271,12 @@ class EvidenceRetrievalPipeline:
         """
         to_fetch = []
         for c in candidates[:max_fetches]:
-            if c.raw_content and len(c.raw_content) > 300:
+            # If candidate already has adequate raw_content or snippet from search provider, reuse it
+            if c.raw_content and len(c.raw_content) > 120:
+                continue
+            if c.snippet and len(c.snippet) > 80:
+                if not c.raw_content:
+                    c.raw_content = c.snippet
                 continue
             if not c.url.startswith("http://") and not c.url.startswith("https://"):
                 continue

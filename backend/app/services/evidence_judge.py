@@ -105,6 +105,8 @@ class EvidenceJudgeService:
 
     def __init__(self) -> None:
         self.gemini_key: Optional[str] = settings.GEMINI_API_KEY
+        self.groq_key: Optional[str] = settings.GROQ_API_KEY
+        self.groq_model: str = settings.GROQ_MODEL or "llama-3.3-70b-versatile"
         self.openai_key: Optional[str] = settings.OPENAI_API_KEY
         self.model: str = settings.GEMINI_MODEL
 
@@ -125,10 +127,16 @@ class EvidenceJudgeService:
         sandboxed_items = [self._extract_sandboxed_item(it) for it in evidence_items]
 
         # Attempt structured LLM call if credentials configured and not in demo mode
-        if (self.gemini_key or self.openai_key) and not settings.DEMO_MODE:
+        if (self.groq_key or self.gemini_key or self.openai_key) and not settings.DEMO_MODE:
             try:
-                llm_assessments = self._call_llm_judge(clean_claim, sandboxed_items)
+                # Score top 5 most authoritative items via fast LLM (sub-second)
+                top_items = sorted(sandboxed_items, key=lambda x: x.source_tier or 3)[:5]
+                llm_assessments = self._call_llm_judge(clean_claim, top_items)
                 if llm_assessments:
+                    evaluated_ids = {a.evidence_id for a in llm_assessments}
+                    for item in sandboxed_items:
+                        if item.evidence_id not in evaluated_ids:
+                            llm_assessments.append(self.judge_single_item(clean_claim, item))
                     return llm_assessments
             except Exception as e:
                 logger.warning("LLM Evidence Judge call failed, falling back to deterministic evaluator: %s", e)
@@ -439,31 +447,65 @@ class EvidenceJudgeService:
             ],
         }
 
-        if self.gemini_key:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.gemini_key}"
-            payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": f"{system_prompt}\n\nEVALUATE THIS PAYLOAD:\n{json.dumps(user_content, ensure_ascii=False)}"}
-                        ]
-                    }
-                ],
-                "generationConfig": {
-                    "response_mime_type": "application/json",
+        # 1. Call Groq REST API if configured
+        if self.groq_key:
+            try:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+                headers = {"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"}
+                payload = {
+                    "model": self.groq_model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"EVALUATE THIS PAYLOAD:\n{json.dumps(user_content, ensure_ascii=False)}"},
+                    ],
+                    "response_format": {"type": "json_object"},
                     "temperature": 0.0,
-                },
-            }
-            with httpx.Client(timeout=10.0) as client:
-                res = client.post(url, json=payload)
-                if res.status_code == 200:
-                    data = res.json()
-                    raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
-                    parsed = json.loads(raw_text)
-                    if isinstance(parsed, list):
-                        return [EvidenceJudgeAssessment(**p) for p in parsed]
-                    elif isinstance(parsed, dict) and "assessments" in parsed:
-                        return [EvidenceJudgeAssessment(**p) for p in parsed["assessments"]]
+                }
+                with httpx.Client(timeout=3.5) as client:
+                    res = client.post(url, headers=headers, json=payload)
+                    if res.status_code == 200:
+                        data = res.json()
+                        raw_text = data["choices"][0]["message"]["content"]
+                        parsed = json.loads(raw_text)
+                        if isinstance(parsed, list):
+                            return [EvidenceJudgeAssessment(**p) for p in parsed]
+                        elif isinstance(parsed, dict) and "assessments" in parsed:
+                            return [EvidenceJudgeAssessment(**p) for p in parsed["assessments"]]
+            except Exception as e:
+                logger.debug("Groq evidence judge attempt skipped/failed: %s", e)
+
+        # 2. Call Gemini REST API if configured
+        if self.gemini_key:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.gemini_key}"
+                payload = {
+                    "contents": [
+                        {
+                            "parts": [
+                                {"text": f"{system_prompt}\n\nEVALUATE THIS PAYLOAD:\n{json.dumps(user_content, ensure_ascii=False)}"}
+                            ]
+                        }
+                    ],
+                    "generationConfig": {
+                        "response_mime_type": "application/json",
+                        "temperature": 0.0,
+                        "thinkingConfig": {
+                            "thinkingBudget": 0
+                        },
+                    },
+                }
+                with httpx.Client(timeout=3.5) as client:
+                    res = client.post(url, json=payload)
+                    if res.status_code == 200:
+                        data = res.json()
+                        raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
+                        parsed = json.loads(raw_text)
+                        if isinstance(parsed, list):
+                            return [EvidenceJudgeAssessment(**p) for p in parsed]
+                        elif isinstance(parsed, dict) and "assessments" in parsed:
+                            return [EvidenceJudgeAssessment(**p) for p in parsed["assessments"]]
+            except Exception as e:
+                logger.debug("Gemini evidence judge attempt skipped/failed: %s", e)
 
         return None
 

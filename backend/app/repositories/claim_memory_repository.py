@@ -141,18 +141,19 @@ class ClaimMemoryRepository(BaseFirestoreRepository):
         self._local_records[rec_obj.cache_id] = rec_obj
         self._local_records[rec_obj.claim_hash] = rec_obj
 
-        try:
-            data = self.serialize_model(rec_obj)
-            doc_ref = self.collection.document(rec_obj.cache_id)
-            doc_ref.set(data)
-            return rec_obj
-        except Exception as e:
-            if self._db is not None:
-                raise DatabaseOperationError(
-                    f"Failed to persist claim memory '{rec_obj.cache_id}': {str(e)}"
-                ) from e
-            logger.info("Saved claim memory record locally: %s", rec_obj.cache_id)
-            return rec_obj
+        if self.collection is not None:
+            try:
+                data = self.serialize_model(rec_obj)
+                doc_ref = self.collection.document(rec_obj.cache_id)
+                doc_ref.set(data)
+                return rec_obj
+            except Exception as e:
+                if self._db is not None:
+                    raise DatabaseOperationError(
+                        f"Failed to persist claim memory '{rec_obj.cache_id}': {str(e)}"
+                    ) from e
+        logger.info("Saved claim memory record locally: %s", rec_obj.cache_id)
+        return rec_obj
 
     def get_by_claim_hash(self, claim_hash: str) -> Optional[ClaimMemoryRecord]:
         """
@@ -161,34 +162,35 @@ class ClaimMemoryRepository(BaseFirestoreRepository):
         if claim_hash in self._local_records:
             return self._local_records[claim_hash]
 
-        try:
-            docs = self.collection.where("claim_hash", "==", claim_hash).limit(1).stream()
-            for doc in docs:
-                rec = ClaimMemoryRecord.model_validate(doc.to_dict())
-                self._local_records[claim_hash] = rec
-                return rec
-            return None
-        except Exception as e:
-            if self._db is not None:
-                raise DatabaseOperationError(
-                    f"Failed to query claim memory by hash '{claim_hash}': {str(e)}"
-                ) from e
-            return None
+        if self.collection is not None:
+            try:
+                docs = self.collection.where("claim_hash", "==", claim_hash).limit(1).stream()
+                for doc in docs:
+                    rec = ClaimMemoryRecord.model_validate(doc.to_dict())
+                    self._local_records[claim_hash] = rec
+                    return rec
+            except Exception as e:
+                if self._db is not None:
+                    raise DatabaseOperationError(
+                        f"Failed to query claim memory by hash '{claim_hash}': {str(e)}"
+                    ) from e
+        return None
 
     def list_all_records(self, limit: int = 500) -> List[ClaimMemoryRecord]:
         """
         Returns all candidate records for semantic similarity scanning.
         """
         records_dict = {r.cache_id: r for r in self._local_records.values()}
-        try:
-            docs = self.collection.limit(limit).stream()
-            for doc in docs:
-                data = doc.to_dict()
-                if "embedding" in data and "claim_hash" in data:
-                    r = ClaimMemoryRecord.model_validate(data)
-                    records_dict[r.cache_id] = r
-        except Exception:
-            pass
+        if self.collection is not None:
+            try:
+                docs = self.collection.limit(limit).stream()
+                for doc in docs:
+                    data = doc.to_dict()
+                    if "embedding" in data and "claim_hash" in data:
+                        r = ClaimMemoryRecord.model_validate(data)
+                        records_dict[r.cache_id] = r
+            except Exception:
+                pass
 
         return list(records_dict.values())
 

@@ -118,24 +118,8 @@ class SharedClaimMemoryService:
         """
         Generates a 256-dimensional L2-normalized vector embedding.
         Uses subword and character n-gram feature hashing with frequency weighting.
-        Guarantees cosine similarity is simply the dot product.
+        Guarantees cosine similarity is simply the dot product. Instant, deterministic (0ms).
         """
-        # Call Gemini Embedding API if online & configured
-        if self.gemini_key and not settings.DEMO_MODE:
-            try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={self.gemini_key}"
-                payload = {"content": {"parts": [{"text": text}]}}
-                with httpx.Client(timeout=5.0) as client:
-                    resp = client.post(url, json=payload)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        raw_vec = data.get("embedding", {}).get("values", [])
-                        if raw_vec:
-                            return self._normalize_l2(raw_vec[:self.vector_dim])
-            except Exception as e:
-                logger.debug("Remote embedding failed, falling back to local deterministic embedding: %s", e)
-
-        # Local deterministic semantic vectorizer
         return self._generate_local_embedding(text)
 
     def _generate_local_embedding(self, text: str) -> List[float]:
@@ -313,11 +297,11 @@ class SharedClaimMemoryService:
         # =====================================================================
         # Level 1 (L1): Semantic Similarity Using Embeddings
         # =====================================================================
-        query_embedding = self.generate_embedding(norm_claim)
         candidate_records = self.memory_repo.list_all_records()
-
         if not candidate_records:
             return ClaimMemoryLookupResult(hit=False, reason="CACHE_MISS_EMPTY_MEMORY")
+
+        query_embedding = self.generate_embedding(norm_claim)
 
         best_record: Optional[ClaimMemoryRecord] = None
         best_sim: float = -1.0

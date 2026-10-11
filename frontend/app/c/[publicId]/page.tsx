@@ -1,19 +1,85 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { VerdictBadge } from '@/components/verdict/VerdictBadge';
 import { QuoteBlock } from '@/components/evidence/QuoteBlock';
-import { MOCK_VERIFICATION_RESULTS, DEFAULT_CHECK } from '@/lib/mock/checks';
 import { formatDate } from '@/lib/utils';
+import { getCheckDetail, adaptCheckToUi } from '@/lib/api';
+import { VerificationResult } from '@/types';
 
 export default function PublicShareableVerdictPage() {
   const params = useParams();
-  const publicId = (params?.publicId as string) || 'SC-2026-8941';
+  const publicId = (params?.publicId as string) || '';
 
-  const check = MOCK_VERIFICATION_RESULTS[publicId] || DEFAULT_CHECK;
+  const [check, setCheck] = useState<VerificationResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!publicId) return;
+
+    let isMounted = true;
+
+    async function loadPublicCheck() {
+      try {
+        setLoading(true);
+        setError(null);
+        const raw = await getCheckDetail(publicId);
+
+        if (!isMounted) return;
+
+        const adapted = adaptCheckToUi(raw);
+        setCheck(adapted);
+      } catch (err: any) {
+        if (!isMounted) return;
+        setError(err?.message || 'Public verification dossier could not be found.');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadPublicCheck();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [publicId]);
+
+  if (loading) {
+    return (
+      <AppShell>
+        <div className="max-w-4xl mx-auto px-margin md:px-margin-desktop py-space-2xl text-center">
+          <div className="p-space-xl rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-4">
+            <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="font-body-md text-on-surface-variant">Loading civic audit record #{publicId}...</p>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (error || !check) {
+    return (
+      <AppShell>
+        <div className="max-w-4xl mx-auto px-margin md:px-margin-desktop py-space-2xl text-center space-y-4">
+          <div className="p-space-2xl rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-4 shadow-sm">
+            <h1 className="font-headline-lg text-2xl font-bold text-on-surface">Record Not Found</h1>
+            <p className="font-body-md text-on-surface-variant max-w-md mx-auto">
+              {error || `No public verification record found with ID #${publicId}.`}
+            </p>
+            <div className="pt-2">
+              <Link href="/check" className="px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md font-semibold">
+                Submit a Claim to Verify
+              </Link>
+            </div>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
@@ -27,8 +93,6 @@ export default function PublicShareableVerdictPage() {
             </span>
             <span className="text-outline-variant font-bold">/</span>
             <span className="text-on-surface select-all font-semibold">{check.id}</span>
-            <span className="text-outline-variant font-bold">/</span>
-            <span className="text-on-surface-variant">sachcheck.in/c/{check.id}</span>
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-primary font-label-sm text-[12px] font-semibold border border-outline-variant/60">
@@ -42,7 +106,7 @@ export default function PublicShareableVerdictPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
             <div>
               <span className="font-code-sm text-[11px] text-outline font-bold uppercase tracking-wider">
-                Audited WhatsApp Forward
+                Audited WhatsApp Forward / Statement
               </span>
               <h1 className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-on-surface mt-1">
                 {check.verdictSummary}
@@ -58,30 +122,33 @@ export default function PublicShareableVerdictPage() {
               Message Received by Citizens:
             </span>
             <QuoteBlock
-              quote={check.originalMessage}
-              sourceTitle="Viral WhatsApp Broadcast"
-              variant="forwarded"
-              className="mt-1"
+              text={check.originalMessage}
+              source="Forwarded WhatsApp Message"
+              highlightType="neutral"
             />
           </div>
 
-          <div className="pt-space-sm border-t border-outline-variant flex flex-wrap items-center justify-between gap-space-sm font-code-sm text-[12px] text-on-surface-variant">
-            <span>Verified on: {formatDate(check.submittedAt)}</span>
-            <span>Audited against: eGazette & PIB Fact Check</span>
+          {/* Audit Timestamp & Channel */}
+          <div className="pt-space-sm border-t border-outline-variant flex flex-wrap items-center justify-between gap-2 text-body-sm font-code-sm text-[12px] text-on-surface-variant">
+            <span>Verified: <strong className="text-on-surface">{formatDate(check.completedAt)}</strong></span>
+            <span>Channel: <strong className="text-on-surface">{check.inputType}</strong></span>
+            {check.cacheHit && (
+              <span className="text-tertiary font-bold">✓ Shared Rumour Memory Verified</span>
+            )}
           </div>
         </div>
 
         {/* Atomic Claims List */}
         <div className="space-y-space-md">
-          <h2 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-            Atomic Claims Dissected
+          <h2 className="font-headline-md text-xl font-bold text-on-surface">
+            Atomic Fact Findings ({check.claims.length})
           </h2>
 
-          <div className="space-y-space-sm">
+          <div className="space-y-space-md">
             {check.claims.map((claim) => (
               <div
                 key={claim.id}
-                className="p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant space-y-2 shadow-2xs"
+                className="p-space-lg rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-3 shadow-2xs"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-code-sm text-[11px] font-bold text-outline">
@@ -89,43 +156,16 @@ export default function PublicShareableVerdictPage() {
                   </span>
                   <VerdictBadge verdict={claim.verdict} size="sm" />
                 </div>
-                <p className="font-serif italic text-on-surface text-[15px]">
+
+                <p className="font-serif italic text-[16px] text-on-surface">
                   "{claim.claimText}"
                 </p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
+
+                <p className="font-body-md text-body-md text-on-surface-variant">
                   {claim.summary}
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* WhatsApp Forward Share Banner */}
-        <div className="rounded-2xl bg-surface-container-low border border-outline-variant p-space-lg text-center space-y-space-sm">
-          <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-            Stop this fake forward in your WhatsApp groups.
-          </h3>
-          <p className="font-body-sm text-body-sm text-on-surface-variant max-w-md mx-auto">
-            Share this tamper-proof verification page with proof from official Government records.
-          </p>
-          <div className="pt-2 flex justify-center gap-3">
-            <a
-              href={`https://wa.me/?text=SachCheck%20Official%20Verification%20Report:%20${encodeURIComponent(
-                check.verdictSummary
-              )}%20Read%20proof:%20https://sachcheck.in/c/${check.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-[#1E8E4E] text-white font-label-md text-label-md font-bold hover:bg-[#146336] transition-colors flex items-center gap-2 shadow-xs"
-            >
-              <span className="material-symbols-outlined text-[18px]">chat</span>
-              <span>Share to WhatsApp</span>
-            </a>
-            <Link
-              href="/check"
-              className="px-4 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container"
-            >
-              Check Another Forward
-            </Link>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 from app.core.database import get_firestore_client
-from app.core.exceptions import DatabaseOperationError
+from app.core.exceptions import DatabaseOperationError, FirebaseConfigurationError
 
 
 class BaseFirestoreRepository:
@@ -15,15 +15,20 @@ class BaseFirestoreRepository:
 
     @property
     def db(self):
-        """Returns the injected or initialized Firestore client."""
+        """Returns the injected or initialized Firestore client, or None if unconfigured."""
         if self._db is not None:
             return self._db
-        return get_firestore_client()
+        try:
+            return get_firestore_client()
+        except FirebaseConfigurationError:
+            return None
 
     @property
     def collection(self):
-        """Returns the Firestore CollectionReference."""
+        """Returns the Firestore CollectionReference, or None if client is unconfigured."""
         client = self.db
+        if client is None:
+            return None
         try:
             return client.collection(self.collection_name)
         except Exception as e:

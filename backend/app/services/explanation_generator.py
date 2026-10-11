@@ -46,6 +46,8 @@ class ExplanationGeneratorService:
 
     def __init__(self):
         self.gemini_key: Optional[str] = settings.GEMINI_API_KEY
+        self.groq_key: Optional[str] = settings.GROQ_API_KEY
+        self.groq_model: str = settings.GROQ_MODEL or "llama-3.3-70b-versatile"
         self.openai_key: Optional[str] = settings.OPENAI_API_KEY
         self.model: str = settings.GEMINI_MODEL
 
@@ -284,7 +286,7 @@ class ExplanationGeneratorService:
         in the requested language.
         """
         # Call LLM if configured and not demo mode
-        if (self.gemini_key or self.openai_key) and not settings.DEMO_MODE:
+        if (self.groq_key or self.gemini_key or self.openai_key) and not settings.DEMO_MODE:
             llm_text = self._call_llm_explanation(
                 claim_text=claim_text,
                 verdict=verdict,
@@ -433,14 +435,43 @@ class ExplanationGeneratorService:
             retrieved_evidence=evidence_payload,
         )
 
+        # 1. Call Groq REST API if configured
+        if self.groq_key:
+            try:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+                headers = {"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"}
+                payload = {
+                    "model": self.groq_model,
+                    "messages": [
+                        {"role": "system", "content": "You are a concise fact-checking journalist writing factual explanations."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "temperature": 0.0,
+                    "max_tokens": 150,
+                }
+                with httpx.Client(timeout=3.5) as client:
+                    resp = client.post(url, headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        return data["choices"][0]["message"]["content"].strip()
+            except Exception as e:
+                logger.debug("Groq explanation generation attempt skipped/failed: %s", e)
+
+        # 2. Call Gemini REST API if configured
         try:
             if self.gemini_key:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.gemini_key}"
                 payload = {
                     "contents": [{"parts": [{"text": prompt}]}],
-                    "generationConfig": {"temperature": 0.0, "maxOutputTokens": 150},
+                    "generationConfig": {
+                        "temperature": 0.0,
+                        "maxOutputTokens": 150,
+                        "thinkingConfig": {
+                            "thinkingBudget": 0
+                        },
+                    },
                 }
-                with httpx.Client(timeout=8.0) as client:
+                with httpx.Client(timeout=3.5) as client:
                     resp = client.post(url, json=payload)
                     if resp.status_code == 200:
                         data = resp.json()
@@ -454,7 +485,7 @@ class ExplanationGeneratorService:
                         )
                         return data["candidates"][0]["content"]["parts"][0]["text"].strip()
         except Exception as e:
-            logger.warning("Gemini explanation generation request failed: %s", e)
+            logger.debug("Gemini explanation generation request failed/skipped: %s", e)
 
         return None
 

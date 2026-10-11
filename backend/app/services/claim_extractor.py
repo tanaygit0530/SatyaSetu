@@ -176,6 +176,8 @@ class ClaimExtractorService:
     def __init__(self):
         self.provider = settings.LLM_PROVIDER
         self.gemini_key = settings.GEMINI_API_KEY
+        self.groq_key = settings.GROQ_API_KEY
+        self.groq_model = settings.GROQ_MODEL or "llama-3.3-70b-versatile"
         self.openai_key = settings.OPENAI_API_KEY
         self.model = settings.GEMINI_MODEL
 
@@ -189,7 +191,7 @@ class ClaimExtractorService:
             return AtomicClaimsOutput(claims=[])
 
         # If live LLM credentials are provided and not forcing demo mode, try structured LLM
-        if (self.gemini_key or self.openai_key) and not is_demo and not settings.DEMO_MODE:
+        if (self.groq_key or self.gemini_key or self.openai_key) and not is_demo and not settings.DEMO_MODE:
             try:
                 llm_result = self._call_llm_structured(sanitized)
                 if llm_result and llm_result.claims:
@@ -623,25 +625,55 @@ class ClaimExtractorService:
             "}\n"
         )
 
-        # Call Gemini REST API if Gemini API Key configured
-        if self.gemini_key:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.gemini_key}"
-            payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "response_mime_type": "application/json",
+        # 1. Call Groq REST API first if configured (sub-second response ~300ms)
+        if self.groq_key:
+            try:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+                headers = {"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"}
+                payload = {
+                    "model": self.groq_model,
+                    "messages": [
+                        {"role": "system", "content": "You are a factual claim extractor that outputs JSON only."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "response_format": {"type": "json_object"},
                     "temperature": 0.0,
-                },
-            }
-            with httpx.Client(timeout=10.0) as client:
-                res = client.post(url, json=payload)
-                if res.status_code == 200:
-                    data = res.json()
-                    candidates = data.get("candidates", [])
-                    if candidates:
-                        raw_json_str = candidates[0]["content"]["parts"][0]["text"]
-                        parsed_dict = json.loads(raw_json_str)
+                }
+                with httpx.Client(timeout=4.0) as client:
+                    res = client.post(url, headers=headers, json=payload)
+                    if res.status_code == 200:
+                        data = res.json()
+                        content_str = data["choices"][0]["message"]["content"]
+                        parsed_dict = json.loads(content_str)
                         return AtomicClaimsOutput.model_validate(parsed_dict)
+            except Exception as e:
+                logger.debug("Groq claim extraction attempt skipped/failed: %s", e)
+
+        # 2. Call Gemini REST API if Gemini API Key configured
+        if self.gemini_key:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.gemini_key}"
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "response_mime_type": "application/json",
+                        "temperature": 0.0,
+                        "thinkingConfig": {
+                            "thinkingBudget": 0
+                        },
+                    },
+                }
+                with httpx.Client(timeout=4.0) as client:
+                    res = client.post(url, json=payload)
+                    if res.status_code == 200:
+                        data = res.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            raw_json_str = candidates[0]["content"]["parts"][0]["text"]
+                            parsed_dict = json.loads(raw_json_str)
+                            return AtomicClaimsOutput.model_validate(parsed_dict)
+            except Exception as e:
+                logger.debug("Gemini claim extraction attempt skipped/failed: %s", e)
 
         # Call OpenAI REST API if OpenAI API Key configured
         if self.openai_key:

@@ -1,28 +1,48 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SourceTierBadge } from '@/components/evidence/SourceTierBadge';
-import { MOCK_SOURCES } from '@/lib/mock/admin';
 import { formatDate } from '@/lib/utils';
+import { listAuthoritativeSources } from '@/lib/api';
 import { AuthoritativeSource } from '@/types';
 
 export default function AdminSourcesPage() {
-  const [sources, setSources] = useState<AuthoritativeSource[]>(MOCK_SOURCES);
+  const [sources, setSources] = useState<AuthoritativeSource[]>([]);
   const [filter, setFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSources() {
+      try {
+        setLoading(true);
+        const data = await listAuthoritativeSources();
+        if (!isMounted) return;
+        setSources(data);
+      } catch (err) {
+        console.error('Failed to load authoritative sources:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadSources();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filtered = sources.filter((s) => {
-    const matchesFilter = filter === 'ALL' || s.category === filter;
+    const matchesFilter = filter === 'ALL' || s.tier === filter;
     const matchesSearch =
       search === '' ||
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.domain.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
-
-  const handleSyncSource = (id: string) => {
-    alert(`Triggered immediate incremental crawler sync for ${id}.`);
-  };
 
   return (
     <div className="space-y-space-lg">
@@ -42,17 +62,6 @@ export default function AdminSourcesPage() {
             Official government gazettes, NIC portals, statutory authorities, and legal databases indexed into SachCheck.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => alert('All 48 crawlers synced with NIC Gateway.')}
-            className="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold hover:bg-primary-container transition-colors flex items-center gap-1.5 shadow-2xs"
-          >
-            <span className="material-symbols-outlined text-[16px]">sync</span>
-            <span>Sync All Repositories</span>
-          </button>
-        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -65,13 +74,13 @@ export default function AdminSourcesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search repository name, domain, ministry..."
+            placeholder="Search verified registries, ministries, domains..."
             className="w-full h-10 pl-9 pr-4 rounded-xl bg-surface-container-low border border-outline-variant font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary"
           />
         </div>
 
         <div className="flex items-center gap-1.5 overflow-x-auto">
-          {['ALL', 'STATE_GAZETTE', 'PIB', 'MINISTRY', 'STATUTORY_BODY'].map((cat) => (
+          {['ALL', 'TIER_1_PRIMARY', 'TIER_2_SECONDARY', 'TIER_3_REPUTABLE'].map((cat) => (
             <button
               key={cat}
               type="button"
@@ -82,64 +91,60 @@ export default function AdminSourcesPage() {
                   : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface border border-outline-variant'
               }`}
             >
-              {cat === 'ALL' ? 'All Registries' : cat.replace(/_/g, ' ')}
+              {cat === 'ALL' ? 'All Tiers' : cat.replace(/_/g, ' ')}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Sources Table */}
-      <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant overflow-hidden shadow-2xs">
-        <table className="w-full text-left font-body-sm text-[13px]">
-          <thead className="bg-surface-container-low text-on-surface-variant font-label-sm text-[11px] uppercase tracking-wider border-b border-outline-variant">
-            <tr>
-              <th className="py-3 px-3">Precedence</th>
-              <th className="py-3 px-3">Registry Name</th>
-              <th className="py-3 px-3">Domain</th>
-              <th className="py-3 px-3">Tier</th>
-              <th className="py-3 px-3">Records Indexed</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-outline-variant/60">
-            {filtered.map((s) => (
-              <tr key={s.id} className="hover:bg-surface-container-low/50">
-                <td className="py-3 px-3 font-code-sm font-bold text-primary">
-                  #{s.precedenceRank}
-                </td>
-                <td className="py-3 px-3 font-bold text-on-surface">
-                  {s.name}
-                </td>
-                <td className="py-3 px-3 font-code-sm text-on-surface-variant">
-                  {s.domain}
-                </td>
-                <td className="py-3 px-3">
-                  <SourceTierBadge tier={s.tier} />
-                </td>
-                <td className="py-3 px-3 font-code-sm">
-                  {s.recordsIndexed.toLocaleString()} records
-                </td>
-                <td className="py-3 px-3">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 text-[#146336] font-code-sm text-[11px] font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#1E8E4E]"></span>
-                    {s.status}
+      {/* Loading state */}
+      {loading && (
+        <div className="p-space-xl text-center rounded-2xl bg-surface-container-lowest border border-outline-variant space-y-3">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="font-body-sm text-on-surface-variant">Loading registered sources from Source Registry...</p>
+        </div>
+      )}
+
+      {/* Sources Grid */}
+      {!loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md">
+          {filtered.map((source) => (
+            <div
+              key={source.id}
+              className="p-space-lg rounded-2xl bg-surface-container-lowest border border-outline-variant hover:border-primary/40 transition-colors shadow-2xs space-y-space-sm flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <SourceTierBadge tier={source.tier} />
+                  <span className="font-code-sm text-[11px] text-tertiary font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Active Registry
                   </span>
-                </td>
-                <td className="py-3 px-3 text-right">
-                  <button
-                    type="button"
-                    onClick={() => handleSyncSource(s.id)}
-                    className="text-primary hover:underline font-semibold font-label-sm"
+                </div>
+
+                <div>
+                  <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
+                    {source.name}
+                  </h3>
+                  <a
+                    href={`https://${source.domain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-code-sm text-[12px] text-primary hover:underline inline-flex items-center gap-1"
                   >
-                    Sync Now
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <span>{source.domain}</span>
+                    <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="pt-space-sm border-t border-outline-variant/60 flex items-center justify-between font-label-sm text-[11px] text-on-surface-variant">
+                <span>Precedence: Tier {source.precedenceRank}</span>
+                <span>Category: {source.category}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

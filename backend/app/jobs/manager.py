@@ -245,3 +245,19 @@ class VerificationJobManager:
         if not check:
             return None
         return check.result
+
+    def list_checks(self, limit: int = 50, status: Optional[str] = None) -> List[Check]:
+        """
+        Lists checks from repository and active jobs.
+        """
+        return self.check_repo.list_checks(limit=limit, status=status)
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        Computes aggregate dashboard statistics directly from stored checks.
+        """
+        return self.check_repo.get_analytics_summary()
+
+    # Alias for convenience
+    get_check_status = get_status
+

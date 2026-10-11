@@ -14,7 +14,15 @@ class VerificationRepository:
         self._memory_store: Dict[str, VerificationResponse] = {}
         self._firestore_client = None
 
-        if settings.FIREBASE_CREDENTIALS_PATH or settings.FIREBASE_PROJECT_ID:
+        import os
+        adc_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or os.path.expanduser("~/.config/gcloud/application_default_credentials.json")
+        has_creds = bool(
+            (settings.FIREBASE_CREDENTIALS_PATH and os.path.exists(settings.FIREBASE_CREDENTIALS_PATH))
+            or settings.FIREBASE_CREDENTIALS_JSON
+            or os.path.exists(adc_file)
+            or settings.FIRESTORE_EMULATOR_HOST
+        )
+        if has_creds:
             try:
                 import firebase_admin
                 from firebase_admin import credentials, firestore
@@ -29,6 +37,8 @@ class VerificationRepository:
                 logger.info("Connected to Cloud Firestore for verification dossier storage.")
             except Exception as e:
                 logger.warning("Firebase initialization skipped: %s. Using in-memory repository.", str(e))
+        else:
+            logger.info("No Cloud Firestore credentials configured. Using fast in-memory verification repository.")
 
     def save(self, record: VerificationResponse) -> None:
         """Saves a verification dossier."""

@@ -82,7 +82,13 @@ def get_firestore_client():
                         f"Failed to parse FIREBASE_CREDENTIALS_JSON: {json_err}"
                     )
             elif settings.FIREBASE_PROJECT_ID:
-                cred_obj = credentials.ApplicationDefault()
+                adc_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or os.path.expanduser("~/.config/gcloud/application_default_credentials.json")
+                if (adc_file and os.path.exists(adc_file)) or settings.FIRESTORE_EMULATOR_HOST:
+                    cred_obj = credentials.ApplicationDefault()
+                else:
+                    raise FirebaseConfigurationError(
+                        "No Cloud Firestore credentials configured. Running in local in-memory mode."
+                    )
 
             app_options = {}
             if settings.FIREBASE_PROJECT_ID:

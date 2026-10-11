@@ -72,19 +72,22 @@ export default function WhatsAppPage() {
             </div>
 
             {/* SachCheck Bot Reply */}
-            <div className="bg-[#EAF6EE] rounded-lg p-2.5 rounded-tl-none shadow-xs max-w-[90%] border border-[#B8E4C8] space-y-1.5">
-              <div className="flex items-center gap-1 text-[#146336] font-bold text-[12px]">
-                <span className="material-symbols-outlined text-[16px]">cancel</span>
-                <span>VERDICT: FALSE / PHISHING</span>
+            <div className="bg-[#EAF6EE] rounded-lg p-2.5 rounded-tl-none shadow-xs max-w-[90%] border border-[#B8E4C8] space-y-1.5 font-sans">
+              <div className="flex items-center gap-1 text-[#146336] font-bold text-[13px]">
+                <span>🔴 FALSE</span>
               </div>
-              <p className="text-slate-800 leading-snug">
-                The ₹50,000 grant is fabricated. Genuine amount is ₹12,000/yr. The portal <i>pmssy-gov.in</i> is a credential-harvesting phishing site.
+              <p className="text-slate-800 text-[12px] font-medium">
+                "Education Ministry giving ₹50,000 scholarship cash grant."
               </p>
-              <div className="pt-1 border-t border-[#B8E4C8]/60 flex items-center justify-between text-[11px] text-[#146336] font-semibold">
-                <span>View Full Gazette Proof:</span>
-                <span className="underline">sachcheck.in/c/SC-2026-8941</span>
+              <div className="text-[12px] text-slate-700">
+                <strong>Why:</strong>
+                <p>No reliable official evidence supports this. Genuine scholarship amount is ₹12,000/yr on scholarships.gov.in.</p>
               </div>
-              <div className="text-right text-[10px] text-slate-400">09:42 AM • Instant Bot</div>
+              <div className="pt-1 border-t border-[#B8E4C8]/60 flex items-center justify-between text-[11px] text-[#146336] font-semibold">
+                <span>View Full Evidence Proof:</span>
+                <span className="underline">sachcheck.in/c/chk_example</span>
+              </div>
+              <div className="text-right text-[10px] text-slate-400">09:42 AM • SachCheck Bot</div>
             </div>
           </div>
         </div>

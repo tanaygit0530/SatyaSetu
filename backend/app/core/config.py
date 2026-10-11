@@ -72,7 +72,9 @@ class Settings(BaseSettings):
     # LLM Structured Extraction Configuration
     LLM_PROVIDER: str = "gemini"
     GEMINI_API_KEY: Optional[str] = None
-    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
     OPENAI_API_KEY: Optional[str] = None
     DEMO_MODE: bool = False
 

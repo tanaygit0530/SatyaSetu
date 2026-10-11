@@ -31,15 +31,14 @@ class MetricsRepository(BaseFirestoreRepository):
         m_obj = metric if isinstance(metric, MetricRecord) else MetricRecord.model_validate(metric)
         self._local_metrics.append(m_obj)
         data = self.serialize_model(m_obj)
-        try:
-            doc_ref = self.collection.document(m_obj.metric_id)
-            doc_ref.set(data)
-            return m_obj
-        except FirebaseConfigurationError:
-            return m_obj
-        except Exception as e:
-            logger.warning("Could not persist metric to Firestore: %s", e)
-            return m_obj
+        if self.collection is not None:
+            try:
+                doc_ref = self.collection.document(m_obj.metric_id)
+                doc_ref.set(data)
+                return m_obj
+            except Exception as e:
+                logger.warning("Could not persist metric to Firestore: %s", e)
+        return m_obj
 
     def get_metrics(
         self,
