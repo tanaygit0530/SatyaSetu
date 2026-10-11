@@ -1,8 +1,7 @@
-/** @type {import('next').NextConfig} */
 const backendApiUrl =
   process.env.BACKEND_API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:8000';
+  'https://satyasetu-xvk9.onrender.com';
 
 const cleanBackendUrl = backendApiUrl.replace(/\/api\/v1\/?$/, '');
 
