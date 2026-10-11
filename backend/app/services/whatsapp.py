@@ -674,6 +674,31 @@ class WhatsAppWebhookService:
             logger.error("Failed to persist WhatsApp verification record '%s': %s", check_id, e)
             job_manager.check_repo._local_checks[check_id] = chk
 
+        # In hybrid dev/ngrok mode: when evidence links point to production (Vercel),
+        # automatically mirror the check to Render so opening the link in any browser/device
+        # resolves the verification dossier immediately without "Record Not Found".
+        def _sync_to_remote_render():
+            try:
+                import urllib.request
+                target_url = "https://satyasetu-xvk9.onrender.com/api/v1/checks"
+                payload_data = json.dumps({
+                    "check_id": check_id,
+                    "text": text,
+                    "input_type": "TEXT",
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    target_url,
+                    data=payload_data,
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    logger.info("Successfully mirrored check %s to Render: HTTP %s", check_id, resp.status)
+            except Exception as sync_err:
+                logger.debug("Mirror check %s to Render skipped/failed: %s", check_id, sync_err)
+
+        threading.Thread(target=_sync_to_remote_render, daemon=True).start()
+
         return chk
 
     # =========================================================================
