@@ -696,6 +696,55 @@ class VerificationOrchestrator:
         except Exception as e:
             logger.debug("Verification dossier repo persistence note: %s", e)
 
+        # Synchronize check into canonical CheckRepository for public web route (/check/{id})
+        try:
+            from app.jobs import job_manager
+            from app.schemas.core import Check, Claim, Input, ProcessingStage
+            from app.schemas.enums import InputType as EInputType, ProcessingStatus
+
+            now = datetime.now(timezone.utc)
+            inp_type_val = EInputType.WHATSAPP if str(input_type).upper() == "WHATSAPP" else EInputType.TEXT
+
+            existing_check = job_manager.check_repo.get_check(check_id)
+            if existing_check:
+                job_manager.check_repo.save_verification_result(check_id, verif_result)
+            else:
+                chk = Check(
+                    check_id=check_id,
+                    user_id=None,
+                    input=Input(
+                        input_id=f"inp_{check_id}",
+                        input_type=inp_type_val,
+                        raw_content=original_content,
+                        submitted_at=now,
+                    ),
+                    status=ProcessingStatus.COMPLETED,
+                    claims=[
+                        Claim(
+                            claim_id=cr.claim_id,
+                            text=cr.claim_text or original_content,
+                            normalized_claim=cr.normalized_claim or cr.claim_text or original_content,
+                            language=getattr(cr, "language", "en") or "en",
+                        )
+                        for cr in claim_results
+                    ],
+                    stages=[
+                        ProcessingStage(
+                            stage=ProcessingStatus.COMPLETED,
+                            status="COMPLETED",
+                            started_at=now,
+                            completed_at=now,
+                        )
+                    ],
+                    result=verif_result,
+                    created_at=now,
+                    updated_at=now,
+                )
+                job_manager.check_repo.create_check(chk)
+                job_manager.check_repo.save_verification_result(check_id, verif_result)
+        except Exception as sync_err:
+            logger.debug("Orchestrator CheckRepository sync note for '%s': %s", check_id, sync_err)
+
         return verif_result
 
     # =========================================================================

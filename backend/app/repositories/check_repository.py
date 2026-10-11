@@ -1,10 +1,13 @@
+import json
+import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from app.core.database import FirestoreCollections
 from app.core.exceptions import DatabaseOperationError, ResourceNotFoundException
+from app.core.logging import logger
 from app.repositories.base import BaseFirestoreRepository
-from app.schemas.core import Check, ProcessingStage, VerificationResult
-from app.schemas.enums import ProcessingStatus
+from app.schemas.core import Check, Claim, Input, ProcessingStage, VerificationResult
+from app.schemas.enums import ConfidenceLevel, InputType, ProcessingStatus
 
 
 class CheckRepository(BaseFirestoreRepository):
@@ -14,6 +17,28 @@ class CheckRepository(BaseFirestoreRepository):
         super().__init__(collection_name=FirestoreCollections.CHECKS, db=db)
         # Local in-memory fallback store for offline / unconfigured operation
         self._local_checks: Dict[str, Check] = {}
+        self._cache_file = os.path.join(os.path.dirname(__file__), "..", "..", ".local_checks.json")
+        self._load_local_cache()
+
+    def _load_local_cache(self) -> None:
+        try:
+            if os.path.exists(self._cache_file):
+                with open(self._cache_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for cid, cdata in data.items():
+                        self._local_checks[cid] = Check.model_validate(cdata)
+        except Exception as e:
+            logger.debug("Could not load local checks cache: %s", e)
+
+    def _save_local_cache(self) -> None:
+        try:
+            data = {}
+            for cid, c in self._local_checks.items():
+                data[cid] = self.serialize_model(c)
+            with open(self._cache_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, default=str)
+        except Exception as e:
+            logger.debug("Could not write local checks cache: %s", e)
 
     def create_check(self, check: Union[Check, Dict[str, Any]]) -> Check:
         """
@@ -21,6 +46,7 @@ class CheckRepository(BaseFirestoreRepository):
         """
         check_obj = check if isinstance(check, Check) else Check.model_validate(check)
         self._local_checks[check_obj.check_id] = check_obj
+        self._save_local_cache()
         data = self.serialize_model(check_obj)
         try:
             doc_ref = self.collection.document(check_obj.check_id)
@@ -38,19 +64,83 @@ class CheckRepository(BaseFirestoreRepository):
         Retrieves a check document by its unique check ID.
         Returns None if not found.
         """
-        local_rec = self._local_checks.get(check_id)
+        if check_id in self._local_checks:
+            return self._local_checks[check_id]
+
+        if self.collection is not None:
+            try:
+                doc_ref = self.collection.document(check_id)
+                doc = doc_ref.get()
+                if doc.exists:
+                    c = Check.model_validate(doc.to_dict())
+                    self._local_checks[check_id] = c
+                    return c
+            except Exception as e:
+                if self._db is not None:
+                    raise DatabaseOperationError(
+                        f"Failed to retrieve check '{check_id}': {str(e)}"
+                    ) from e
+
+        # Fallback to local cache file if modified by another process
+        if os.path.exists(self._cache_file):
+            try:
+                with open(self._cache_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if check_id in data:
+                        c = Check.model_validate(data[check_id])
+                        self._local_checks[check_id] = c
+                        return c
+            except Exception:
+                pass
+
+        # Cross-repository unification fallback:
+        # Check if dossier was saved in verification_repo (e.g. legacy/direct orchestrator run)
         try:
-            doc_ref = self.collection.document(check_id)
-            doc = doc_ref.get()
-            if not doc.exists:
-                return local_rec
-            return Check.model_validate(doc.to_dict())
-        except Exception as e:
-            if self._db is not None:
-                raise DatabaseOperationError(
-                    f"Failed to retrieve check '{check_id}': {str(e)}"
-                ) from e
-            return local_rec
+            from app.repositories.verification_repo import verification_repo
+            v_rec = verification_repo.get_by_id(check_id)
+            if v_rec:
+                now = datetime.now(timezone.utc)
+                v_claims = []
+                for c in (v_rec.claims or []):
+                    c_dict = c if isinstance(c, dict) else (c.model_dump(mode="json") if hasattr(c, "model_dump") else {})
+                    v_claims.append(
+                        Claim(
+                            claim_id=c_dict.get("claim_id", f"clm_{check_id}"),
+                            text=c_dict.get("claim_text", v_rec.original_message),
+                            normalized_claim=c_dict.get("normalized_claim", c_dict.get("claim_text", v_rec.original_message)),
+                            language=c_dict.get("language", "en") or "en",
+                        )
+                    )
+                c_obj = Check(
+                    check_id=v_rec.id,
+                    user_id=None,
+                    input=Input(
+                        input_id=f"inp_{v_rec.id}",
+                        input_type=v_rec.input_type,
+                        raw_content=v_rec.original_message,
+                        submitted_at=v_rec.submitted_at or now,
+                    ),
+                    status=ProcessingStatus.COMPLETED,
+                    claims=v_claims,
+                    result=VerificationResult(
+                        check_id=v_rec.id,
+                        overall_verdict=v_rec.overall_verdict,
+                        confidence=v_rec.overall_confidence or ConfidenceLevel.HIGH,
+                        summary=v_rec.verdict_summary,
+                        original_content=v_rec.original_message,
+                        input_type=v_rec.source_origin or "WHATSAPP",
+                        claims=[],
+                    ),
+                    created_at=v_rec.submitted_at or now,
+                    updated_at=v_rec.completed_at or now,
+                )
+                self._local_checks[check_id] = c_obj
+                self._save_local_cache()
+                return c_obj
+        except Exception as ve:
+            logger.debug("Verification repo fallback check notice: %s", ve)
+
+        return None
 
     def update_check_status(
         self,
@@ -73,6 +163,7 @@ class CheckRepository(BaseFirestoreRepository):
             existing.stages.append(stage_obj)
 
         self._local_checks[check_id] = existing
+        self._save_local_cache()
 
         update_payload: Dict[str, Any] = {
             "status": status_val,
@@ -108,6 +199,7 @@ class CheckRepository(BaseFirestoreRepository):
         existing.status = ProcessingStatus.COMPLETED
         existing.updated_at = datetime.now(timezone.utc)
         self._local_checks[check_id] = existing
+        self._save_local_cache()
 
         update_payload: Dict[str, Any] = {
             "result": self.serialize_model(res_obj),

@@ -68,4 +68,5 @@ Thumbs.db
 # Local task & temporary logs
 *.log
 .local_users.json
+.local_checks.json
 

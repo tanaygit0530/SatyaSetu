@@ -609,6 +609,73 @@ class WhatsAppWebhookService:
             has_voice=has_voice,
         )
 
+    def persist_verification_check(
+        self,
+        check_id: str,
+        content: str,
+        verification_result: VerificationResult,
+        user_id: Optional[str] = None,
+    ) -> Any:
+        """
+        Persists the completed WhatsApp verification check into the canonical
+        check repository (and Firestore 'checks' collection).
+        Guarantees that the public evidence link /check/{check_id} can immediately
+        load the exact verification record with full evidence, verdict, and metadata.
+        Also associates the check with the citizen's user_id if authenticated.
+        """
+        from app.jobs import job_manager
+        from app.schemas.core import Check, Claim, Input, ProcessingStage
+        from app.schemas.enums import InputType as EInputType, ProcessingStatus
+
+        now = datetime.now(timezone.utc)
+        safe_content = (content or "WhatsApp verification submission").strip()
+        if not safe_content:
+            safe_content = "WhatsApp submission"
+
+        claims_list = [
+            Claim(
+                claim_id=c.claim_id,
+                text=c.claim_text or safe_content,
+                normalized_claim=c.normalized_claim or c.claim_text or safe_content,
+                language=getattr(c, "language", "en") or "en",
+            )
+            for c in (verification_result.claims or [])
+        ]
+
+        chk = Check(
+            check_id=check_id,
+            user_id=user_id,
+            input=Input(
+                input_id=f"inp_{check_id}",
+                input_type=EInputType.WHATSAPP,
+                raw_content=safe_content,
+                submitted_at=now,
+            ),
+            status=ProcessingStatus.COMPLETED,
+            claims=claims_list,
+            stages=[
+                ProcessingStage(
+                    stage=ProcessingStatus.COMPLETED,
+                    status="COMPLETED",
+                    started_at=now,
+                    completed_at=now,
+                )
+            ],
+            result=verification_result,
+            created_at=now,
+            updated_at=now,
+        )
+
+        try:
+            job_manager.check_repo.create_check(chk)
+            job_manager.check_repo.save_verification_result(check_id, verification_result)
+            logger.info("Successfully persisted WhatsApp verification record '%s' (user_id=%s)", check_id, user_id)
+        except Exception as e:
+            logger.error("Failed to persist WhatsApp verification record '%s': %s", check_id, e)
+            job_manager.check_repo._local_checks[check_id] = chk
+
+        return chk
+
     # =========================================================================
     # 7. BUILD TWIML RESPONSE
     # =========================================================================
@@ -847,30 +914,16 @@ class WhatsAppWebhookService:
                 check_id=check_id,
             )
 
-            # 3.5. Synchronize with authenticated citizen dashboard if account is linked
-            if user_id:
-                try:
-                    from app.jobs import job_manager
-                    from app.schemas.core import Check, Input
-                    from app.schemas.enums import ProcessingStatus
-                    chk = Check(
-                        check_id=check_id,
-                        user_id=user_id,
-                        input=Input(
-                            input_id=f"inp_{check_id}",
-                            input_type=InputType.WHATSAPP,
-                            raw_content=final_content,
-                        ),
-                        status=ProcessingStatus.COMPLETED,
-                        result=verification_result,
-                    )
-                    job_manager.check_repo.create_check(chk)
-                    job_manager.check_repo.save_verification_result(check_id, verification_result)
-                except Exception as rec_err:
-                    logger.debug("WhatsApp user dashboard synchronization note: %s", rec_err)
+            # 3.5. Persist canonical Check record so public evidence page (/check/{check_id}) can load it
+            effective_check_id = getattr(verification_result, "check_id", None) or check_id
+            self.persist_verification_check(
+                check_id=effective_check_id,
+                content=final_content,
+                verification_result=verification_result,
+                user_id=user_id,
+            )
 
             # 4. Format real WhatsApp citizen response
-            effective_check_id = getattr(verification_result, "check_id", None) or check_id
             is_voice_submission = (input_type == "VOICE")
             formatted_response = self.format_whatsapp_response(
                 result=verification_result,
@@ -1048,11 +1101,28 @@ class WhatsAppWebhookService:
         # 8. Create Check ID
         check_id = f"chk_{uuid.uuid4().hex[:12]}"
 
-        # 8.5. Resolve linked citizen account if sender has linked their WhatsApp
-        clean_sender_phone = incoming.from_number.replace("whatsapp:", "").strip()
+        # 8.5. Resolve linked citizen account if sender has a verified account matching incoming phone
         from app.services.auth_service import auth_service
+        raw_sender = (incoming.from_number or "").replace("whatsapp:", "").strip()
+        try:
+            clean_sender_phone = auth_service.normalize_phone(raw_sender)
+        except Exception:
+            clean_sender_phone = raw_sender
+
         sender_user = auth_service.user_repo.get_by_phone(clean_sender_phone)
-        linked_user_id = sender_user.user_id if (sender_user and getattr(sender_user, "whatsapp_linked", False)) else None
+        linked_user_id = None
+        if sender_user and getattr(sender_user, "user_id", None):
+            linked_user_id = sender_user.user_id
+            if not getattr(sender_user, "whatsapp_linked", False):
+                try:
+                    auth_service.user_repo.update_whatsapp_link(
+                        user_id=sender_user.user_id,
+                        linked=True,
+                        whatsapp_phone=clean_sender_phone,
+                        linked_at=datetime.now(timezone.utc),
+                    )
+                except Exception as link_err:
+                    logger.debug("Auto-linking WhatsApp sender error: %s", link_err)
 
         # 9. Immediate Acknowledgment Message (Step 7)
         ack_text = "🔎 Checking this claim with reliable sources. I'll send you the result shortly."
@@ -1115,6 +1185,13 @@ class WhatsAppWebhookService:
         )
 
         effective_check_id = getattr(verification_result, "check_id", None) or check_id
+        # Persist complete Check record into canonical CheckRepository for public web route (/check/{id})
+        self.persist_verification_check(
+            check_id=effective_check_id,
+            content=final_content,
+            verification_result=verification_result,
+            user_id=linked_user_id,
+        )
         is_voice_submission = (input_type == "VOICE")
         formatted_response = self.format_whatsapp_response(
             result=verification_result,

@@ -818,3 +818,141 @@ def test_whatsapp_response_uses_public_app_url():
     assert formatted.full_evidence_url == "https://satya-setu-phi.vercel.app/check/chk_whatsapp_prod_test"
     assert "View full evidence:\nhttps://satya-setu-phi.vercel.app/check/chk_whatsapp_prod_test" in formatted.formatted_body
 
+
+def test_whatsapp_verification_persists_record_and_accessible_via_public_api(client):
+    """
+    Verifies that a WhatsApp verification creates a persisted Check record
+    that is immediately retrievable via GET /api/v1/checks/{check_id} with full findings.
+    """
+    import re
+    from app.jobs import job_manager
+
+    form_params = {
+        "MessageSid": "SM_persist_test_001",
+        "From": "whatsapp:+919876543210",
+        "To": "whatsapp:+14155238886",
+        "Body": "Is RBI issuing new 1000 rupee notes?",
+    }
+
+    mock_result = VerificationResult(
+        check_id="chk_rbi_persist_01",
+        claims=[
+            ClaimVerificationResult(
+                claim_id="clm_rbi_01",
+                verdict=Verdict.FALSE,
+                confidence=ConfidenceLevel.HIGH,
+                explanation="RBI has issued no notification regarding the reintroduction of Rs 1000 notes.",
+                evidence=[
+                    LockedEvidenceItem(
+                        source_url="https://rbi.org.in/press/1000-note-clarification",
+                        publisher="Reserve Bank of India",
+                        source_title="RBI Clarification Press Release",
+                        exact_quote="Reserve Bank of India clarifies that there is no proposal to introduce Rs 1000 currency notes.",
+                        source_text_reference="para 2",
+                        source_tier=1,
+                        retrieved_at="2026-10-11T12:00:00Z",
+                        claim_relation="REFUTES",
+                    )
+                ],
+                rule_trace=["RULE-DIRECT-REFUTATION"],
+                claim_text="RBI is introducing new 1000 rupee notes.",
+                normalized_claim="RBI is introducing new 1000 rupee notes.",
+            )
+        ],
+        overall_verdict=Verdict.FALSE,
+    )
+
+    with patch.object(settings, "TWILIO_VALIDATE_SIGNATURE", False), \
+         patch.object(whatsapp_webhook_service.orchestrator, "verify", return_value=mock_result):
+
+        resp = client.post("/api/v1/whatsapp/webhook", data=form_params)
+        assert resp.status_code == 200
+        content = resp.text
+
+        # Extract the evidence URL from the WhatsApp reply
+        url_match = re.search(r"https://satya-setu-phi\.vercel\.app/check/([a-zA-Z0-9_\-]+)", content)
+        assert url_match is not None, f"No valid evidence URL found in response: {content}"
+        persisted_check_id = url_match.group(1)
+
+        # 1. Verify the record is in job_manager / CheckRepository
+        saved_check = job_manager.get_check(persisted_check_id)
+        assert saved_check is not None, f"Check {persisted_check_id} was not persisted in check_repo!"
+        assert saved_check.status.value == "COMPLETED"
+        assert saved_check.result is not None
+        assert saved_check.result.overall_verdict == Verdict.FALSE
+
+        # 2. Verify the public API GET /api/v1/checks/{check_id} returns the saved dossier
+        api_resp = client.get(f"/api/v1/checks/{persisted_check_id}")
+        assert api_resp.status_code == 200
+        data = api_resp.json()
+        assert data["check_id"] == persisted_check_id
+        assert data["status"] == "COMPLETED"
+        assert data["result"]["overall_verdict"] == "FALSE"
+        assert len(data["claims"]) >= 1
+        assert "Reserve Bank of India" in data["claims"][0]["evidence"][0]["publisher"]
+        assert data["claims"][0]["evidence"][0]["source_url"] == "https://rbi.org.in/press/1000-note-clarification"
+
+
+def test_whatsapp_verification_links_sender_to_verified_account(client):
+    """
+    Verifies that when an authenticated user registered via Twilio Verify sends a WhatsApp claim,
+    the persisted Check is automatically associated with their user_id and appears in their history.
+    """
+    import re
+    from app.services.auth_service import auth_service
+    from app.schemas.core import User, UserRole
+    from app.jobs import job_manager
+
+    # Register/mock user with phone number verified via Twilio
+    verified_phone = "+919988776655"
+    test_user = User(
+        user_id="usr_verified_citizen_77",
+        phone_number=verified_phone,
+        role=UserRole.CITIZEN,
+        phone_verified=True,
+    )
+    auth_service.user_repo.save_user(test_user)
+
+    form_params = {
+        "MessageSid": "SM_auth_user_001",
+        "From": f"whatsapp:{verified_phone}",
+        "To": "whatsapp:+14155238886",
+        "Body": "Is Aadhaar mandatory for board exams?",
+    }
+
+    mock_result = VerificationResult(
+        check_id="chk_aadhaar_001",
+        claims=[
+            ClaimVerificationResult(
+                claim_id="clm_aadhaar_01",
+                verdict=Verdict.FALSE,
+                confidence=ConfidenceLevel.HIGH,
+                explanation="UIDAI and CBSE circular states Aadhaar is not mandatory for board exams.",
+                evidence=[],
+                claim_text="Aadhaar is mandatory for board exams.",
+            )
+        ],
+        overall_verdict=Verdict.FALSE,
+    )
+
+    with patch.object(settings, "TWILIO_VALIDATE_SIGNATURE", False), \
+         patch.object(whatsapp_webhook_service.orchestrator, "verify", return_value=mock_result):
+
+        resp = client.post("/api/v1/whatsapp/webhook", data=form_params)
+        assert resp.status_code == 200
+
+        # Extract check_id
+        url_match = re.search(r"https://satya-setu-phi\.vercel\.app/check/([a-zA-Z0-9_\-]+)", resp.text)
+        assert url_match is not None
+        check_id = url_match.group(1)
+
+        # Verify Check was associated with test_user.user_id
+        saved_check = job_manager.get_check(check_id)
+        assert saved_check is not None
+        assert saved_check.user_id == "usr_verified_citizen_77"
+
+        # Verify check appears in user's history list
+        user_checks = job_manager.check_repo.list_checks(user_id="usr_verified_citizen_77")
+        assert any(c.check_id == check_id for c in user_checks)
+
+
