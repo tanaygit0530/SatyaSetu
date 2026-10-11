@@ -20,7 +20,13 @@ class TesseractOCRProvider(OCRProvider):
     """
 
     def __init__(self, tesseract_cmd: Optional[str] = None):
-        self._cmd = tesseract_cmd or settings.TESSERACT_CMD
+        candidate_cmd = tesseract_cmd or settings.TESSERACT_CMD
+        if not candidate_cmd:
+            for p in ["/opt/homebrew/bin/tesseract", "/usr/local/bin/tesseract", "/usr/bin/tesseract"]:
+                if os.path.exists(p):
+                    candidate_cmd = p
+                    break
+        self._cmd = candidate_cmd
         if self._cmd and PYTESSERACT_AVAILABLE:
             pytesseract.pytesseract.tesseract_cmd = self._cmd
 

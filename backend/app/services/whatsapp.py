@@ -728,11 +728,12 @@ class WhatsAppWebhookService:
         # resolves the verification dossier immediately without "Record Not Found".
         def _sync_to_remote_render():
             try:
+                import json
                 import urllib.request
                 target_url = "https://satyasetu-xvk9.onrender.com/api/v1/checks"
                 payload_data = json.dumps({
                     "check_id": check_id,
-                    "text": text,
+                    "text": safe_content,
                     "input_type": "TEXT",
                 }).encode("utf-8")
                 req = urllib.request.Request(
@@ -868,36 +869,67 @@ class WhatsAppWebhookService:
 
         hashed_to = phone_hasher.hash_phone(clean_to)
 
+        # Safeguard: WhatsApp / Twilio message bodies must not exceed 1600 characters (Code 21617)
+        chunks: List[str] = []
+        if len(body_text) <= 1550:
+            chunks = [body_text]
+        else:
+            paragraphs = body_text.split("\n\n")
+            cur_parts: List[str] = []
+            cur_len = 0
+            for p in paragraphs:
+                p_len = len(p) + 2
+                if cur_parts and (cur_len + p_len > 1500):
+                    chunks.append("\n\n".join(cur_parts))
+                    cur_parts = [p]
+                    cur_len = len(p)
+                else:
+                    cur_parts.append(p)
+                    cur_len += p_len
+            if cur_parts:
+                chunks.append("\n\n".join(cur_parts))
+
+        final_chunks: List[str] = []
+        for chk in chunks:
+            if len(chk) <= 1550:
+                final_chunks.append(chk)
+            else:
+                for i in range(0, len(chk), 1500):
+                    final_chunks.append(chk[i : i + 1500])
+
         try:
             from twilio.rest import Client
             from twilio.base.exceptions import TwilioRestException
 
             client = Client(account_sid, auth_token)
-            msg = client.messages.create(
-                from_=clean_from,
-                to=clean_to,
-                body=body_text,
-            )
-            audit_logger.log_event(
-                event_type="WHATSAPP_OUTBOUND_SENT",
-                client_identifier=hashed_to,
-                details={
-                    "incoming_message_sid": incoming_message_sid,
-                    "check_id": check_id,
-                    "outbound_message_sid": msg.sid,
-                    "status": msg.status,
-                },
-                severity="INFO",
-                action_taken="DISPATCHED",
-            )
-            logger.info(
-                "Outbound Twilio WhatsApp message sent successfully. SID: %s | Status: %s | Check ID: %s | Inbound SID: %s",
-                msg.sid,
-                msg.status,
-                check_id,
-                incoming_message_sid,
-            )
-            return msg.sid
+            last_sid = None
+            for chunk in final_chunks:
+                msg = client.messages.create(
+                    from_=clean_from,
+                    to=clean_to,
+                    body=chunk,
+                )
+                last_sid = msg.sid
+                audit_logger.log_event(
+                    event_type="WHATSAPP_OUTBOUND_SENT",
+                    client_identifier=hashed_to,
+                    details={
+                        "incoming_message_sid": incoming_message_sid,
+                        "check_id": check_id,
+                        "outbound_message_sid": msg.sid,
+                        "status": msg.status,
+                    },
+                    severity="INFO",
+                    action_taken="DISPATCHED",
+                )
+                logger.info(
+                    "Outbound Twilio WhatsApp message sent successfully. SID: %s | Status: %s | Check ID: %s | Inbound SID: %s",
+                    msg.sid,
+                    msg.status,
+                    check_id,
+                    incoming_message_sid,
+                )
+            return last_sid
 
         except TwilioRestException as te:
             logger.error(
@@ -993,6 +1025,23 @@ class WhatsAppWebhookService:
                         f"Document: `{err_filename}`\n"
                         f"Problem: {err_detail}\n\n"
                         f"💡 *Tip:* Please ensure the PDF contains readable text, or send a clear screenshot of the document page."
+                    )
+                    self.send_outbound_whatsapp_message(
+                        to_number=incoming.from_number,
+                        body_text=err_msg,
+                        check_id=check_id,
+                        incoming_message_sid=incoming.message_sid,
+                    )
+                    return
+
+            # Handle Screenshot / Image failure explicitly
+            if input_type in ("SCREENSHOT", "IMAGE"):
+                if not extracted_media_text.strip() and not incoming.body.strip():
+                    err_detail = media_ingest_error or "I couldn't detect any readable text in the uploaded image."
+                    err_msg = (
+                        f"⚠️ *Unable to verify screenshot*\n\n"
+                        f"Problem: {err_detail}\n\n"
+                        f"💡 *Tip:* Please ensure the screenshot is clear and readable, or type/forward the claim directly as text."
                     )
                     self.send_outbound_whatsapp_message(
                         to_number=incoming.from_number,
@@ -1294,6 +1343,19 @@ class WhatsAppWebhookService:
                     f"Document: `{err_fn}`\n"
                     f"Problem: {err_d}\n\n"
                     f"💡 *Tip:* Please ensure the PDF contains readable text, or send a clear screenshot of the document page."
+                )
+                sync_twiml = self.build_twiml_response(message_body=err_msg)
+                if message_sid:
+                    self.record_message(message_sid, sync_twiml)
+                return sync_twiml
+
+        if input_type in ("SCREENSHOT", "IMAGE"):
+            if not extracted_content.strip() and not incoming.body.strip():
+                err_d = media_sync_error or "I couldn't detect any readable text in the uploaded image."
+                err_msg = (
+                    f"⚠️ *Unable to verify screenshot*\n\n"
+                    f"Problem: {err_d}\n\n"
+                    f"💡 *Tip:* Please ensure the screenshot is clear and readable, or type/forward the claim directly as text."
                 )
                 sync_twiml = self.build_twiml_response(message_body=err_msg)
                 if message_sid:
