@@ -180,7 +180,7 @@ def test_whatsapp_text_claim_verification_format(client):
     Claim: UPI will be banned tomorrow.
     Why: We found no official evidence announcing a nationwide UPI shutdown.
     Proof: NPCI — [source]
-    View full evidence: https://sachcheck.in/checks/...
+    View full evidence: https://satya-setu-phi.vercel.app/check/...
     """
     form_params = {
         "MessageSid": "SM_text_upi_001",
@@ -237,7 +237,7 @@ def test_whatsapp_text_claim_verification_format(client):
         assert 'Correction:\nNPCI: "NPCI clarifies UPI remains fully functional nationwide."' in content
         assert "Proof:\nNPCI — https://npci.org.in/upi-clarification" in content
         assert "View full evidence:" in content
-        assert "https://sachcheck.in/checks/chk_" in content
+        assert "https://satya-setu-phi.vercel.app/check/chk_" in content
 
 
 # ==============================================================================
@@ -315,7 +315,7 @@ def test_whatsapp_multiple_claims_response_formatting(client):
 
         # Verify full evidence footer
         assert "View full evidence:" in content
-        assert "https://sachcheck.in/checks/chk_multi_01" in content
+        assert "https://satya-setu-phi.vercel.app/check/chk_multi_01" in content
 
 
 def test_whatsapp_correction_strictly_grounded_in_validated_evidence():
@@ -626,7 +626,7 @@ def test_whatsapp_emoji_and_verdict_headers(verdict, expected_emoji_header):
     assert '"Sample claim statement under review."' in formatted.formatted_body
     assert "Why:\nOfficial fact check finding explanation." in formatted.formatted_body
     assert "View full evidence:" in formatted.formatted_body
-    assert "https://sachcheck.in/checks/chk_test_emoji" in formatted.formatted_body
+    assert "https://satya-setu-phi.vercel.app/check/chk_test_emoji" in formatted.formatted_body
 
 
 # ==============================================================================
@@ -769,3 +769,52 @@ def test_whatsapp_conversational_greeting_immediate_reply(client):
         assert "<Response>" in resp.text
         assert "Welcome to SachCheck" in resp.text
         assert "How to verify:" in resp.text
+
+
+# ==============================================================================
+# 9. Public Evidence URL Production Configuration Tests
+# ==============================================================================
+
+def test_public_evidence_url_default_production():
+    """Verifies default public evidence URL points to production Vercel app on route /check/{id}."""
+    url = settings.get_public_evidence_url("chk_6fa7905ed442")
+    assert url == "https://satya-setu-phi.vercel.app/check/chk_6fa7905ed442"
+    assert "sachcheck.in" not in url
+    assert "/checks/" not in url
+
+
+def test_public_evidence_url_custom_base_url():
+    """Verifies PUBLIC_APP_URL overrides the base URL without trailing slash issues."""
+    with patch.object(settings, "PUBLIC_APP_URL", "https://staging.satyasetu.org/"):
+        url = settings.get_public_evidence_url("chk_custom_001")
+        assert url == "https://staging.satyasetu.org/check/chk_custom_001"
+
+
+def test_public_evidence_url_legacy_sachcheck_rejected():
+    """Verifies legacy sachcheck.in domain is safely sanitized to the production Vercel app."""
+    with patch.object(settings, "PUBLIC_APP_URL", "https://sachcheck.in"):
+        url = settings.get_public_evidence_url("chk_safe_002")
+        assert url == "https://satya-setu-phi.vercel.app/check/chk_safe_002"
+        assert "sachcheck.in" not in url
+
+
+def test_whatsapp_response_uses_public_app_url():
+    """Verifies format_whatsapp_response uses get_public_evidence_url and real verification ID."""
+    mock_res = VerificationResult(
+        check_id="chk_whatsapp_prod_test",
+        claims=[
+            ClaimVerificationResult(
+                claim_id="c1",
+                verdict=Verdict.VERIFIED,
+                confidence=ConfidenceLevel.HIGH,
+                explanation="Verified against authoritative sources.",
+                claim_text="Government launches new portal.",
+                evidence=[],
+            )
+        ],
+        overall_verdict=Verdict.VERIFIED,
+    )
+    formatted = whatsapp_webhook_service.format_whatsapp_response(mock_res, "chk_whatsapp_prod_test")
+    assert formatted.full_evidence_url == "https://satya-setu-phi.vercel.app/check/chk_whatsapp_prod_test"
+    assert "View full evidence:\nhttps://satya-setu-phi.vercel.app/check/chk_whatsapp_prod_test" in formatted.formatted_body
+

@@ -33,8 +33,11 @@ class TTSService:
         base_public_url: Optional[str] = None,
     ):
         self.provider = provider or SarvamTTSProvider()
-        self.metrics_repo = metrics_repo or MetricsRepository()
-        self.base_public_url = base_public_url or getattr(settings, "BASE_PUBLIC_URL", "https://sachcheck.in")
+        self.base_public_url = (
+            base_public_url
+            or getattr(settings, "PUBLIC_APP_URL", None)
+            or getattr(settings, "BASE_PUBLIC_URL", "https://satya-setu-phi.vercel.app")
+        )
 
     def synthesize_explanation(
         self,

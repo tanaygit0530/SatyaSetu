@@ -24,6 +24,15 @@ const nextConfig = {
     };
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: '/checks/:path*',
+        destination: '/check/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

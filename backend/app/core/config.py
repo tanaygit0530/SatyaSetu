@@ -110,7 +110,46 @@ class Settings(BaseSettings):
     TWILIO_VALIDATE_SIGNATURE: bool = True
     TWILIO_MEDIA_DOWNLOAD_TIMEOUT_SECONDS: float = 15.0
     TWILIO_ASYNC_DISPATCH: bool = True
-    BASE_PUBLIC_URL: str = "https://sachcheck.in"
+    # Public frontend URL for WhatsApp evidence links & citizen sharing
+    PUBLIC_APP_URL: str = "https://satya-setu-phi.vercel.app"
+    BASE_PUBLIC_URL: str = "https://satya-setu-phi.vercel.app"
+
+    @field_validator("PUBLIC_APP_URL", mode="before")
+    @classmethod
+    def clean_public_app_url(cls, v: Optional[str]) -> str:
+        if not v or not isinstance(v, str) or not v.strip():
+            return "https://satya-setu-phi.vercel.app"
+        cleaned = v.strip().rstrip("/")
+        if "sachcheck.in" in cleaned:
+            return "https://satya-setu-phi.vercel.app"
+        return cleaned
+
+    @field_validator("BASE_PUBLIC_URL", mode="before")
+    @classmethod
+    def clean_base_public_url(cls, v: Optional[str]) -> str:
+        if not v or not isinstance(v, str) or not v.strip():
+            return "https://satya-setu-phi.vercel.app"
+        cleaned = v.strip().rstrip("/")
+        if "sachcheck.in" in cleaned:
+            return "https://satya-setu-phi.vercel.app"
+        return cleaned
+
+    def get_public_app_url(self) -> str:
+        url = self.PUBLIC_APP_URL if (self.PUBLIC_APP_URL and "sachcheck.in" not in self.PUBLIC_APP_URL) else self.BASE_PUBLIC_URL
+        cleaned = str(url or "https://satya-setu-phi.vercel.app").strip().rstrip("/")
+        if "sachcheck.in" in cleaned:
+            return "https://satya-setu-phi.vercel.app"
+        return cleaned
+
+    def get_public_evidence_url(self, check_id: str) -> str:
+        """
+        Builds the canonical public evidence URL for an individual verification result.
+        Uses the deployed frontend route: /check/{verification_id}
+        """
+        base = self.get_public_app_url()
+        safe_check_id = str(check_id).strip().lstrip("/")
+        return f"{base}/check/{safe_check_id}"
+
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_DAYS: int = 7
 

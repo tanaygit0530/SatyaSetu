@@ -552,8 +552,8 @@ class WhatsAppWebhookService:
 
         proof_text = "\n".join(proof_entries) if proof_entries else None
 
-        # Build full evidence public link
-        evidence_url = f"{settings.BASE_PUBLIC_URL.rstrip('/')}/checks/{check_id}"
+        # Build full evidence public link using the configured production frontend URL and route
+        evidence_url = settings.get_public_evidence_url(check_id)
 
         # Combine claim sections
         formatted_body_parts = ["\n\n".join(body_sections)]
