@@ -1,3 +1,5 @@
+const path = require('path');
+
 const backendApiUrl =
   process.env.BACKEND_API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -14,6 +16,13 @@ const nextConfig = {
         hostname: 'lh3.googleusercontent.com',
       },
     ],
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@': path.resolve(__dirname),
+    };
+    return config;
   },
   async rewrites() {
     return [
