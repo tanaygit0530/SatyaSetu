@@ -19,9 +19,13 @@ class User(BaseModel):
     """User representation for citizens and audit desk investigators."""
     user_id: str = Field(..., min_length=2, description="Unique user identifier")
     phone_number: Optional[str] = Field(None, description="E.164 formatted phone number")
+    phone_verified: bool = Field(default=True, description="Whether login phone number was verified via Twilio Verify")
     email: Optional[str] = Field(None, description="Email address")
     role: UserRole = Field(default=UserRole.CITIZEN, description="Assigned authorization role")
     language: str = Field(default="en", description="Preferred display language (en, hi, mr)")
+    whatsapp_linked: bool = Field(default=False, description="Whether citizen has linked their WhatsApp account to this user profile")
+    whatsapp_phone_number: Optional[str] = Field(None, description="Linked WhatsApp phone number in E.164 format")
+    whatsapp_linked_at: Optional[datetime] = Field(None, description="Timestamp when WhatsApp account was confirmed")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("phone_number")

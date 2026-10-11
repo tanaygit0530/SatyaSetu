@@ -93,3 +93,34 @@ async def change_phone_verify_otp(
 )
 async def logout(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
     return {"message": "Logged out successfully."}
+
+
+@router.get(
+    "/whatsapp/status",
+    status_code=status.HTTP_200_OK,
+    summary="Get user's verified phone number and WhatsApp connection status",
+    description="Returns authenticated user's verified phone number, WhatsApp linking state, and official bot tipline details.",
+)
+async def get_whatsapp_status(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    return auth_service.get_whatsapp_link_status(current_user)
+
+
+@router.post(
+    "/whatsapp/initiate-link",
+    status_code=status.HTTP_200_OK,
+    summary="Initiate WhatsApp account linking flow",
+    description="Generates a single-use, short-lived linking token to associate incoming WhatsApp messages with this user account.",
+)
+async def initiate_whatsapp_link(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    return auth_service.initiate_whatsapp_link(current_user)
+
+
+@router.post(
+    "/whatsapp/unlink",
+    status_code=status.HTTP_200_OK,
+    summary="Unlink user's WhatsApp account",
+    description="Disconnects the linked WhatsApp identity from this user profile.",
+)
+async def unlink_whatsapp(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    return auth_service.unlink_whatsapp(current_user)
+

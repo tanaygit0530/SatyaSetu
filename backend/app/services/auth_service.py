@@ -1,7 +1,9 @@
 import re
+import secrets
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple
 import jwt
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
@@ -25,6 +27,10 @@ class AuthService:
         self._last_otp_request: Dict[str, float] = {}
         self._hourly_requests: Dict[str, List[float]] = {}
         self._verify_failures: Dict[str, int] = {}
+        # WhatsApp linking tokens (single-use, short-lived)
+        self._linking_tokens: Dict[str, Dict[str, Any]] = {}
+        self._user_linking_tokens: Dict[str, str] = {}
+        self._linking_cooldown: Dict[str, float] = {}
 
     def normalize_phone(self, raw_phone: str) -> str:
         """
@@ -346,5 +352,208 @@ class AuthService:
                 detail="Invalid authentication credentials.",
             )
 
+    def get_bot_display_number(self) -> Dict[str, Any]:
+        """
+        Returns the configured Twilio WhatsApp bot sender number and deep link.
+        Never confuses the bot tipline number with the user's account identity.
+        """
+        raw = getattr(settings, "TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886") or "whatsapp:+14155238886"
+        clean = raw.replace("whatsapp:", "").strip()
+        digits = re.sub(r"\D", "", clean)
+
+        return {
+            "raw": raw,
+            "number": clean,
+            "display": clean,
+            "digits": digits,
+            "deep_link": f"https://wa.me/{digits}?text=SatyaSetu%20Forward",
+            "is_sandbox": "14155238886" in clean,
+        }
+
+    get_bot_number_info = get_bot_display_number
+
+    def initiate_whatsapp_link(self, current_user: User) -> Dict[str, Any]:
+        """
+        Initiates WhatsApp account linking for the authenticated user.
+        Generates a short-lived (10 min), single-use linking code.
+        Requires that the incoming WhatsApp message is sent from the user's verified phone number.
+        """
+        if not current_user.phone_number:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User must have a verified login phone number to link WhatsApp.",
+            )
+
+        now = time.time()
+        # Cooldown check: minimum 15 seconds between generating linking codes
+        last_req = self._linking_cooldown.get(current_user.user_id, 0.0)
+        if now - last_req < 15:
+            remaining = int(15 - (now - last_req))
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Please wait {remaining} seconds before requesting a new linking code.",
+            )
+
+        # Invalidate any existing linking code for this user
+        old_code = self._user_linking_tokens.get(current_user.user_id)
+        if old_code:
+            self._linking_tokens.pop(old_code, None)
+
+        # Generate fresh single-use code: e.g. LINK-9A3F1B
+        token_suffix = secrets.token_hex(3).upper()
+        code = f"LINK-{token_suffix}"
+        expires_at = now + 600.0  # 10 minutes
+
+        self._linking_tokens[code] = {
+            "code": code,
+            "user_id": current_user.user_id,
+            "phone_number": current_user.phone_number,
+            "created_at": now,
+            "expires_at": expires_at,
+        }
+        self._user_linking_tokens[current_user.user_id] = code
+        self._linking_cooldown[current_user.user_id] = now
+
+        bot_info = self.get_bot_display_number()
+        link_text = f"LINK-{token_suffix}"
+        encoded_text = f"{code}"
+
+        return {
+            "linking_code": code,
+            "verified_phone_number": current_user.phone_number,
+            "bot_number": bot_info["display"],
+            "deep_link": f"https://wa.me/{bot_info['digits']}?text={encoded_text}",
+            "expires_in_seconds": 600,
+            "is_sandbox": bot_info["is_sandbox"],
+            "instructions": (
+                f"Send '{code}' to SatyaSetu Bot from your verified WhatsApp number "
+                f"{current_user.phone_number} within 10 minutes to complete linking."
+            ),
+        }
+
+    def get_whatsapp_link_status(self, current_user: User) -> Dict[str, Any]:
+        """
+        Returns authoritative verified phone number, WhatsApp link status, and bot tipline number.
+        """
+        # Re-fetch fresh user record from repository
+        fresh_user = self.user_repo.get_user(current_user.user_id) or current_user
+        bot_info = self.get_bot_display_number()
+
+        # Check if user has an active linking token pending
+        active_code = self._user_linking_tokens.get(fresh_user.user_id)
+        active_token_info = None
+        if active_code and active_code in self._linking_tokens:
+            tok = self._linking_tokens[active_code]
+            if time.time() < tok["expires_at"]:
+                active_token_info = {
+                    "code": tok["code"],
+                    "expires_in_seconds": max(0, int(tok["expires_at"] - time.time())),
+                    "deep_link": f"https://wa.me/{bot_info['digits']}?text={tok['code']}",
+                }
+            else:
+                self._linking_tokens.pop(active_code, None)
+                self._user_linking_tokens.pop(fresh_user.user_id, None)
+
+        return {
+            "user_id": fresh_user.user_id,
+            "verified_login_number": fresh_user.phone_number,
+            "phone_verified": getattr(fresh_user, "phone_verified", True),
+            "whatsapp_account_identity": fresh_user.phone_number,
+            "whatsapp_linked": getattr(fresh_user, "whatsapp_linked", False),
+            "whatsapp_phone_number": getattr(fresh_user, "whatsapp_phone_number", None),
+            "whatsapp_linked_at": (
+                fresh_user.whatsapp_linked_at.isoformat()
+                if getattr(fresh_user, "whatsapp_linked_at", None)
+                else None
+            ),
+            "bot_tipline_number": bot_info["display"],
+            "bot_deep_link": bot_info["deep_link"],
+            "is_sandbox": bot_info["is_sandbox"],
+            "pending_linking": active_token_info,
+        }
+
+    def validate_and_link_whatsapp(
+        self,
+        raw_code: str,
+        incoming_from_number: str,
+    ) -> Tuple[bool, Optional[User], str]:
+        """
+        Validates linking code submitted via WhatsApp bot incoming message.
+        Confirms sender phone matches the authenticated user's verified phone number.
+        """
+        clean_code = (raw_code or "").strip().upper()
+        if not clean_code or not clean_code.startswith("LINK-"):
+            return False, None, "Invalid linking code format. Code must begin with LINK-."
+
+        token_record = self._linking_tokens.get(clean_code)
+        if not token_record:
+            return False, None, "Linking code is invalid or has already been used."
+
+        now = time.time()
+        if now > token_record["expires_at"]:
+            self._linking_tokens.pop(clean_code, None)
+            self._user_linking_tokens.pop(token_record["user_id"], None)
+            return False, None, "Linking code has expired. Please initiate a new link on SatyaSetu."
+
+        # Normalize incoming WhatsApp sender to strict E.164
+        clean_sender_raw = incoming_from_number.replace("whatsapp:", "").strip()
+        try:
+            normalized_sender = self.normalize_phone(clean_sender_raw)
+        except Exception:
+            normalized_sender = clean_sender_raw
+
+        expected_phone = token_record["phone_number"]
+
+        # SECURITY: Strictly ensure incoming sender matches the user's verified phone number
+        if normalized_sender != expected_phone:
+            logger.warning(
+                "WhatsApp linking identity mismatch: token user expects %s, but message arrived from %s",
+                expected_phone,
+                normalized_sender,
+            )
+            return (
+                False,
+                None,
+                f"Sender number '{normalized_sender}' does not match the account's verified login number '{expected_phone}'.",
+            )
+
+        # Successful match! Update user profile in repository
+        user_id = token_record["user_id"]
+        linked_at = datetime.now(timezone.utc)
+        updated_user = self.user_repo.update_whatsapp_link(
+            user_id=user_id,
+            linked=True,
+            whatsapp_phone=normalized_sender,
+            linked_at=linked_at,
+        )
+
+        # Clean up token (single-use)
+        self._linking_tokens.pop(clean_code, None)
+        self._user_linking_tokens.pop(user_id, None)
+
+        logger.info(
+            "User %s successfully linked WhatsApp account with verified phone %s",
+            user_id,
+            normalized_sender,
+        )
+        return True, updated_user, "WhatsApp account successfully linked."
+
+    def unlink_whatsapp(self, current_user: User) -> Dict[str, Any]:
+        """
+        Disconnects the user's linked WhatsApp account.
+        """
+        updated_user = self.user_repo.update_whatsapp_link(
+            user_id=current_user.user_id,
+            linked=False,
+            whatsapp_phone=None,
+            linked_at=None,
+        )
+        return {
+            "success": True,
+            "message": "WhatsApp account unlinked successfully.",
+            "status": self.get_whatsapp_link_status(updated_user or current_user),
+        }
+
 
 auth_service = AuthService()
+

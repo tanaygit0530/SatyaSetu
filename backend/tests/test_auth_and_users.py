@@ -126,3 +126,76 @@ def test_root_health_endpoint():
     res = client.get("/health")
     assert res.status_code == 200
     assert res.json()["status"] == "healthy"
+
+
+def test_whatsapp_linking_security_and_flow():
+    # 1. Create authenticated user
+    test_user = User(
+        user_id="usr_whatsapp_test",
+        phone_number="+918591000000",
+        role=UserRole.CITIZEN,
+    )
+    auth_service.user_repo.save_user(test_user)
+    token = auth_service.create_access_token(test_user)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # 2. Check initial status (unlinked)
+    status_res = client.get("/api/v1/auth/whatsapp/status", headers=headers)
+    assert status_res.status_code == 200
+    st_data = status_res.json()
+    assert st_data["verified_login_number"] == "+918591000000"
+    assert st_data["whatsapp_account_identity"] == "+918591000000"
+    assert st_data["whatsapp_linked"] is False
+    assert "bot_tipline_number" in st_data
+
+    # 3. Initiate linking (generates single-use short-lived token)
+    init_res = client.post("/api/v1/auth/whatsapp/initiate-link", headers=headers)
+    assert init_res.status_code == 200
+    init_data = init_res.json()
+    code = init_data["linking_code"]
+    assert code.startswith("LINK-")
+    assert init_data["verified_phone_number"] == "+918591000000"
+    assert "deep_link" in init_data
+
+    # 4. Attempt validation from WRONG sender (Security: User B cannot link User A's token)
+    impostor_phone = "whatsapp:+919876543210"
+    ok, usr, msg = auth_service.validate_and_link_whatsapp(code, impostor_phone)
+    assert ok is False
+    assert usr is None
+    assert "does not match" in msg
+
+    # Re-verify account is STILL not linked
+    status_check = client.get("/api/v1/auth/whatsapp/status", headers=headers).json()
+    assert status_check["whatsapp_linked"] is False
+
+    # 5. Validate from CORRECT verified sender
+    legit_phone = "whatsapp:+918591000000"
+    ok2, usr2, msg2 = auth_service.validate_and_link_whatsapp(code, legit_phone)
+    assert ok2 is True
+    assert usr2 is not None
+    assert usr2.whatsapp_linked is True
+    assert usr2.whatsapp_phone_number == "+918591000000"
+
+    # Status API now reports linked
+    status_after = client.get("/api/v1/auth/whatsapp/status", headers=headers).json()
+    assert status_after["whatsapp_linked"] is True
+    assert status_after["whatsapp_phone_number"] == "+918591000000"
+    assert status_after["whatsapp_account_identity"] == "+918591000000"
+
+    # 6. Single-use token check (same code cannot be reused)
+    ok3, usr3, msg3 = auth_service.validate_and_link_whatsapp(code, legit_phone)
+    assert ok3 is False
+    assert "already been used" in msg3 or "invalid" in msg3
+
+    # 7. Unlink WhatsApp
+    unlink_res = client.post("/api/v1/auth/whatsapp/unlink", headers=headers)
+    assert unlink_res.status_code == 200
+    assert unlink_res.json()["status"]["whatsapp_linked"] is False
+
+    # 8. Re-link and test change_phone_number resets WhatsApp linking
+    auth_service.user_repo.update_whatsapp_link("usr_whatsapp_test", linked=True, whatsapp_phone="+918591000000")
+    updated_phone_user = auth_service.user_repo.update_phone_number("usr_whatsapp_test", "+918591111111")
+    assert updated_phone_user.phone_number == "+918591111111"
+    assert updated_phone_user.whatsapp_linked is False
+    assert updated_phone_user.whatsapp_phone_number is None
+

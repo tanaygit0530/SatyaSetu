@@ -115,4 +115,25 @@ class UserRepository(BaseFirestoreRepository):
             self._local_users.pop(old_phone, None)
 
         user.phone_number = new_phone
+        user.phone_verified = True
+        # Re-evaluate WhatsApp link: reset because the phone identity changed
+        user.whatsapp_linked = False
+        user.whatsapp_phone_number = None
+        user.whatsapp_linked_at = None
         return self.save_user(user)
+
+    def update_whatsapp_link(
+        self,
+        user_id: str,
+        linked: bool,
+        whatsapp_phone: Optional[str] = None,
+        linked_at: Optional[Any] = None,
+    ) -> Optional[User]:
+        user = self.get_user(user_id)
+        if not user:
+            return None
+        user.whatsapp_linked = linked
+        user.whatsapp_phone_number = whatsapp_phone if linked else None
+        user.whatsapp_linked_at = linked_at if linked else None
+        return self.save_user(user)
+

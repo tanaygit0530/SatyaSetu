@@ -1,15 +1,40 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
 import { APP_CONFIG } from '@/lib/constants';
 import { getUser, isAuthenticated, setToken, setUser, AuthUser } from '@/lib/auth';
-import { changePhoneRequestOtp, changePhoneVerifyOtp } from '@/lib/api';
+import {
+  changePhoneRequestOtp,
+  changePhoneVerifyOtp,
+  fetchCurrentUser,
+  fetchWhatsAppLinkStatus,
+  initiateWhatsAppLink,
+  unlinkWhatsApp,
+  WhatsAppLinkStatus,
+} from '@/lib/api';
+import { formatDate } from '@/lib/utils';
 
 export default function WhatsAppPage() {
   const [currentUser, setCurrentUserState] = useState<AuthUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [linkStatus, setLinkStatus] = useState<WhatsAppLinkStatus | null>(null);
+  const [statusLoading, setStatusLoading] = useState(false);
+
+  // WhatsApp Linking Flow state
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkingLoading, setLinkingLoading] = useState(false);
+  const [linkingData, setLinkingData] = useState<{
+    linking_code: string;
+    verified_phone_number: string;
+    bot_number: string;
+    deep_link: string;
+    expires_in_seconds: number;
+    is_sandbox: boolean;
+    instructions: string;
+  } | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   // Change phone state
   const [showChangeModal, setShowChangeModal] = useState(false);
@@ -22,11 +47,41 @@ export default function WhatsAppPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Initial load: retrieve authoritative authenticated profile and WhatsApp status
   useEffect(() => {
-    setIsLoggedIn(isAuthenticated());
-    setCurrentUserState(getUser());
+    const authed = isAuthenticated();
+    setIsLoggedIn(authed);
+    const cachedUser = getUser();
+    setCurrentUserState(cachedUser);
+
+    if (authed) {
+      loadAuthoritativeStatus();
+    }
   }, []);
 
+  async function loadAuthoritativeStatus() {
+    setStatusLoading(true);
+    try {
+      // 1. Fetch fresh authenticated profile from backend
+      const meRes = await fetchCurrentUser();
+      if (meRes?.user) {
+        setUser(meRes.user);
+        setCurrentUserState(meRes.user);
+      }
+
+      // 2. Fetch authoritative WhatsApp link status
+      const statusRes = await fetchWhatsAppLinkStatus();
+      setLinkStatus(statusRes);
+    } catch (err) {
+      console.error('Failed to load authoritative status:', err);
+    } finally {
+      setStatusLoading(false);
+    }
+  }
+
+  // Cooldown countdown
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = setInterval(() => {
@@ -34,6 +89,88 @@ export default function WhatsAppPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
+
+  // Polling for WhatsApp confirmation while linking modal is active
+  useEffect(() => {
+    if (!showLinkModal) {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      return;
+    }
+
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const freshStatus = await fetchWhatsAppLinkStatus();
+        setLinkStatus(freshStatus);
+        if (freshStatus.whatsapp_linked) {
+          setShowLinkModal(false);
+          setSuccessMsg('Your WhatsApp account has been linked successfully!');
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
+        }
+      } catch (err) {
+        console.error('Polling WhatsApp status notice:', err);
+      }
+    }, 3500);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [showLinkModal]);
+
+  // Initiate WhatsApp linking flow
+  const handleStartLinking = async () => {
+    setError(null);
+    setSuccessMsg(null);
+    setLinkingLoading(true);
+    try {
+      const data = await initiateWhatsAppLink();
+      setLinkingData(data);
+      setShowLinkModal(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to start WhatsApp linking. Please try again.');
+    } finally {
+      setLinkingLoading(false);
+    }
+  };
+
+  // Unlink WhatsApp
+  const handleUnlink = async () => {
+    if (!window.confirm('Are you sure you want to disconnect your WhatsApp account from SatyaSetu?')) {
+      return;
+    }
+    setError(null);
+    setSuccessMsg(null);
+    setLinkingLoading(true);
+    try {
+      const res = await unlinkWhatsApp();
+      setLinkStatus(res.status);
+      setSuccessMsg('Your WhatsApp account has been disconnected.');
+      // Refresh user profile
+      const meRes = await fetchCurrentUser();
+      if (meRes?.user) {
+        setUser(meRes.user);
+        setCurrentUserState(meRes.user);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to unlink WhatsApp account.');
+    } finally {
+      setLinkingLoading(false);
+    }
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
 
   const getFullNewPhone = () => {
     const rawDigits = newPhone.trim().replace(/\D/g, '');
@@ -88,17 +225,25 @@ export default function WhatsAppPage() {
         setCurrentUserState(res.user);
       }
 
-      setSuccessMsg('Your verified phone number has been updated successfully!');
+      setSuccessMsg('Your verified phone number has been updated successfully! Please link your new WhatsApp account.');
       setShowChangeModal(false);
       setChangeOtpSent(false);
       setNewPhone('');
       setChangeOtp('');
+      await loadAuthoritativeStatus();
     } catch (err: any) {
       setError(err.message || 'Failed to verify new phone number.');
     } finally {
       setLoading(false);
     }
   };
+
+  // Authoritative user phone identity (strictly from backend authenticated profile)
+  const userVerifiedNumber =
+    currentUser?.phone_number || linkStatus?.verified_login_number || null;
+  const isWhatsAppLinked = Boolean(linkStatus?.whatsapp_linked ?? currentUser?.whatsapp_linked);
+  const botNumberDisplay = linkStatus?.bot_tipline_number || APP_CONFIG.whatsappNumber;
+  const botDeepLink = linkStatus?.bot_deep_link || APP_CONFIG.whatsappDeepLink;
 
   return (
     <AppShell>
@@ -113,12 +258,37 @@ export default function WhatsAppPage() {
             Verify forwards where they already arrive.
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">
-            Forward any suspicious WhatsApp message, viral circular screenshot, or voice note to our verified number. Receive a tamper-proof evidence dossier in seconds.
+            Forward any suspicious WhatsApp message, viral circular screenshot, or voice note to our verified tipline number. Receive a tamper-proof evidence dossier in seconds.
           </p>
         </div>
 
-        {/* User Account & Verified WhatsApp Connection Status Card */}
-        <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant p-space-lg space-y-4 shadow-2xs">
+        {/* Global Feedback Messages */}
+        {error && (
+          <div className="p-3.5 rounded-xl bg-error-container/20 border border-error/40 text-error text-xs flex items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
+              <span>{error}</span>
+            </div>
+            <button onClick={() => setError(null)} className="text-error font-bold hover:underline">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {successMsg && !showChangeModal && !showLinkModal && (
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-medium flex items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px] text-emerald-600">verified</span>
+              <span>{successMsg}</span>
+            </div>
+            <button onClick={() => setSuccessMsg(null)} className="font-bold hover:underline">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* USER ACCOUNT & VERIFIED WHATSAPP CONNECTION CARD */}
+        <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant p-space-lg space-y-5 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-outline-variant">
             <div className="space-y-0.5">
               <h2 className="font-headline-sm text-lg font-bold text-on-surface flex items-center gap-2">
@@ -126,7 +296,7 @@ export default function WhatsAppPage() {
                 <span>Verified Account & WhatsApp Identity</span>
               </h2>
               <p className="text-xs text-on-surface-variant">
-                Your authenticated login profile and WhatsApp tipline channel status
+                Your authenticated login profile and connected WhatsApp citizen identity
               </p>
             </div>
 
@@ -140,7 +310,7 @@ export default function WhatsAppPage() {
                 className="px-3.5 py-1.5 rounded-xl border border-outline-variant hover:bg-surface-container-low text-xs font-bold text-on-surface transition-colors flex items-center gap-1.5 self-start sm:self-auto"
               >
                 <span className="material-symbols-outlined text-[16px]">phone_iphone</span>
-                <span>{showChangeModal ? 'Cancel Change' : 'Change Phone Number'}</span>
+                <span>{showChangeModal ? 'Cancel Change' : 'Change Login Number'}</span>
               </button>
             ) : (
               <Link
@@ -153,53 +323,196 @@ export default function WhatsAppPage() {
             )}
           </div>
 
-          {/* Status Indicators Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-1">
-              <span className="text-outline uppercase text-[10px] font-bold tracking-wider">
-                Verified Login Number
-              </span>
+          {/* TWO PRIMARY NUMBER COLUMNS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 1. Verified Login Number */}
+            <div className="p-4 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-outline uppercase text-[10px] font-bold tracking-wider">
+                  Verified Login Number
+                </span>
+                {isLoggedIn && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                    Twilio Verified
+                  </span>
+                )}
+              </div>
+
               <div className="flex items-center gap-2">
                 {isLoggedIn ? (
-                  <>
-                    <span className="font-code-sm text-sm font-bold text-on-surface">
-                      {currentUser?.phone_number || 'Linked'}
+                  <div className="space-y-0.5">
+                    <span className="font-code-sm text-base font-bold text-on-surface">
+                      {userVerifiedNumber || 'Loading verified number...'}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full">
-                      <span className="material-symbols-outlined text-[12px]">check_circle</span>
-                      Twilio Verified
-                    </span>
-                  </>
+                    <p className="text-[11px] text-on-surface-variant">
+                      Authenticated through Twilio Verify WhatsApp OTP
+                    </p>
+                  </div>
                 ) : (
-                  <span className="text-on-surface-variant italic">
-                    Not signed in. <Link href="/login" className="text-primary underline font-semibold">Sign in</Link> to associate checks.
+                  <span className="text-on-surface-variant text-xs italic">
+                    Not signed in.{' '}
+                    <Link href="/login" className="text-primary underline font-semibold">
+                      Sign in
+                    </Link>{' '}
+                    to access your verified number.
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-1">
-              <span className="text-outline uppercase text-[10px] font-bold tracking-wider">
-                WhatsApp Bot Tipline Status
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="font-semibold text-on-surface text-xs">
-                  Active & Ready for Incoming Forwards
+            {/* 2. WhatsApp Account Identity (MUST MATCH THE USER'S VERIFIED NUMBER) */}
+            <div className="p-4 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-outline uppercase text-[10px] font-bold tracking-wider">
+                  WhatsApp Account Identity
                 </span>
-                <span className="text-outline text-[11px]">(+91 91122 33445)</span>
+                {isLoggedIn && (
+                  <span
+                    className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      isWhatsAppLinked
+                        ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/15 border-emerald-500/20'
+                        : 'text-amber-800 dark:text-amber-300 bg-amber-500/15 border-amber-500/20'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[12px]">
+                      {isWhatsAppLinked ? 'link' : 'link_off'}
+                    </span>
+                    {isWhatsAppLinked ? 'Linked & Synchronized' : 'Not Connected Yet'}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                {isLoggedIn ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="font-code-sm text-base font-bold text-on-surface">
+                        {userVerifiedNumber || 'Loading identity...'}
+                      </span>
+                    </div>
+
+                    {isWhatsAppLinked ? (
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                        <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                          {linkStatus?.whatsapp_linked_at
+                            ? `Confirmed on ${formatDate(linkStatus.whatsapp_linked_at)}`
+                            : 'All incoming forwards automatically map to your dashboard.'}
+                        </p>
+                        <button
+                          onClick={handleUnlink}
+                          disabled={linkingLoading}
+                          className="text-[11px] font-bold text-error hover:underline transition-colors"
+                        >
+                          Disconnect
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="pt-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <p className="text-[11px] text-on-surface-variant max-w-xs">
+                          Connect this WhatsApp identity to sync forwards with your personal dashboard.
+                        </p>
+                        <button
+                          onClick={handleStartLinking}
+                          disabled={linkingLoading}
+                          className="px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-container text-on-primary text-xs font-bold transition-colors flex items-center gap-1 shrink-0 self-start sm:self-auto"
+                        >
+                          {linkingLoading ? (
+                            <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>
+                          ) : (
+                            <span className="material-symbols-outlined text-[14px]">add_link</span>
+                          )}
+                          <span>Connect WhatsApp</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-on-surface-variant text-xs italic">
+                    Log in with your mobile number to connect your WhatsApp tipline forwards.
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
-          {successMsg && !showChangeModal && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">verified</span>
-              <span>{successMsg}</span>
+          {/* ACTIVE LINKING INSTRUCTION MODAL / CARD */}
+          {showLinkModal && linkingData && (
+            <div className="p-4 sm:p-5 rounded-xl border border-primary/30 bg-primary/5 space-y-4 transition-all">
+              <div className="flex items-center justify-between border-b border-primary/20 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">mark_chat_unread</span>
+                  <h3 className="text-sm font-bold text-on-surface">
+                    Confirm WhatsApp Account Ownership
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowLinkModal(false)}
+                  className="text-xs text-on-surface-variant hover:text-on-surface font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                To guarantee that you control the WhatsApp account for <strong>{userVerifiedNumber}</strong>,
+                please send the single-use linking code to our official bot from that number.
+              </p>
+
+              {/* Code Box */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant">
+                <div className="flex-1 space-y-1">
+                  <span className="text-[10px] text-outline uppercase font-bold tracking-wider">
+                    Single-Use Confirmation Code (Valid for 10m)
+                  </span>
+                  <div className="font-code-sm text-lg font-extrabold text-primary tracking-wider">
+                    {linkingData.linking_code}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => copyCode(linkingData.linking_code)}
+                    className="px-3 py-2 rounded-lg border border-outline-variant hover:bg-surface-container-low text-xs font-bold text-on-surface flex items-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      {copiedCode ? 'check' : 'content_copy'}
+                    </span>
+                    <span>{copiedCode ? 'Copied' : 'Copy Code'}</span>
+                  </button>
+
+                  <a
+                    href={linkingData.deep_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-lg bg-[#1E8E4E] hover:bg-[#146336] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">send</span>
+                    <span>Send Code in WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Live Polling Alert */}
+              <div className="flex items-center gap-2.5 text-xs text-on-surface-variant pt-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>
+                  Waiting for incoming confirmation from <strong>{userVerifiedNumber}</strong>...
+                  This page will update automatically once verified.
+                </span>
+              </div>
+
+              {linkingData.is_sandbox && (
+                <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px]">
+                  <strong>Twilio Sandbox Mode Notice:</strong> If this is your first time messaging this Twilio sandbox bot,
+                  you must first send your sandbox join phrase (e.g. <code>join &lt;keyword&gt;</code>) to the bot, then send{' '}
+                  <code>{linkingData.linking_code}</code>.
+                </div>
+              )}
             </div>
           )}
 
-          {/* Change Phone Number Sub-Form */}
+          {/* CHANGE PHONE NUMBER SUB-FORM */}
           {showChangeModal && (
             <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-3 mt-2">
               <div className="flex items-center justify-between">
@@ -211,20 +524,6 @@ export default function WhatsAppPage() {
               <p className="text-xs text-on-surface-variant">
                 We will send an OTP via Twilio Verify to your new WhatsApp number. Your past verification history and analytics will remain securely attached to your account.
               </p>
-
-              {error && (
-                <div className="p-2.5 rounded-lg bg-error-container/20 border border-error/40 text-error text-xs flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {successMsg && (
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] shrink-0">check_circle</span>
-                  <span>{successMsg}</span>
-                </div>
-              )}
 
               {!changeOtpSent ? (
                 <form onSubmit={handleRequestChangeOtp} className="space-y-3">
@@ -321,24 +620,25 @@ export default function WhatsAppPage() {
           )}
         </div>
 
-        {/* Tipline Action Box */}
+        {/* SATYASETU BOT TIPLINE ACTION BOX (SEPARATE & EXPLICITLY LABELED) */}
         <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant p-space-lg md:p-space-xl grid grid-cols-1 md:grid-cols-2 gap-space-lg items-center shadow-sm">
           <div className="space-y-4">
-            <div className="space-y-1">
-              <span className="font-code-sm text-[12px] text-outline font-bold">
-                DIRECT WHATSAPP TIPLINE
-              </span>
-              <h2 className="font-headline-lg text-2xl font-bold text-on-surface">
-                {APP_CONFIG.whatsappNumber}
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-code-sm text-[11px] font-bold border border-outline-variant">
+                <span className="material-symbols-outlined text-[14px] text-primary">smart_toy</span>
+                <span>Official SatyaSetu Bot Tipline Number</span>
+              </div>
+              <h2 className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-on-surface">
+                {botNumberDisplay}
               </h2>
               <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Available 24/7 across India in Hindi, Marathi, and English.
+                This is the civic bot tipline number you send rumors to. Available 24/7 across India in Hindi, Marathi, and English.
               </p>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row gap-3">
               <a
-                href={APP_CONFIG.whatsappDeepLink}
+                href={botDeepLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-5 py-3 rounded-xl bg-[#1E8E4E] hover:bg-[#146336] text-white font-label-md text-label-md font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
@@ -395,10 +695,10 @@ export default function WhatsAppPage() {
           <div className="p-space-md rounded-xl bg-surface-container-low border border-outline-variant space-y-2">
             <span className="font-code-sm text-primary font-bold text-[14px]">STEP 01</span>
             <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-              Save the Contact
+              Save the Tipline Contact
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Add +91 91122 33445 to your phone contacts as "SatyaSetu Civic Bot".
+              Save {botNumberDisplay} in your phone contacts as &quot;SatyaSetu Civic Tipline&quot;.
             </p>
           </div>
 
@@ -408,7 +708,7 @@ export default function WhatsAppPage() {
               Forward Any Message
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Forward unverified WhatsApp messages, images, PDF circulars, or voice memos.
+              Forward unverified WhatsApp messages, images, PDF circulars, or voice memos directly to the tipline.
             </p>
           </div>
 
@@ -418,7 +718,7 @@ export default function WhatsAppPage() {
               Receive Proof Card
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Get an instant verdict with official citations and links to original sources.
+              Get an instant verdict with official citations. If linked, it appears in your personal dashboard.
             </p>
           </div>
         </div>

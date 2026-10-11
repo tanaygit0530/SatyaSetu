@@ -483,3 +483,77 @@ export async function fetchUserChecks(limit = 20, offset = 0): Promise<{ checks:
   }
   return { checks: rawData.checks || [], total: rawData.total || 0 };
 }
+
+export interface WhatsAppLinkStatus {
+  user_id: string;
+  verified_login_number: string;
+  phone_verified: boolean;
+  whatsapp_account_identity: string;
+  whatsapp_linked: boolean;
+  whatsapp_phone_number: string | null;
+  whatsapp_linked_at: string | null;
+  bot_tipline_number: string;
+  bot_deep_link: string;
+  is_sandbox: boolean;
+  pending_linking: {
+    code: string;
+    expires_in_seconds: number;
+    deep_link: string;
+  } | null;
+}
+
+export async function fetchWhatsAppLinkStatus(): Promise<WhatsAppLinkStatus> {
+  const res = await fetch(`${API_BASE}/auth/whatsapp/status`, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || `Failed to fetch WhatsApp connection status (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function initiateWhatsAppLink(): Promise<{
+  linking_code: string;
+  verified_phone_number: string;
+  bot_number: string;
+  deep_link: string;
+  expires_in_seconds: number;
+  is_sandbox: boolean;
+  instructions: string;
+}> {
+  const res = await fetch(`${API_BASE}/auth/whatsapp/initiate-link`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || data.message || `Failed to initiate WhatsApp link (${res.status})`);
+  }
+  return data;
+}
+
+export async function unlinkWhatsApp(): Promise<{
+  success: boolean;
+  message: string;
+  status: WhatsAppLinkStatus;
+}> {
+  const res = await fetch(`${API_BASE}/auth/whatsapp/unlink`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || data.message || `Failed to unlink WhatsApp (${res.status})`);
+  }
+  return data;
+}
+

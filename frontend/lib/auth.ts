@@ -6,6 +6,10 @@
 export interface AuthUser {
   user_id: string;
   phone_number: string;
+  phone_verified?: boolean;
+  whatsapp_linked?: boolean;
+  whatsapp_phone_number?: string;
+  whatsapp_linked_at?: string;
   created_at?: string;
   updated_at?: string;
   verified?: boolean;

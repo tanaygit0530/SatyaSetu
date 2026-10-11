@@ -804,6 +804,7 @@ class WhatsAppWebhookService:
         incoming: WhatsAppIncomingMessage,
         check_id: str,
         input_type: str,
+        user_id: Optional[str] = None,
     ) -> None:
         """
         Background worker pipeline:
@@ -811,7 +812,8 @@ class WhatsAppWebhookService:
         2. Calls REAL VerificationOrchestrator (real query gen, retrieval, evidence, verdict)
         3. Formats REAL CheckResult for citizen WhatsApp response
         4. Dispatches final verdict to user via Twilio REST API
-        5. Handles unexpected failures gracefully without fake verdicts
+        5. Synchronizes dossier with authenticated user dashboard if linked
+        6. Handles unexpected failures gracefully without fake verdicts
         """
         start_time = time.time()
         logger.info(
@@ -844,6 +846,28 @@ class WhatsAppWebhookService:
                 input_type=InputType.WHATSAPP.value,
                 check_id=check_id,
             )
+
+            # 3.5. Synchronize with authenticated citizen dashboard if account is linked
+            if user_id:
+                try:
+                    from app.jobs import job_manager
+                    from app.schemas.core import Check, Input
+                    from app.schemas.enums import ProcessingStatus
+                    chk = Check(
+                        check_id=check_id,
+                        user_id=user_id,
+                        input=Input(
+                            input_id=f"inp_{check_id}",
+                            input_type=InputType.WHATSAPP,
+                            raw_content=final_content,
+                        ),
+                        status=ProcessingStatus.COMPLETED,
+                        result=verification_result,
+                    )
+                    job_manager.check_repo.create_check(chk)
+                    job_manager.check_repo.save_verification_result(check_id, verification_result)
+                except Exception as rec_err:
+                    logger.debug("WhatsApp user dashboard synchronization note: %s", rec_err)
 
             # 4. Format real WhatsApp citizen response
             effective_check_id = getattr(verification_result, "check_id", None) or check_id
@@ -959,6 +983,33 @@ class WhatsAppWebhookService:
         # 5. Identify input type
         input_type = self.identify_input_type(form_data)
 
+        # 5.5. Account Linking Command handler (e.g. "LINK-9A3F1B")
+        stripped_body = (incoming.body or "").strip()
+        if stripped_body.upper().startswith("LINK-") and incoming.num_media == 0:
+            from app.services.auth_service import auth_service
+            is_linked, linked_user, link_message = auth_service.validate_and_link_whatsapp(
+                raw_code=stripped_body,
+                incoming_from_number=incoming.from_number,
+            )
+            if is_linked and linked_user:
+                resp_text = (
+                    "✅ *SatyaSetu Account Successfully Connected!*\n\n"
+                    f"Your WhatsApp identity ({linked_user.phone_number}) is now linked to your SatyaSetu account.\n\n"
+                    "• Forwards, screenshots, and audio notes you send here will now be recorded under your account.\n"
+                    "• Your personal analytics and verification history are synchronized.\n\n"
+                    "Send or forward any claim now to verify it!"
+                )
+            else:
+                resp_text = (
+                    "⚠️ *SatyaSetu WhatsApp Linking Notice*\n\n"
+                    f"{link_message}\n\n"
+                    "To connect your WhatsApp account, please initiate linking from your SatyaSetu web portal."
+                )
+            link_twiml = self.build_twiml_response(resp_text)
+            if message_sid:
+                self.record_message(message_sid, link_twiml)
+            return link_twiml
+
         # 6. Conversational greeting & onboarding handler (e.g. "hi", "hello", "namaste")
         clean_msg = incoming.body.strip().lower().rstrip("!.,?")
         greetings = {
@@ -997,6 +1048,12 @@ class WhatsAppWebhookService:
         # 8. Create Check ID
         check_id = f"chk_{uuid.uuid4().hex[:12]}"
 
+        # 8.5. Resolve linked citizen account if sender has linked their WhatsApp
+        clean_sender_phone = incoming.from_number.replace("whatsapp:", "").strip()
+        from app.services.auth_service import auth_service
+        sender_user = auth_service.user_repo.get_by_phone(clean_sender_phone)
+        linked_user_id = sender_user.user_id if (sender_user and getattr(sender_user, "whatsapp_linked", False)) else None
+
         # 9. Immediate Acknowledgment Message (Step 7)
         ack_text = "🔎 Checking this claim with reliable sources. I'll send you the result shortly."
         if input_type in ("SCREENSHOT", "PDF", "VOICE", "MEDIA") or incoming.num_media > 0:
@@ -1015,6 +1072,7 @@ class WhatsAppWebhookService:
                     incoming,
                     check_id,
                     input_type,
+                    linked_user_id,
                 )
             else:
                 import asyncio
@@ -1023,6 +1081,7 @@ class WhatsAppWebhookService:
                         incoming,
                         check_id,
                         input_type,
+                        linked_user_id,
                     )
                 )
 

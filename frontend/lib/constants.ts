@@ -1,11 +1,15 @@
+const configuredBotNumber = process.env.NEXT_PUBLIC_WHATSAPP_BOT_NUMBER || '+1 415 523 8886';
+const cleanBotDigits = configuredBotNumber.replace(/\D/g, '');
+
 export const APP_CONFIG = {
   name: 'SatyaSetu',
   tagline: "Before You Forward It, Verify It. Real-time truth verification in your language.",
   version: 'v4.2 LTS',
   compliance: 'IFCN Signatory Tier-1 Standard',
   repositoryId: '0x9AF...41B',
-  whatsappNumber: '+91 91122 33445',
-  whatsappDeepLink: 'https://wa.me/919112233445?text=SatyaSetu%20Forward',
+  // Official SatyaSetu WhatsApp Bot Tipline Service Number (NOT user personal number)
+  whatsappNumber: configuredBotNumber,
+  whatsappDeepLink: `https://wa.me/${cleanBotDigits}?text=SatyaSetu%20Forward`,
   logoUrl: 'https://lh3.googleusercontent.com/aida/AEtjO1V5nPBOWqp8I-AH02hP-0Soj3uU1ZbC8nr6bF1G7V0jSgl_gkM7IukfJ-oiXZ-yo3MeHnwS7PzIARrAh3Gemfpt4VgwXtS1OJRgNJJihEg7cTPGAmEXwsBgZaa59xR-MZcaHqdeZJlGoKhBdrWAy5mytpNpH6Oj9Sb-NXUR3AXq8tg2txCxPClFyfwcFkCUuDkVGXMTZGmR94LESNo_uxO5QjLhAmuf-_6K_wzH2yYR',
 };
 
