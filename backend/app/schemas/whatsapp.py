@@ -24,6 +24,7 @@ class WhatsAppIncomingMessage(BaseModel):
     media: List[WhatsAppMediaItem] = Field(default_factory=list, description="Parsed media attachments list")
     profile_name: Optional[str] = Field(default=None, description="WhatsApp profile display name")
     wa_id: Optional[str] = Field(default=None, description="WhatsApp user ID")
+    filename: Optional[str] = Field(default=None, description="Filename of attached document if present")
     received_at: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="ISO timestamp when webhook was ingested",

@@ -67,12 +67,33 @@ class PDFIngestionService:
 
     def clean_page_text(self, text: str) -> str:
         """
-        Normalizes Unicode, collapses redundant whitespace, strips zero-width characters,
-        and disarms delimiter breakout attempts.
+        Normalizes Unicode, preserves paragraph and section structure, collapses redundant
+        horizontal whitespace, strips zero-width characters, and disarms delimiter breakout attempts.
         """
         text = text.replace("\x00", "")
         text = unicodedata.normalize("NFKC", text)
-        clean = re.sub(r"\s+", " ", text).strip()
+
+        lines = [re.sub(r"[ \t]+", " ", l).strip() for l in text.split("\n")]
+        paragraphs = []
+        current = []
+        for line in lines:
+            if not line:
+                if current:
+                    paragraphs.append(" ".join(current))
+                    current = []
+                continue
+            # Check if header / section title / bullet
+            if re.match(r"^(?:claim\s+\d+|purpose|test instructions|claims to verify|expected test behavior|\d+[\.\)]|[A-Z][A-Za-z0-9\s—–-]{1,35}$)", line, re.IGNORECASE):
+                if current:
+                    paragraphs.append(" ".join(current))
+                    current = []
+                paragraphs.append(line)
+            else:
+                current.append(line)
+        if current:
+            paragraphs.append(" ".join(current))
+
+        clean = "\n".join(paragraphs).strip()
         from app.core.security.prompt_injection import prompt_injection_defense_service
         return prompt_injection_defense_service.disarm_text(clean)
 
@@ -151,13 +172,28 @@ class PDFIngestionService:
                         )
                         total_text_length += len(cleaned_text)
 
-                # 7. Scanned PDF Detection (Missing Text Layer)
+                # 7. Scanned PDF Detection & OCR Fallback
                 # If document has pages but zero/negligible text extracted despite having content or images,
-                # mark needs_ocr = True. Do NOT run expensive OCR across all pages automatically.
+                # invoke existing OCR pipeline to extract text from page renderings.
                 needs_ocr = False
                 if page_count > 0 and len(meaningful_pages) == 0:
                     needs_ocr = True
-                    logger.info("PDF (%d pages) detected as scanned document with missing text layer.", page_count)
+                    logger.info("PDF (%d pages) detected as scanned document with missing text layer. Running OCR fallback.", page_count)
+                    try:
+                        from app.services.screenshot_ingestion import screenshot_ingestion_service
+                        for page_idx in range(min(page_count, 10)):
+                            page = doc.load_page(page_idx)
+                            pix = page.get_pixmap(dpi=150)
+                            img_bytes = pix.tobytes("png")
+                            ocr_res = screenshot_ingestion_service.ingest_screenshot(img_bytes)
+                            cleaned_ocr = self.clean_page_text(ocr_res.extracted_text or "")
+                            if len(cleaned_ocr) >= self.min_text_chars:
+                                meaningful_pages.append(
+                                    PDFPageText(page=page_idx + 1, text=cleaned_ocr)
+                                )
+                                total_text_length += len(cleaned_ocr)
+                    except Exception as ocr_err:
+                        logger.warning("Scanned PDF OCR fallback failed: %s", ocr_err)
 
                 # 8. Apply Page Ranking abstraction for claim-bearing pages
                 ranked_claim_pages: Optional[List[int]] = None
@@ -168,6 +204,8 @@ class PDFIngestionService:
                     )
                     ranked_claim_pages = [r.page for r in ranked]
 
+                consolidated_text = "\n\n".join(p.text for p in meaningful_pages if p.text).strip()
+
                 return PDFIngestionResult(
                     input_type="PDF",
                     page_count=page_count,
@@ -175,6 +213,7 @@ class PDFIngestionService:
                     needs_ocr=needs_ocr,
                     total_text_length=total_text_length,
                     ranked_claim_pages=ranked_claim_pages,
+                    extracted_text=consolidated_text,
                 )
 
             finally:

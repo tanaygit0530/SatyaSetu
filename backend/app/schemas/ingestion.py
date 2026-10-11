@@ -50,6 +50,7 @@ class PDFIngestionResult(BaseModel):
     needs_ocr: bool = Field(default=False, description="Flagged true if scanned PDF with missing text layer")
     total_text_length: int = Field(default=0, ge=0, description="Total characters extracted across all pages")
     ranked_claim_pages: Optional[list[int]] = Field(default=None, description="Page numbers ranked by claim relevance")
+    extracted_text: str = Field(default="", description="Consolidated text extracted across all pages")
 
 
 class URLIngestionInput(BaseModel):

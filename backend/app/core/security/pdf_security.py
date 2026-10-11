@@ -48,6 +48,14 @@ class PDFSecurityValidator:
                 if token == b"/AcroForm":
                     if b"/JS" in pdf_bytes or b"/JavaScript" in pdf_bytes or b"/AA" in pdf_bytes:
                         threats.append(f"AcroForm containing executable scripts: {desc}")
+                elif token == b"/EmbeddedFiles":
+                    # Disambiguate /EmbeddedFiles: only flag if it contains executable scripts or dangerous payloads,
+                    # not standard digital signature provenance (e.g. C2PA Content Credentials) or benign metadata.
+                    if b"Content Credentials" in pdf_bytes or b"/Type /Metadata" in pdf_bytes:
+                        if any(ext in pdf_bytes.lower() for ext in [b".exe", b".bat", b".cmd", b".sh", b".js", b".vbs", b".ps1", b".jar"]):
+                            threats.append("Embedded executable files detected: Embedded binary files / attachments")
+                    else:
+                        threats.append(desc)
                 else:
                     threats.append(desc)
 

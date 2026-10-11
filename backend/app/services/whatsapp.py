@@ -214,11 +214,12 @@ class WhatsAppWebhookService:
 
         if num_media > 0:
             content_type = str(form_data.get("MediaContentType0", "")).lower()
+            body_text = str(form_data.get("Body", "")).lower().strip()
             if "image/" in content_type:
                 return "SCREENSHOT"
             elif "audio/" in content_type or "ogg" in content_type:
                 return "VOICE"
-            elif "pdf" in content_type or "application/pdf" in content_type:
+            elif "pdf" in content_type or "application/pdf" in content_type or body_text.endswith(".pdf"):
                 return "PDF"
             else:
                 return "MEDIA"
@@ -294,6 +295,7 @@ class WhatsAppWebhookService:
         self,
         media_bytes: bytes,
         input_type: str,
+        filename: Optional[str] = None,
     ) -> str:
         """
         Dispatches media bytes to the appropriate existing ingestion pipeline
@@ -307,9 +309,16 @@ class WhatsAppWebhookService:
                 res = self.voice_service.ingest_voice(media_bytes)
                 return res.transcript or ""
             elif input_type == "PDF":
-                res = self.pdf_service.ingest_pdf(media_bytes)
-                return res.extracted_text or ""
+                res = self.pdf_service.ingest_pdf(media_bytes, filename=filename)
+                if hasattr(res, "extracted_text") and res.extracted_text:
+                    return res.extracted_text
+                return "\n\n".join(p.text for p in res.text_pages if p.text)
             else:
+                if media_bytes.startswith(b"%PDF-"):
+                    res = self.pdf_service.ingest_pdf(media_bytes, filename=filename)
+                    if hasattr(res, "extracted_text") and res.extracted_text:
+                        return res.extracted_text
+                    return "\n\n".join(p.text for p in res.text_pages if p.text)
                 # Generic fallback: attempt screenshot OCR
                 try:
                     res = self.screenshot_service.ingest_screenshot(media_bytes)
@@ -318,7 +327,7 @@ class WhatsAppWebhookService:
                     return ""
         except Exception as e:
             logger.warning("Failed media ingestion for type '%s': %s", input_type, e)
-            return ""
+            raise
 
     # =========================================================================
     # 6. FORMAT WHATSAPP CITIZEN RESPONSE
@@ -384,6 +393,7 @@ class WhatsAppWebhookService:
         check_id: str,
         language: Optional[str] = None,
         include_voice: bool = False,
+        document_filename: Optional[str] = None,
     ) -> WhatsAppFormattedResponse:
         """
         Formats a citizen-friendly WhatsApp response adhering strictly to specification:
@@ -555,15 +565,54 @@ class WhatsAppWebhookService:
         # Build full evidence public link using the configured production frontend URL and route
         evidence_url = settings.get_public_evidence_url(check_id)
 
-        # Combine claim sections
-        formatted_body_parts = ["\n\n".join(body_sections)]
+        if document_filename:
+            doc_header_lines = [
+                "📄 *PDF received and analyzed*",
+                f"Document: `{document_filename}`",
+                f"Claims extracted: {len(claims_to_format)}",
+                "",
+            ]
+            doc_claim_blocks = []
+            for idx, claim in enumerate(claims_to_format):
+                c_verdict = claim.verdict
+                if isinstance(c_verdict, str):
+                    try:
+                        c_verdict = Verdict(c_verdict)
+                    except ValueError:
+                        c_verdict = Verdict.CANNOT_BE_CONFIRMED
+                c_header = localization_service.get_verdict_header(c_verdict, lang=user_lang)
+                raw_statement = (
+                    claim.normalized_claim
+                    or claim.claim_text
+                    or f"Claim {idx + 1}"
+                ).strip().strip('"\'')
+                c_why = (claim.explanation or "No reliable official evidence found.").strip()
+                c_correction = self.extract_grounded_correction(claim)
 
-        if proof_text:
-            formatted_body_parts.append(f"{proof_label}\n{proof_text}")
+                block = [
+                    f"{idx + 1}. Claim: {raw_statement}",
+                    f"   Verdict: {c_header}",
+                    f"   Explanation: {c_why}",
+                ]
+                if c_correction:
+                    block.append(f"   Correction: {c_correction}")
+                doc_claim_blocks.append("\n".join(block))
 
-        formatted_body_parts.append(f"{evidence_label}\n{evidence_url}")
+            formatted_body_parts = ["\n".join(doc_header_lines) + "\n\n".join(doc_claim_blocks)]
+            if proof_text:
+                formatted_body_parts.append(f"{proof_label}\n{proof_text}")
+            formatted_body_parts.append(f"{evidence_label}\n{evidence_url}")
+            final_body = "\n\n".join(formatted_body_parts)
+        else:
+            # Combine claim sections
+            formatted_body_parts = ["\n\n".join(body_sections)]
 
-        final_body = "\n\n".join(formatted_body_parts)
+            if proof_text:
+                formatted_body_parts.append(f"{proof_label}\n{proof_text}")
+
+            formatted_body_parts.append(f"{evidence_label}\n{evidence_url}")
+
+            final_body = "\n\n".join(formatted_body_parts)
 
         primary = structured_claims[0] if structured_claims else {}
 
@@ -760,16 +809,22 @@ class WhatsAppWebhookService:
                     )
                 )
 
+        raw_body = str(form_data.get("Body", "") or "").strip()
+        doc_filename = str(form_data.get("MediaFilename0", "") or "").strip() or None
+        if not doc_filename and (raw_body.lower().endswith(".pdf") or (num_media > 0 and raw_body.lower().endswith((".png", ".jpg", ".jpeg", ".docx")))):
+            doc_filename = raw_body
+
         return WhatsAppIncomingMessage(
             message_sid=str(form_data.get("MessageSid") or form_data.get("SmsMessageSid") or form_data.get("SmsSid") or "").strip(),
             account_sid=form_data.get("AccountSid"),
             from_number=from_norm,
             to_number=to_norm,
-            body=str(form_data.get("Body", "") or "").strip(),
+            body=raw_body,
             num_media=num_media,
             media=media_items,
             profile_name=form_data.get("ProfileName"),
             wa_id=form_data.get("WaId"),
+            filename=doc_filename,
             received_at=datetime.now(timezone.utc).isoformat(),
         )
 
@@ -916,16 +971,44 @@ class WhatsAppWebhookService:
         try:
             # 1. Download & extract media safely if present
             extracted_media_text = ""
+            media_ingest_error: Optional[str] = None
+            doc_name = incoming.filename or (incoming.body if incoming.body.lower().endswith(".pdf") else None)
+
             if incoming.num_media > 0 and incoming.media:
                 media_item = incoming.media[0]
                 try:
                     media_bytes = await self.download_media_safely(media_item.url)
-                    extracted_media_text = self.ingest_media_bytes(media_bytes, input_type)
+                    extracted_media_text = self.ingest_media_bytes(media_bytes, input_type, filename=doc_name)
                 except Exception as me:
+                    media_ingest_error = str(me)
                     logger.warning("Media ingestion notice for Check '%s': %s", check_id, me)
 
-            # 2. Assemble raw content without rewriting
-            if incoming.body and extracted_media_text:
+            # Handle PDF document failure explicitly (never verify filename as a claim)
+            if input_type == "PDF":
+                if not extracted_media_text or not extracted_media_text.strip():
+                    err_filename = doc_name or "document.pdf"
+                    err_detail = media_ingest_error or "The document contains no readable text, has an unsupported layout, or is password-protected."
+                    err_msg = (
+                        f"⚠️ *Unable to verify PDF document*\n\n"
+                        f"Document: `{err_filename}`\n"
+                        f"Problem: {err_detail}\n\n"
+                        f"💡 *Tip:* Please ensure the PDF contains readable text, or send a clear screenshot of the document page."
+                    )
+                    self.send_outbound_whatsapp_message(
+                        to_number=incoming.from_number,
+                        body_text=err_msg,
+                        check_id=check_id,
+                        incoming_message_sid=incoming.message_sid,
+                    )
+                    return
+
+            # 2. Assemble raw content without rewriting or treating filename as claim
+            if input_type == "PDF":
+                final_content = extracted_media_text
+                # If citizen included a caption that is not just the filename:
+                if incoming.body and not incoming.body.lower().endswith(".pdf") and incoming.body != incoming.filename:
+                    final_content = f"{incoming.body}\n\n[Extracted from document]:\n{extracted_media_text}"
+            elif incoming.body and extracted_media_text:
                 final_content = f"{incoming.body}\n\n[Extracted from {input_type.lower()}]: {extracted_media_text}"
             elif extracted_media_text:
                 final_content = extracted_media_text
@@ -954,6 +1037,7 @@ class WhatsAppWebhookService:
                 result=verification_result,
                 check_id=effective_check_id,
                 include_voice=is_voice_submission,
+                document_filename=doc_name if input_type == "PDF" else None,
             )
 
             # 5. Dispatch via Twilio REST API
@@ -1189,14 +1273,38 @@ class WhatsAppWebhookService:
 
         # Synchronous fallback mode (if TWILIO_ASYNC_DISPATCH=False)
         extracted_content = ""
+        media_sync_error: Optional[str] = None
+        doc_sync_name = incoming.filename or (incoming.body if incoming.body.lower().endswith(".pdf") else None)
+
         if incoming.num_media > 0 and incoming.media:
             try:
                 media_bytes = await self.download_media_safely(incoming.media[0].url)
-                extracted_content = self.ingest_media_bytes(media_bytes, input_type)
+                extracted_content = self.ingest_media_bytes(media_bytes, input_type, filename=doc_sync_name)
             except Exception as e:
+                media_sync_error = str(e)
                 logger.warning("Synchronous media ingestion error: %s", e)
 
-        if incoming.body and extracted_content:
+        # Handle PDF document failure explicitly (never verify filename as a claim)
+        if input_type == "PDF":
+            if not extracted_content or not extracted_content.strip():
+                err_fn = doc_sync_name or "document.pdf"
+                err_d = media_sync_error or "The document contains no readable text, has an unsupported layout, or is password-protected."
+                err_msg = (
+                    f"⚠️ *Unable to verify PDF document*\n\n"
+                    f"Document: `{err_fn}`\n"
+                    f"Problem: {err_d}\n\n"
+                    f"💡 *Tip:* Please ensure the PDF contains readable text, or send a clear screenshot of the document page."
+                )
+                sync_twiml = self.build_twiml_response(message_body=err_msg)
+                if message_sid:
+                    self.record_message(message_sid, sync_twiml)
+                return sync_twiml
+
+        if input_type == "PDF":
+            final_content = extracted_content
+            if incoming.body and not incoming.body.lower().endswith(".pdf") and incoming.body != incoming.filename:
+                final_content = f"{incoming.body}\n\n[Extracted from document]:\n{extracted_content}"
+        elif incoming.body and extracted_content:
             final_content = f"{incoming.body}\n\n[Extracted from {input_type.lower()}]: {extracted_content}"
         elif extracted_content:
             final_content = extracted_content
@@ -1222,6 +1330,7 @@ class WhatsAppWebhookService:
             result=verification_result,
             check_id=effective_check_id,
             include_voice=is_voice_submission,
+            document_filename=doc_sync_name if input_type == "PDF" else None,
         )
 
         media_url = formatted_response.voice_url if formatted_response.has_voice else None
