@@ -110,6 +110,7 @@ class Settings(BaseSettings):
     TWILIO_VALIDATE_SIGNATURE: bool = True
     TWILIO_MEDIA_DOWNLOAD_TIMEOUT_SECONDS: float = 15.0
     TWILIO_ASYNC_DISPATCH: bool = True
+    TWILIO_CONTENT_SID: Optional[str] = None
     # Public frontend URL for WhatsApp evidence links & citizen sharing
     PUBLIC_APP_URL: str = "https://satya-setu-phi.vercel.app"
     BASE_PUBLIC_URL: str = "https://satya-setu-phi.vercel.app"

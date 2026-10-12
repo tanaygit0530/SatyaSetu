@@ -836,15 +836,24 @@ class WhatsAppWebhookService:
     def send_outbound_whatsapp_message(
         self,
         to_number: str,
-        body_text: str,
+        body_text: Optional[str] = None,
         check_id: Optional[str] = None,
         incoming_message_sid: Optional[str] = None,
+        content_sid: Optional[str] = None,
+        content_variables: Optional[Dict[str, str]] = None,
     ) -> Optional[str]:
         """
         Sends an outbound WhatsApp message via Twilio REST API client.
         Uses TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER.
         Ensures 'whatsapp:' prefix on both From and To numbers.
         Surfaces structured logs without exposing raw numbers or secrets.
+
+        Guarantees:
+        - Freeform in-session replies strictly use 'body'.
+        - 'content_variables' is NEVER passed unless a valid 'content_sid' is provided.
+        - Freeform bodies are chunked to satisfy Twilio's 1600 character limit (Code 21617).
+        - Terminal API policy errors (e.g. Code 21654 ContentSid Required, Code 63038 Daily Limit)
+          are caught, logged safely without exposing secrets, and do not raise or crash callers.
         """
         account_sid = settings.TWILIO_ACCOUNT_SID
         auth_token = settings.TWILIO_AUTH_TOKEN
@@ -859,7 +868,11 @@ class WhatsAppWebhookService:
             )
             return None
 
-        clean_to = to_number.strip()
+        clean_to = (to_number or "").strip()
+        if not clean_to:
+            logger.warning("Outbound WhatsApp dispatch skipped: recipient number is missing or empty.")
+            return None
+
         if not clean_to.startswith("whatsapp:"):
             clean_to = f"whatsapp:{clean_to}"
 
@@ -869,33 +882,54 @@ class WhatsAppWebhookService:
 
         hashed_to = phone_hasher.hash_phone(clean_to)
 
-        # Safeguard: WhatsApp / Twilio message bodies must not exceed 1600 characters (Code 21617)
-        chunks: List[str] = []
-        if len(body_text) <= 1550:
-            chunks = [body_text]
-        else:
-            paragraphs = body_text.split("\n\n")
-            cur_parts: List[str] = []
-            cur_len = 0
-            for p in paragraphs:
-                p_len = len(p) + 2
-                if cur_parts and (cur_len + p_len > 1500):
-                    chunks.append("\n\n".join(cur_parts))
-                    cur_parts = [p]
-                    cur_len = len(p)
-                else:
-                    cur_parts.append(p)
-                    cur_len += p_len
-            if cur_parts:
-                chunks.append("\n\n".join(cur_parts))
+        # Template vs Plain-text validation
+        effective_content_sid = (content_sid or settings.TWILIO_CONTENT_SID or "").strip() or None
+        raw_body = (body_text or "").strip()
 
+        # Enforce Twilio Content SID prefix constraint (HX...)
+        if effective_content_sid and not effective_content_sid.startswith("HX"):
+            logger.warning(
+                "Twilio Content SID '%s' is invalid (must start with 'HX'). Discarding template SID.",
+                effective_content_sid[:4] + "..." if len(effective_content_sid) > 4 else effective_content_sid,
+            )
+            effective_content_sid = None
+
+        if not raw_body and not effective_content_sid:
+            logger.warning(
+                "Outbound WhatsApp dispatch skipped: neither valid body_text nor valid ContentSid provided."
+            )
+            return None
+
+        # Prepare chunks if sending freeform body
         final_chunks: List[str] = []
-        for chk in chunks:
-            if len(chk) <= 1550:
-                final_chunks.append(chk)
+        if raw_body:
+            if len(raw_body) <= 1550:
+                final_chunks = [raw_body]
             else:
-                for i in range(0, len(chk), 1500):
-                    final_chunks.append(chk[i : i + 1500])
+                paragraphs = raw_body.split("\n\n")
+                cur_parts: List[str] = []
+                cur_len = 0
+                for p in paragraphs:
+                    p_len = len(p) + 2
+                    if cur_parts and (cur_len + p_len > 1500):
+                        final_chunks.append("\n\n".join(cur_parts))
+                        cur_parts = [p]
+                        cur_len = len(p)
+                    else:
+                        cur_parts.append(p)
+                        cur_len += p_len
+                if cur_parts:
+                    final_chunks.append("\n\n".join(cur_parts))
+
+            # Split any individual chunk that still exceeds 1550 characters
+            sub_chunks: List[str] = []
+            for chk in final_chunks:
+                if len(chk) <= 1550:
+                    sub_chunks.append(chk)
+                else:
+                    for i in range(0, len(chk), 1500):
+                        sub_chunks.append(chk[i : i + 1500])
+            final_chunks = sub_chunks
 
         try:
             from twilio.rest import Client
@@ -903,12 +937,22 @@ class WhatsAppWebhookService:
 
             client = Client(account_sid, auth_token)
             last_sid = None
-            for chunk in final_chunks:
-                msg = client.messages.create(
-                    from_=clean_from,
-                    to=clean_to,
-                    body=chunk,
-                )
+
+            if effective_content_sid and not raw_body:
+                # Content template dispatch (requires ContentSid)
+                msg_kwargs = {
+                    "from_": clean_from,
+                    "to": clean_to,
+                    "content_sid": effective_content_sid,
+                }
+                if content_variables:
+                    import json
+                    msg_kwargs["content_variables"] = (
+                        json.dumps(content_variables)
+                        if isinstance(content_variables, dict)
+                        else str(content_variables)
+                    )
+                msg = client.messages.create(**msg_kwargs)
                 last_sid = msg.sid
                 audit_logger.log_event(
                     event_type="WHATSAPP_OUTBOUND_SENT",
@@ -923,12 +967,40 @@ class WhatsAppWebhookService:
                     action_taken="DISPATCHED",
                 )
                 logger.info(
-                    "Outbound Twilio WhatsApp message sent successfully. SID: %s | Status: %s | Check ID: %s | Inbound SID: %s",
+                    "Outbound Twilio WhatsApp template message sent successfully. SID: %s | Status: %s | Check ID: %s | Inbound SID: %s",
                     msg.sid,
                     msg.status,
                     check_id,
                     incoming_message_sid,
                 )
+            else:
+                # Freeform text message dispatch (standard active conversation flow)
+                for chunk in final_chunks:
+                    msg = client.messages.create(
+                        from_=clean_from,
+                        to=clean_to,
+                        body=chunk,
+                    )
+                    last_sid = msg.sid
+                    audit_logger.log_event(
+                        event_type="WHATSAPP_OUTBOUND_SENT",
+                        client_identifier=hashed_to,
+                        details={
+                            "incoming_message_sid": incoming_message_sid,
+                            "check_id": check_id,
+                            "outbound_message_sid": msg.sid,
+                            "status": msg.status,
+                        },
+                        severity="INFO",
+                        action_taken="DISPATCHED",
+                    )
+                    logger.info(
+                        "Outbound Twilio WhatsApp message sent successfully. SID: %s | Status: %s | Check ID: %s | Inbound SID: %s",
+                        msg.sid,
+                        msg.status,
+                        check_id,
+                        incoming_message_sid,
+                    )
             return last_sid
 
         except TwilioRestException as te:
@@ -938,7 +1010,6 @@ class WhatsAppWebhookService:
                 te.msg,
                 check_id,
                 incoming_message_sid,
-                exc_info=True,
             )
             audit_logger.log_event(
                 event_type="WHATSAPP_OUTBOUND_FAILED",
@@ -952,14 +1023,13 @@ class WhatsAppWebhookService:
                 severity="ERROR",
                 action_taken="FAILED",
             )
-            raise
+            return None
 
         except Exception as e:
             logger.error(
                 "Unexpected failure sending outbound Twilio WhatsApp message: %s | Check ID: %s",
                 e,
                 check_id,
-                exc_info=True,
             )
             audit_logger.log_event(
                 event_type="WHATSAPP_OUTBOUND_FAILED",
@@ -972,7 +1042,7 @@ class WhatsAppWebhookService:
                 severity="ERROR",
                 action_taken="FAILED",
             )
-            raise
+            return None
 
     # =========================================================================
     # 10. BACKGROUND VERIFICATION WORKER (STEPS 6, 8, 9, 11, 15)
@@ -995,6 +1065,7 @@ class WhatsAppWebhookService:
         6. Handles unexpected failures gracefully without fake verdicts
         """
         start_time = time.time()
+        verification_succeeded = False
         logger.info(
             "Background verification STARTED for Check ID '%s' (MessageSid: '%s')",
             check_id,
@@ -1079,6 +1150,7 @@ class WhatsAppWebhookService:
                 verification_result=verification_result,
                 user_id=user_id,
             )
+            verification_succeeded = True
 
             # 4. Format real WhatsApp citizen response
             is_voice_submission = (input_type == "VOICE")
@@ -1090,12 +1162,18 @@ class WhatsAppWebhookService:
             )
 
             # 5. Dispatch via Twilio REST API
-            self.send_outbound_whatsapp_message(
+            dispatch_sid = self.send_outbound_whatsapp_message(
                 to_number=incoming.from_number,
                 body_text=formatted_response.formatted_body,
                 check_id=check_id,
                 incoming_message_sid=incoming.message_sid,
             )
+            if not dispatch_sid:
+                logger.warning(
+                    "Outbound verdict dispatch not delivered for Check '%s' (MessageSid: '%s')",
+                    check_id,
+                    incoming.message_sid,
+                )
 
             elapsed = round(time.time() - start_time, 2)
             logger.info(
@@ -1106,6 +1184,16 @@ class WhatsAppWebhookService:
             )
 
         except Exception as e:
+            if verification_succeeded:
+                # If verification & persistence succeeded, do not overwrite or treat check as failed
+                logger.error(
+                    "Error during post-verification processing for Check '%s': %s",
+                    check_id,
+                    e,
+                    exc_info=True,
+                )
+                return
+
             logger.error(
                 "Background verification FAILED for Check '%s' (MessageSid: '%s'): %s",
                 check_id,

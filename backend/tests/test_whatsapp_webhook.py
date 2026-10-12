@@ -9,6 +9,8 @@ from app.main import app
 from app.schemas.core import ClaimVerificationResult, VerificationResult
 from app.schemas.enums import ConfidenceLevel, Verdict
 from app.schemas.evidence import LockedEvidenceItem
+from app.schemas.whatsapp import WhatsAppIncomingMessage
+from app.jobs import job_manager
 from app.services.whatsapp import WhatsAppWebhookService, whatsapp_webhook_service
 
 
@@ -954,5 +956,186 @@ def test_whatsapp_verification_links_sender_to_verified_account(client):
         # Verify check appears in user's history list
         user_checks = job_manager.check_repo.list_checks(user_id="usr_verified_citizen_77")
         assert any(c.check_id == check_id for c in user_checks)
+
+
+# =========================================================================
+# 12. Twilio Error 21654 & Outbound Dispatch Safety Tests
+# =========================================================================
+
+def test_send_outbound_whatsapp_message_uses_body_for_active_reply():
+    """
+    Verifies that standard active-session messages are sent via 'body'
+    and NEVER pass content_variables or content_sid to client.messages.create().
+    """
+    mock_client_cls = MagicMock()
+    mock_client_instance = MagicMock()
+    mock_msg = MagicMock()
+    mock_msg.sid = "SM_outbound_123"
+    mock_msg.status = "sent"
+    mock_client_instance.messages.create.return_value = mock_msg
+    mock_client_cls.return_value = mock_client_instance
+
+    with patch("twilio.rest.Client", mock_client_cls), \
+         patch.object(settings, "TWILIO_ACCOUNT_SID", "ACmock123"), \
+         patch.object(settings, "TWILIO_AUTH_TOKEN", "mocktoken123"), \
+         patch.object(settings, "TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886"):
+
+        sid = whatsapp_webhook_service.send_outbound_whatsapp_message(
+            to_number="+919876543210",
+            body_text="Your claim is FALSE.",
+            check_id="chk_test_101",
+            incoming_message_sid="SM_inbound_101",
+        )
+
+        assert sid == "SM_outbound_123"
+        mock_client_instance.messages.create.assert_called_once()
+        create_kwargs = mock_client_instance.messages.create.call_args[1]
+
+        # Explicitly verify body is used and template kwargs are ABSENT
+        assert create_kwargs["body"] == "Your claim is FALSE."
+        assert create_kwargs["to"] == "whatsapp:+919876543210"
+        assert create_kwargs["from_"] == "whatsapp:+14155238886"
+        assert "content_sid" not in create_kwargs
+        assert "content_variables" not in create_kwargs
+
+
+def test_send_outbound_whatsapp_message_strips_content_variables_when_body_present():
+    """
+    Verifies that if content_variables is accidentally passed alongside body_text,
+    it is safely stripped and NOT passed to Twilio's client.messages.create().
+    """
+    mock_client_cls = MagicMock()
+    mock_client_instance = MagicMock()
+    mock_msg = MagicMock()
+    mock_msg.sid = "SM_outbound_456"
+    mock_msg.status = "sent"
+    mock_client_instance.messages.create.return_value = mock_msg
+    mock_client_cls.return_value = mock_client_instance
+
+    with patch("twilio.rest.Client", mock_client_cls), \
+         patch.object(settings, "TWILIO_ACCOUNT_SID", "ACmock123"), \
+         patch.object(settings, "TWILIO_AUTH_TOKEN", "mocktoken123"), \
+         patch.object(settings, "TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886"):
+
+        sid = whatsapp_webhook_service.send_outbound_whatsapp_message(
+            to_number="+919876543210",
+            body_text="Regular text message",
+            content_variables={"1": "ignored_var"},
+        )
+
+        assert sid == "SM_outbound_456"
+        create_kwargs = mock_client_instance.messages.create.call_args[1]
+        assert create_kwargs["body"] == "Regular text message"
+        assert "content_variables" not in create_kwargs
+        assert "content_sid" not in create_kwargs
+
+
+def test_send_outbound_whatsapp_message_rejects_content_variables_without_content_sid():
+    """
+    Verifies that passing content_variables without a valid Content SID (and without body)
+    safely aborts instead of causing Twilio error 21654 (ContentSid Required).
+    """
+    mock_client_cls = MagicMock()
+    mock_client_instance = MagicMock()
+    mock_client_cls.return_value = mock_client_instance
+
+    with patch("twilio.rest.Client", mock_client_cls), \
+         patch.object(settings, "TWILIO_ACCOUNT_SID", "ACmock123"), \
+         patch.object(settings, "TWILIO_AUTH_TOKEN", "mocktoken123"), \
+         patch.object(settings, "TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886"), \
+         patch.object(settings, "TWILIO_CONTENT_SID", None):
+
+        sid = whatsapp_webhook_service.send_outbound_whatsapp_message(
+            to_number="+919876543210",
+            body_text="",
+            content_variables={"1": "something"},
+        )
+
+        # Must return None and never invoke Twilio create()
+        assert sid is None
+        mock_client_instance.messages.create.assert_not_called()
+
+
+def test_send_outbound_whatsapp_message_handles_twilio_error_21654_safely():
+    """
+    Verifies that when Twilio REST API returns error 21654 (or any TwilioRestException),
+    it logs cleanly, emits audit event, and returns None without raising or crashing callers.
+    """
+    from twilio.base.exceptions import TwilioRestException
+
+    mock_client_cls = MagicMock()
+    mock_client_instance = MagicMock()
+    # Simulate Twilio 21654 ContentSid Required exception
+    mock_client_instance.messages.create.side_effect = TwilioRestException(
+        status=400,
+        uri="/Accounts/AC123/Messages.json",
+        msg="Unable to create record: ContentSid Required",
+        code=21654,
+    )
+    mock_client_cls.return_value = mock_client_instance
+
+    with patch("twilio.rest.Client", mock_client_cls), \
+         patch.object(settings, "TWILIO_ACCOUNT_SID", "ACmock123"), \
+         patch.object(settings, "TWILIO_AUTH_TOKEN", "mocktoken123"), \
+         patch.object(settings, "TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886"):
+
+        # Should NOT raise
+        sid = whatsapp_webhook_service.send_outbound_whatsapp_message(
+            to_number="+919876543210",
+            body_text="Test message body",
+            check_id="chk_error_test",
+        )
+
+        assert sid is None
+
+
+@pytest.mark.asyncio
+async def test_async_verification_outbound_failure_preserves_check_record():
+    """
+    Verifies that if outbound dispatch fails (e.g. Twilio API error or limit),
+    the verification check record is preserved in the repository and NOT overwritten or marked failed.
+    """
+    incoming = WhatsAppIncomingMessage(
+        message_sid="SM_preserve_test_01",
+        from_number="whatsapp:+919876543210",
+        to_number="whatsapp:+14155238886",
+        body="Does Earth orbit the Sun in 365 days?",
+    )
+    test_check_id = "chk_preserve_001"
+
+    mock_result = VerificationResult(
+        check_id=test_check_id,
+        claims=[
+            ClaimVerificationResult(
+                claim_id="clm_01",
+                verdict=Verdict.VERIFIED,
+                confidence=ConfidenceLevel.HIGH,
+                explanation="Earth orbits the Sun in approximately 365.25 days.",
+                evidence=[],
+                claim_text="Earth orbits the Sun in 365 days",
+            )
+        ],
+        overall_verdict=Verdict.VERIFIED,
+    )
+
+    # Mock orchestrator to succeed, but send_outbound_whatsapp_message to return None (failure)
+    with patch.object(whatsapp_webhook_service.orchestrator, "verify", return_value=mock_result), \
+         patch.object(whatsapp_webhook_service, "send_outbound_whatsapp_message", return_value=None) as mock_send:
+
+        await whatsapp_webhook_service._run_async_verification(
+            incoming=incoming,
+            check_id=test_check_id,
+            input_type="TEXT",
+        )
+
+        # Outbound was attempted once for the verdict
+        assert mock_send.call_count == 1
+        # Check that the verification check is present in job_manager repository
+        saved = job_manager.get_check(test_check_id)
+        assert saved is not None
+        assert saved.result.overall_verdict == Verdict.VERIFIED
+        # Ensure failure notice was NOT dispatched because verification itself succeeded
+        assert "I couldn't complete the verification" not in mock_send.call_args[1].get("body_text", "")
+
 
 
